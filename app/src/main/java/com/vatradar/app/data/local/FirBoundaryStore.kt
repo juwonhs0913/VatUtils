@@ -80,9 +80,15 @@ class FirBoundaryStore(private val context: Context) {
     /**
      * 관제사 콜사인에 해당하는 폴리곤을 찾습니다.
      *
-     * 예) RKRR_CTR    → FIR RKRR
-     *     RKRR_N_CTR  → FIR RKRR-N (콜사인 접두사 RKRR_N), 없으면 RKRR로 폴백
-     *     AFRE_CTR    → UIR AFRE → 소속 FIR 여러 개의 폴리곤을 모두 반환
+     * VATSpy의 FIR 레코드는 `ICAO|콜사인접두사|경계ID|이름` 형태이고, 둘이 다를 수 있습니다.
+     * 예) `KZHU|HOU|KZHU|Houston` — 미주 ARTCC는 콜사인이 ICAO가 아니라 3글자 약어입니다.
+     * 그래서 ICAO와 콜사인 접두사를 **양쪽 다** 조회해야 합니다.
+     *
+     * 매칭 예)
+     *   RKRR_CTR    → FIR RKRR (ICAO 일치)
+     *   RKRR_N_CTR  → 섹터 RKRR-N (콜사인 접두사 RKRR_N), 없으면 RKRR로 폴백
+     *   HOU_46_CTR  → 콜사인 접두사 HOU → KZHU (섹터 번호 46은 무시)
+     *   AFRE_CTR    → UIR AFRE → 소속 FIR 폴리곤 전체
      */
     suspend fun boundariesFor(callsign: String): List<List<LatLng>> {
         ensureLoaded()
@@ -90,19 +96,33 @@ class FirBoundaryStore(private val context: Context) {
         val upper = callsign.uppercase()
         // 뒤쪽 시설 접미사를 떼어냅니다. RKRR_N_CTR → RKRR_N
         val base = upper.substringBeforeLast('_')
-
-        // 1) 콜사인 접두사 정확 일치 (RKRR_N)
-        byCallsignPrefix[base]?.let { return boundaryById(it.boundaryId) }
-
-        // 2) 첫 토큰으로 FIR ICAO 일치 (RKRR)
         val root = base.substringBefore('_')
-        byIcao[root]?.let { return boundaryById(it.boundaryId) }
 
-        // 3) UIR (여러 FIR의 합집합)
-        uirs[base]?.let { members -> return unionOf(members) }
-        uirs[root]?.let { members -> return unionOf(members) }
+        // 좁은 것부터 넓은 것 순으로 조회합니다.
+        // 섹터 단위(RKRR_N)가 있으면 그걸 쓰고, 없으면 상위 FIR로 내려갑니다.
+        listOf(
+            byCallsignPrefix[base],
+            byIcao[base],
+            byCallsignPrefix[root],   // 미주 ARTCC(HOU, ABQ, ZAB…)가 여기서 잡힙니다
+            byIcao[root]
+        ).forEach { record ->
+            if (record != null) {
+                val rings = boundaryById(record.boundaryId)
+                if (rings.isNotEmpty()) return rings
+            }
+        }
 
-        // 4) 경계 ID가 콜사인과 그대로 같은 경우
+        // UIR (여러 FIR의 합집합)
+        uirs[base]?.let { members ->
+            val rings = unionOf(members)
+            if (rings.isNotEmpty()) return rings
+        }
+        uirs[root]?.let { members ->
+            val rings = unionOf(members)
+            if (rings.isNotEmpty()) return rings
+        }
+
+        // 경계 ID가 콜사인과 그대로 같은 경우
         return boundaryById(root)
     }
 

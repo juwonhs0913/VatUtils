@@ -27,13 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -41,8 +39,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.clustering.ClusterItem
-import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
@@ -50,46 +46,27 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.vatradar.app.R
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Controller
 import com.vatradar.app.domain.model.FacilityType
 
-/** 클러스터링에 넣기 위한 래퍼. equals/hashCode가 필요해 data class로 둡니다. */
-data class AircraftClusterItem(val aircraft: Aircraft) : ClusterItem {
-    override fun getPosition() = LatLng(aircraft.latitude, aircraft.longitude)
-    override fun getTitle() = aircraft.callsign
-    override fun getSnippet() = "${aircraft.departure ?: "?"} → ${aircraft.arrival ?: "?"}"
-    override fun getZIndex() = 0f
-}
-
-/** 한 공항에 동시에 열린 TWR/GND/DEL 묶음. */
-private data class BadgeGroup(
-    val position: LatLng,
-    val controllers: List<Controller>
-) {
-    val facilities: List<FacilityType> get() = controllers.map { it.facility }
-}
-
 @OptIn(MapsComposeExperimentalApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val clusterManagerRef = remember { mutableStateOf<ClusterManager<AircraftClusterItem>?>(null) }
+    val markerController = remember { MapMarkerController() }
 
     val cameraPositionState = rememberCameraPositionState {
         // 초기 위치는 인천 부근 (한국 사용자 기준)
         position = CameraPosition.fromLatLngZoom(LatLng(36.5, 127.8), 4f)
     }
 
-    val aircraftItems = remember(state.snapshot, state.showAircraft) {
+    val aircraftList = remember(state.snapshot, state.showAircraft) {
         if (!state.showAircraft) emptyList()
-        else state.snapshot?.aircraftList.orEmpty().map { AircraftClusterItem(it) }
+        else state.snapshot?.aircraftList.orEmpty()
     }
 
     val allControllers = remember(state.snapshot, state.showControllers) {
@@ -117,14 +94,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     it.latitude != null && it.longitude != null
             }
             .groupBy { it.prefix }
-            .mapNotNull { (_, group) ->
-                val first = group.first()
-                BadgeGroup(
-                    position = LatLng(first.latitude!!, first.longitude!!),
-                    controllers = group.sortedBy { AirportBadgeIcons.sortKey(it.facility) }
-                )
-            }
+            .mapValues { (_, group) -> group.sortedBy { AirportBadgeIcons.sortKey(it.facility) } }
     }
+
+    // 클릭 리스너가 항상 최신 목록을 보도록 합니다 (리스너는 1회만 설치됨).
+    val latestAircraft by rememberUpdatedState(aircraftList)
+    val latestBadges by rememberUpdatedState(badgeGroups)
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
@@ -163,48 +138,25 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 )
             }
 
-            // 3) 공항 관제석 — T / G / D 배지
-            badgeGroups.forEach { group ->
-                val icon = AirportBadgeIcons.forFacilities(group.facilities)
-                if (icon != null) {
-                    val markerState = rememberMarkerState(
-                        key = group.controllers.first().prefix,
-                        position = group.position
-                    )
-                    Marker(
-                        state = markerState,
-                        icon = icon,
-                        // 배지가 공항 점 오른쪽에 붙도록 왼쪽 중앙을 기준점으로 둡니다.
-                        anchor = Offset(0f, 0.5f),
-                        title = group.controllers.first().prefix,
-                        onClick = {
-                            viewModel.selectControllers(group.controllers)
-                            true
-                        }
-                    )
-                }
-            }
-
-            // 4) 항공기 — 축소 시 그룹화 (PRD 성능 요구사항).
-            // ClusterManager를 직접 다뤄 네이티브 마커 회전을 씁니다 — MapEffect 안은
-            // Compose 밖이라 항공기 수천 대에서도 컴포지션 비용이 들지 않습니다.
-            MapEffect(aircraftItems) { map ->
-                val manager = clusterManagerRef.value ?: ClusterManager<AircraftClusterItem>(
-                    context, map
-                ).also { created ->
-                    created.renderer = AircraftRenderer(context, map, created)
-                    created.setOnClusterItemClickListener { item ->
-                        viewModel.selectAircraft(item.aircraft)
-                        true
+            // 3) 항공기와 공항 관제석 배지 — Compose 밖에서 마커를 직접 관리합니다.
+            //    클러스터링 없이 전부 표시하므로 마커 재사용이 중요하고,
+            //    클릭 리스너를 한 곳에 모아야 배지 클릭이 정상 동작합니다.
+            MapEffect(aircraftList, badgeGroups) { map ->
+                // 리스너는 한 번만 설치되므로 목록을 클로저에 그대로 담으면 안 됩니다.
+                // 15초마다 새 목록이 만들어지면 리스너는 첫 스냅샷만 계속 보게 되어
+                // 그 뒤에 접속한 관제소·항공기를 눌러도 아무 일도 일어나지 않습니다.
+                markerController.installClickListener(
+                    map = map,
+                    onAircraft = { callsign ->
+                        latestAircraft.firstOrNull { it.callsign == callsign }
+                            ?.let { viewModel.selectAircraft(it) }
+                    },
+                    onBadge = { airport ->
+                        latestBadges[airport]?.let { viewModel.selectControllers(it) }
                     }
-                    map.setOnCameraIdleListener(created)
-                    map.setOnMarkerClickListener(created)
-                    clusterManagerRef.value = created
-                }
-
-                manager.clearItems()
-                manager.addItems(aircraftItems)
-                manager.cluster()
+                )
+                markerController.syncAircraft(map, aircraftList)
+                markerController.syncBadges(map, badgeGroups)
             }
         }
 

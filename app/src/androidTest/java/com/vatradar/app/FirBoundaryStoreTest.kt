@@ -66,6 +66,60 @@ class FirBoundaryStoreTest {
         assertTrue(store.boundariesFor("ZZZZ_CTR").isEmpty())
     }
 
+    /**
+     * 미주 ARTCC는 콜사인이 ICAO가 아니라 3글자 약어입니다.
+     * VATSpy 레코드가 `KZHU|HOU|KZHU|Houston` 형태라, ICAO만 조회하면 전부 누락됩니다.
+     */
+    @Test
+    fun 미주_ARTCC_콜사인이_FIR로_해석된다() = runBlocking {
+        val houston = store.boundariesFor("HOU_46_CTR")
+        assertTrue("HOU_46_CTR(휴스턴 센터) 경계를 찾지 못했습니다", houston.isNotEmpty())
+
+        // 휴스턴 FIR은 대략 북위 25~33, 서경 88~100 범위입니다.
+        val points = houston.flatten()
+        val lat = points.map { it.latitude }
+        val lon = points.map { it.longitude }
+        assertTrue("위도 범위 이상: ${lat.min()}~${lat.max()}", lat.min() > 20 && lat.max() < 38)
+        assertTrue("경도 범위 이상: ${lon.min()}~${lon.max()}", lon.min() > -105 && lon.max() < -82)
+
+        assertTrue("ABQ_46_CTR 경계를 찾지 못했습니다", store.boundariesFor("ABQ_46_CTR").isNotEmpty())
+    }
+
+    @Test
+    fun 섹터_번호가_붙어도_상위_FIR로_해석된다() = runBlocking {
+        // 섹터 번호만 다른 콜사인은 같은 FIR로 귀결되어야 합니다.
+        val a = store.boundariesFor("HOU_CTR")
+        val b = store.boundariesFor("HOU_46_CTR")
+        assertTrue(a.isNotEmpty() && b.isNotEmpty())
+        assertEquals(a.flatten().size, b.flatten().size)
+    }
+
+    /**
+     * VATSpy의 미주 ARTCC 접두사는 ZLA/ZAB 같은 센터 코드가 아니라
+     * LAX·ABQ·CHI 같은 도시 약어입니다. 실제 VATSIM 콜사인도 이 형태를 씁니다.
+     */
+    @Test
+    fun 주요_미주_ARTCC가_모두_해석된다() = runBlocking {
+        listOf(
+            "LAX_CTR",      // KZLA Los Angeles
+            "CHI_CTR",      // KZAU Chicago
+            "BOS_CTR",      // KZBW Boston
+            "DEN_35_CTR",   // KZDV Denver (섹터 번호 포함)
+            "FTW_CTR",      // KZFW Fort Worth
+            "JAX_C_CTR"     // KZJX-C Jacksonville (Central) — 세부 섹터
+        ).forEach {
+            assertTrue("$it 경계 없음", store.boundariesFor(it).isNotEmpty())
+        }
+    }
+
+    @Test
+    fun 세부_섹터가_상위_FIR과_다른_경계를_가진다() = runBlocking {
+        // JAX_C(Central)는 JAX 전체와 다른 폴리곤이어야 합니다.
+        val whole = store.boundariesFor("JAX_CTR").flatten().size
+        val central = store.boundariesFor("JAX_C_CTR").flatten().size
+        assertTrue("세부 섹터가 상위 FIR로 폴백됐습니다", whole != central)
+    }
+
     @Test
     fun 무게중심이_폴리곤_범위_안에_있다() = runBlocking {
         val rings = store.boundariesFor("RKRR_CTR")
