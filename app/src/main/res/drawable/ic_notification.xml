@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 알림 아이콘은 실루엣만 렌더링되므로 단색 흰색으로 그립니다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,3 L13,8.5 L21,13 L21,14.5 L13,12.5 L13,18 L15.5,20 L15.5,21 L12,20 L8.5,21 L8.5,20 L11,18 L11,12.5 L3,14.5 L3,13 L11,8.5 Z" />
+</vector>

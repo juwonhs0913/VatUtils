@@ -1,0 +1,1408 @@
+ADR||ADR|Adria Radar
+ADR-E|ADR_E|ADR-E|Adria Radar (East)
+ADR-W|ADR_W|ADR-W|Adria Radar (West)
+AGGG||AGGG|Honiara
+ANAU||ANAU|Nauru
+AYPM||AYPM|Port Moresby
+BAIRES||BAIRES|Baires TMA - Ezeiza
+BGGL||BGGL|Nuuk
+BIRD||BIRD|Reykjavik
+BIRD|BIRD_S1|BIRD|Reykjavik
+BIRD|BIRD_S2|BIRD|Reykjavik
+BIRD|BIRD_S3|BIRD|Reykjavik
+BIRD-E|BIRD_E|BIRD-E|Reykjavik ACC (East) - Reykjavik
+BIRD-E|BIRD_E1|BIRD-E|Reykjavik ACC (East) - Reykjavik
+BIRD-E|BIRD_E2|BIRD-E|Reykjavik ACC (East) - Reykjavik
+BIRD-E|BIRD_E3|BIRD-E|Reykjavik ACC (East) - Reykjavik
+BIRD-N|BIRD_N|BIRD-N|Reykjavik ACC (North) - Reykjavik
+BIRD-S|BIRD_S|BIRD-S|Reykjavik ACC (South) - Reykjavik
+BIRD-W|BIRD_W|BIRD-W|Reykjavik ACC (West) - Reykjavik
+BIRD-W|BIRD_W1|BIRD-W|Reykjavik ACC (West) - Reykjavik
+BIRD-W|BIRD_W2|BIRD-W|Reykjavik ACC (West) - Reykjavik
+BIRD-W|BIRD_W3|BIRD-W|Reykjavik ACC (West) - Reykjavik
+CZEG|EDM|CZEG|Edmonton
+CZEG|ZEG|CZEG|Edmonton
+CZQM|MCN|CZQM|Moncton
+CZQO|GAN|CZQO|Gander Oceanic
+CZQO-GOTA||CZQO-GOTA|Gander Oceanic Transition Area (CZQO SFC-280 / CZQX 290-ABV)
+CZQX|GAND|CZQX|Gander
+CZQX|YQX|CZQX|Gander
+CZUL|MTL|CZUL|Montreal
+CZVR|VAN|CZVR|Vancouver
+CZVR|CYVR|CZVR|Vancouver
+CZVR|ZVR|CZVR|Vancouver
+CZWG|WPG|CZWG|Winnipeg
+CZWG|ZWG|CZWG|Winnipeg
+CZYZ|TOR|CZYZ|Toronto
+CZZV||CZZV|Sept-Iles (CZUL SFC-280 / CZQM 290-ABV)
+DAAA||DAAA|Algiers
+DAAA_NC|DAAA_NC|DAAA-NC|Algiers North Central
+DAAA_NE|DAAA_NE|DAAA-NE|Algiers North East
+DAAA_NW|DAAA_NW|DAAA-NW|Algiers North West
+DAAA_SC|DAAA_SC|DAAA-SC|Algiers South Central
+DAAA_C|DAAA_C|DAAA-C|Algiers Central
+DAAA_W|DAAA_W|DAAA-W|Algiers West
+DAAA_E|DAAA_E|DAAA-E|Algiers East
+DAAA_SS|DAAA_SS|DAAA-SS|Algiers South Sector 
+DAAA_SW|DAAA_SW|DAAA-SW|Algiers South West 
+DAAA_SE|DAAA_SE|DAAA-SE|Algiers South East 
+DGAC||DGAC|Accra
+DGAO||DGAO|Accra Oceanic
+DIII||DIII|Abidjan
+DNKK||DNKK|Kano
+DNKK-W|DNKK_W|DNKK-W|Kano (West)
+DNMM||DNMM|Lagos
+DRRR||DRRR|Niamey
+DTTC||DTTC|Tunis
+DTTC-N|DTTC_N|DTTC-N|Tunis North
+DTTC-NU|DTTC_NU|DTTC-NU|Tunis North Upper
+DTTC-S|DTTC_S|DTTC-S|Tunis South
+EBBU||EBBU|Brussels
+EBUR||EBBU|Brussels Upper
+EDGG||EDGG|Langen
+EDGG-N|EDGG_N|EDGG-N|Langen Radar (Baden) - Langen
+EDGG-N|EDGG_NH|EDGG-N|Langen Radar (Baden) - Langen
+EDGG-C|EDGG_C|EDGG-C|Langen Radar (Baden) - Langen
+EDGG-C|EDGG_CA|EDGG-C|Langen Radar (Baden) - Langen
+EDGG-C|EDGG_CH|EDGG-C|Langen Radar (Baden) - Langen
+EDGG-S|EDGG_S|EDGG-S|Langen Radar (Baden) - Langen
+EDGG-S|EDGG_SA|EDGG-S|Langen Radar (Baden) - Langen
+EDGG-S|EDGG_SH|EDGG-S|Langen Radar (Baden) - Langen
+EDGG-A|EDGG_A|EDGG-A|Langen Radar (Baden) - Langen
+EDGG-A|EDGG_AH|EDGG-A|Langen Radar (Baden) - Langen
+EDGG-BAD|EDGG_BAD|EDGG-BAD|Langen Radar (Baden) - Langen
+EDGG-BAD|EDGG_BAH|EDGG-BAD|Langen Radar (Baden) - Langen
+EDGG-DKB|EDGG_DKB|EDGG-DKB|Langen Radar (Dinkelsbuehl) - Langen
+EDGG-DKB|EDGG_DKH|EDGG-DKB|Langen Radar (Dinkelsbuehl) - Langen
+EDGG-GIN|EDGG_GIN|EDGG-GIN|Langen Radar (Giessen) - Langen
+EDGG-GIN|EDGG_GIH|EDGG-GIN|Langen Radar (Giessen) - Langen
+EDGG-GIN|EDGG_TAU|EDGG-GIN|Langen Radar (Giessen) - Langen
+EDGG-GIN|EDGG_HEF|EDGG-GIN|Langen Radar (Giessen) - Langen
+EDGG-GIN|EDGG_SIG|EDGG-GIN|Langen Radar (Giessen) - Langen
+EDGG-CS|EDGG_CS|EDGG-CS|Langen Radar (Kitzingen) - Langen
+EDGG-PAH|EDGG_PAD|EDGG-PAH|Langen Radar (Pad High) - Langen
+EDGG-PAH|EDGG_PAH|EDGG-PAH|Langen Radar (Pad High) - Langen
+EDGG-RUD|EDGG_RUD|EDGG-RUD|Langen Radar (Ruedesheim) - Langen
+EDGG-RUD|EDGG_RUH|EDGG-RUD|Langen Radar (Ruedesheim) - Langen
+EDGG-KL|EDGG_KL|EDGG-KL|Langen Radar (Köln Düsseldorf Approach) - Langen
+EDMM||EDMM|Muenchen
+EDMM-GER|EDMM_GER|EDMM-GER|Muenchen ACC (Gera) - Muenchen
+EDMM-GER|EDMM_MEI|EDMM-GER|Muenchen ACC (Gera) - Muenchen
+EDMM-GER|EDMM_HAL|EDMM-GER|Muenchen ACC (Gera) - Muenchen
+EDMM-HOF|EDMM_HOF|EDMM-HOF|Muenchen ACC (Hof) - Muenchen
+EDMM-HOF|EDMM_BBG|EDMM-HOF|Muenchen ACC (Hof) - Muenchen
+EDMM-RDG|EDMM_RDG|EDMM-RDG|Muenchen ACC (Roding) - Muenchen
+EDMM-ZUG|EDMM_ZUG|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_ALB|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_EGG|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_FUE|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_NDG|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_STA|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_TEG|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_TRU|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDMM-ZUG|EDMM_WLD|EDMM-ZUG|Muenchen ACC (Zugspitze) - Muenchen
+EDWW||EDWW|Bremen
+EDWW-ALR|EDWW_ALR|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_AL1|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_AL2|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_HEI|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_HE1|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_HE2|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_EID|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_EI1|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-ALR|EDWW_EI2|EDWW-ALR|Bremen ACC (Aller) - Bremen
+EDWW-FLG|EDWW_FLG|EDWW-FLG|Bremen ACC (Flaeming) - Bremen
+EDWW-FLG|EDWW_FL1|EDWW-FLG|Bremen ACC (Flaeming) - Bremen
+EDWW-FLG|EDWW_FL2|EDWW-FLG|Bremen ACC (Flaeming) - Bremen
+EDWW-BOR|EDWW_BOR|EDWW-BOR|Bremen ACC (Boerde) - Bremen
+EDWW-BOR|EDWW_BO1|EDWW-BOR|Bremen ACC (Boerde) - Bremen
+EDWW-BOR|EDWW_BO2|EDWW-BOR|Bremen ACC (Boerde) - Bremen
+EDWW-MAR|EDWW_MAR|EDWW-MAR|Bremen ACC (Mark) - Bremen
+EDWW-MAR|EDWW_MA1|EDWW-MAR|Bremen ACC (Mark) - Bremen
+EDWW-MAR|EDWW_MA2|EDWW-MAR|Bremen ACC (Mark) - Bremen
+EDWW-MRZ|EDWW_MRZ|EDWW-MRZ|Bremen ACC (Mueritz) - Bremen
+EDWW-MRZ|EDWW_MR1|EDWW-MRZ|Bremen ACC (Mueritz) - Bremen
+EDWW-MRZ|EDWW_MR2|EDWW-MRZ|Bremen ACC (Mueritz) - Bremen
+EDWW-EMS|EDWW_HRZ|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-EMS|EDWW_HR1|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-EMS|EDWW_HR2|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-EMS|EDWW_EMS|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-EMS|EDWW_EM1|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-EMS|EDWW_EM2|EDWW-EMS|Bremen ACC (Ems) - Bremen
+EDWW-W|EDWW_W|EDWW-W|Bremen ACC (West) - Bremen
+EDXX|EDXX_FIS|EDXX|Langen Information - FIS only
+EETT||EETT|Tallinn
+EFIN||EFIN|Helsinki
+EGGX|EGGX|EGGX|Shanwick Oceanic
+EGPX|SCO|EGPX|Scottish
+EGPX|SCL|EGPX|Scottish
+EGPX-ANT|SCL_ANT|EGPX-ANT|Scottish TMA Antrim (Up to FL255) - Scottish
+EGPX-GTA|SCL_GTA|EGPX-GTA|Scottish Antrim & TMA (Up to FL255) - Scottish
+EGPX-BDS|SCO_BDS|EGPX-BDS|Scottish ACC (Borders) - Scottish
+EGPX-BDS|SCO_SOL|EGPX-BDS|Scottish ACC (Borders) - Scottish
+EGPX-BDS|SCO_PEN|EGPX-BDS|Scottish ACC (Borders) - Scottish
+EGPX-BDS|SCL_TMA|EGPX-BDS|Scottish TMA (Up to FL255) - Scottish
+EGPX-BDS|SCL_GAL|EGPX-BDS|Scottish TMA (Up to FL255) - Scottish
+EGPX-BDS|SCL_TLA|EGPX-BDS|Scottish TMA (Up to FL255) - Scottish
+EGPX-E|SCO_E|EGPX-E|Scottish ACC (East) - Scottish
+EGPX-N|SCO_N|EGPX-N|Scottish ACC (North) - Scottish
+EGPX-N|SCO_HEB|EGPX-N|Scottish ACC (North) - Scottish
+EGPX-N|SCO_HC|EGPX-N|Scottish ACC (North) - Scottish
+EGPX-S|SCO_S|EGPX-S|Scottish ACC (South) - Scottish
+EGPX-S|SCO_HUM|EGPX-S|Scottish ACC (South) - Scottish
+EGPX-S|SCO_GRP|EGPX-S|Scottish ACC (South) - Scottish
+EGPX-S|SCL_TAY|EGPX-S|Scottish ACC (Tay) - Scottish
+EGPX-W|SCO_CEN|EGPX-W|Scottish ACC (West) - Scottish
+EGPX-W|SCO_RAT|EGPX-W|Scottish ACC (Rathlin) - Scottish
+EGPX-WB|SCO_WB|EGPX-WB|Scottish ACC (West/Borders) - Scottish
+EGTL|LTC|EGTL|London TMA (Up to FL195) - London
+EGTL-N|LTC_N|EGTL-N|London TMA North (Up to FL155) - London
+EGTL-N|LTC_NE|EGTL-N|London TMA North (Up to FL155) - London
+EGTL-N|LTC_NW|EGTL-N|London TMA North (Up to FL155) - London
+EGTL-S|LTC_S|EGTL-S|London TMA South (Up to FL195) - London
+EGTL-S|LTC_SE|EGTL-S|London TMA South (Up to FL195) - London
+EGTL-S|LTC_SW|EGTL-S|London TMA South (Up to FL195) - London
+EGTM|MAN|EGTM|Manchester TMA (Up to FL285) - London
+EGTM-NE|MAN_NE|EGTM-NE|Manchester TMA North East (Up to FL285) - London
+EGTM-W|MAN_W|EGTM-W|Manchester TMA West (Up to FL285) - London
+EGTM-W|MAN_WP|EGTM-W|Manchester TMA West (Up to FL285) - London
+EGTM-W|MAN_WI|EGTM-W|Manchester TMA West (Up to FL285) - London
+EGTM-W|MAN_SE|EGTM-W|Manchester TMA South East (Up to FL195) - London
+EGTT|LON|EGTT|London
+EGTT-C|LON_C|EGTT-C|London ACC (Central) - London
+EGTT-D|LON_D|EGTT-D|London ACC (Dover) - London
+EGTT-D|LON_DK|EGTT-D|London ACC (Dover) - London
+EGTT-D|LON_DL|EGTT-D|London ACC (Dover) - London
+EGTT-E|LON_E|EGTT-E|London ACC (Clacton) - London
+EGTT-E|LON_ES|EGTT-E|London ACC (Clacton) - London
+EGTT-E|LON_EN|EGTT-E|London ACC (Clacton) - London
+EGTT-E|LTC_E|EGTT-E|London TMA East (Up to FL245) - London
+EGTT-E|LTC_ES|EGTT-E|London TMA East (Up to FL245) - London
+EGTT-E|LTC_ER|EGTT-E|London TMA East (Up to FL245) - London
+EGTT-H|LON_H|EGTT-H|London ACC (Worthing) - London
+EGTT-H|LON_SF|EGTT-H|London ACC (Worthing) - London
+EGTT-H|LON_HW|EGTT-H|London ACC (Worthing) - London
+EGTT-M|LON_M|EGTT-M|London ACC (Daventry) - London
+EGTT-M|LON_ME|EGTT-M|London ACC (Daventry) - London
+EGTT-M|LON_ML|EGTT-M|London ACC (Daventry) - London
+EGTT-M|LON_MW|EGTT-M|London ACC (Daventry) - London
+EGTT-M|LTC_M|EGTT-M|London TMA Midlands (Up to FL225) - London
+EGTT-M|LTC_MW|EGTT-M|London TMA Midlands (Up to FL225) - London
+EGTT-N|LON_N|EGTT-N|London ACC (North) - London
+EGTT-NE|LON_NE|EGTT-NE|London ACC (North Sea) - London
+EGTT-NW|LON_NW|EGTT-NW|London ACC (Lakes) - London
+EGTT-NW|LON_NU|EGTT-NW|London ACC (Lakes) - London
+EGTT-S|LON_S|EGTT-S|London ACC (South) - London
+EGTT-S|LON_SU|EGTT-S|London ACC (LUS) - London
+EGTT-S|LON_SN|EGTT-S|London ACC (LMS) - London
+EGTT-SC|LON_SC|EGTT-SC|London ACC (South-Central) - London
+EGTT-W|LON_W|EGTT-W|London ACC (West) - London
+EGTT-W|LON_WH|EGTT-W|London ACC (West) - London
+EGTT-W|LON_WB|EGTT-W|London ACC (West) - London
+EGTT-W|LON_WL|EGTT-W|London ACC (West) - London
+EGTT-W|LON_23|EGTT-W|London ACC (West) - London
+EGTT-W|LON_8|EGTT-W|London ACC (West) - London
+EGTT-W|LON_WX|EGTT-W|London ACC (West) - London
+EGTT-W|LON_9|EGTT-W|London ACC (West) - London
+EGVV||EGVV|Swanwick Military
+EGYP|ISLAND|EGYP|Mount Pleasant (Monte Agradable)
+EHAA|EHAA_ALL|EHAA|Amsterdam
+EHAA|EHAA_LOW|EHAA|Amsterdam (Up to FL245)
+EHAA|EHAA_W|EHAA|Amsterdam (Up to FL245)
+EHAA|EHAA_S|EHAA|Amsterdam (Up to FL245)
+EHAA|EHAA_E|EHAA|Amsterdam (Up to FL245)
+EHMC||EHAA|Dutch Mil (Up to FL245)
+EHML||EHAA|Bandbox CRC (Military)
+EIDW||EIDW|Dublin ACC (Up to FL245) - Dublin
+EISN||EISN|Shannon ACC - Shannon
+EISN-L|EISN_LS|EISN-L|Shannon ACC (Up to FL245) - Shannon
+EKDK||EKDK|Kobenhavn
+EKDK-E|EKDK_A|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_B|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_C|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_D|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_E|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_I|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_UA|EKDK-E|Kobenhavn (East)
+EKDK-E|EKDK_UC|EKDK-E|Kobenhavn (East)
+EKDK-L|EKDK_L|EKDK-L|Kobenhavn (West Low)
+EKDK-W|EKDK_V|EKDK-W|Kobenhavn (West)
+EKDK-W|EKDK_N|EKDK-W|Kobenhavn (West)
+ENBD||ENBD|Bodo ACC - Polaris
+ENBD-19|ENBD_19|ENBD-19|Bodø ACC - Polaris
+ENBD-C|ENBD_C|ENBD-C|Bodø ACC (Central) - Polaris
+ENBD-C|ENBD_24|ENBD-C|Bodø ACC (Central) - Polaris
+ENBD-N|ENBD_N|ENBD-N|Bodø ACC (North) - Polaris
+ENBD-N|ENBD_25|ENBD-N|Bodø ACC (North) - Polaris
+ENBD-E|ENBD_E|ENBD-E|Bodø ACC (East) - Polaris
+ENBD-E|ENBD_26|ENBD-E|Bodø ACC (East) - Polaris
+ENBD-S|ENBD_S|ENBD-S|Bodø ACC (South) - Polaris
+ENBD-S|ENBD_18|ENBD-S|Bodø ACC (South) - Polaris
+ENOB||ENOB|Bodo Oceanic
+ENOR||ENOR|Polaris
+ENOR-S|ENOR_S|ENOR-S|Polaris (South)
+ENOR-SC|ENOR_SC|ENOR-SC|Polaris (South-Central)
+ENOS||ENOS|Oslo ACC - Polaris
+ENOS-1|ENOS_1|ENOS-1|Oslo ACC (Sector 1) - Polaris
+ENOS-4|ENOS_4|ENOS-4|Oslo ACC (Sector 4) - Polaris
+ENOS-7|ENOS_7|ENOS-7|Oslo ACC (Sector 7) - Polaris
+ENOS-8|ENOS_8|ENOS-8|Oslo ACC (Sector 8) - Polaris
+ENRC-N|ENRC_N|ENBD|Bodo RTC North
+ENRC-S|ENRC_S|ENOR-S|Bodo RTC South
+ENSV||ENSV|Stavanger ACC - Polaris
+ENSV-E|ENSV_E|ENSV-E|Stavanger ACC (East) - Polaris
+ENSV-E|ENSV_13|ENSV-E|Stavanger ACC (East) - Polaris
+ENSV-O|ENSV_O|ENSV-O|Stavanger Offshore ACC (Below FL85) - Polaris
+ENSV-O|ENSV_20|ENSV-O|Stavanger Offshore ACC (Below FL85) - Polaris
+ENSV-O|ENSV_21|ENSV-O|Stavanger Offshore ACC (Below FL85) - Polaris
+ENSV-O|ENSV_22|ENSV-O|Stavanger Offshore ACC (Below FL85) - Polaris
+ENSV-W|ENSV_W|ENSV-W|Stavanger ACC (West) - Polaris
+ENSV-W|ENSV_10|ENSV-W|Stavanger ACC (West) - Polaris
+EPWW||EPWW|Warszawa
+EPWW|EPWW_ALL|EPWW|Warszawa ALL
+EPWW|EPWW_ALH|EPWW|Warszawa High
+EPWW-C|EPWW_C|EPWW-C|Warszawa
+EPWW-D|EPWW_D|EPWW-D|Warszawa
+EPWW-DBT|EPWW_DBT|EPWW-DBT|Warszawa
+EPWW-DFB|EPWW_DBF|EPWW-DBF|Warszawa
+EPWW-DT|EPWW_DT|EPWW-DT|Warszawa
+EPWW-DTC|EPWW_DTC|EPWW-DTC|Warszawa
+EPWW-F|EPWW_F|EPWW-F|Warszawa
+EPWW-G|EPWW_G|EPWW-G|Warszawa
+EPWW-FG|EPWW_FG|EPWW-FG|Warszawa
+EPWW-J|EPWW_J|EPWW-J|Warszawa
+EPWW-JR|EPWW_JR|EPWW-JR|Warszawa
+EPWW-NE|EPWW_NE|EPWW-NE|Warszawa
+EPWW-TM|EPWW_TM|EPWW-TM|Warszawa
+EPWW-TCJ|EPWW_TCJ|EPWW-TCJ|Warszawa
+EPWW-E|EPWW_E|EPWW-E|Warszawa
+EPWW-N|EPWW_N|EPWW-N|Warszawa
+EPWW-S|EPWW_S|EPWW-S|Warszawa
+ESAA||ESAA|Sweden
+ESMM||ESMM|Malmo ACC - Sweden
+ESMM-4|ESMM_4|ESMM-4|Malmo ACC (4) - Sweden
+ESMM-5|ESMM_5|ESMM-5|Malmo ACC (5) - Sweden
+ESMM-7|ESMM_7|ESMM-7|Malmo ACC (7) - Sweden
+ESMM-8|ESMM_8|ESMM-8|Malmo ACC (8) - Sweden
+ESMM-K|ESMM_K|ESMM-K|Malmo ACC (K) - Sweden
+ESOS||ESOS|Stockholm ACC - Sweden
+ESOS-1|ESOS_1|ESOS-1|Stockholm ACC (1) - Sweden
+ESOS-9|ESOS_9|ESOS-9|Stockholm ACC (9) - Sweden
+ESOS-K|ESOS_K|ESOS-K|Stockholm ACC (K) - Sweden
+ESOS-N|ESOS_N|ESOS-N|Stockholm ACC (N) - Sweden
+ESSR||ESOS|RTC Stockholm - Sweden
+EVRR||EVRR|Riga
+EYVL||EYVL|Vilnius
+EYVL-E|EYVL-E|EYVL-E|Vilnius
+FACA||FACA|Cape Town (Bandbox) - Cape Town
+FACA-E|FACA_E|FACA-E|Cape Town ACC (East) - Cape Town
+FACA-W|FACA_W|FACA-W|Cape Town ACC (West) - Cape Town
+FAJA||FAJA|Johannesburg ACC (Bandbox) - Johannesburg
+FAJA-C|FAJA_C|FAJA-C|Johannesburg ACC (Central) - Johannesburg
+FAJA-E|FAJA_E|FAJA-E|Johannesburg ACC (East) - Johannesburg
+FAJA-N|FAJA_N|FAJA-N|Johannesburg ACC (North) - Johannesburg
+FAJA-NE|FAJA_NE|FAJA-NE|Johannesburg ACC (Sector 1) - Johannesburg
+FAJA-NW|FAJA_NW|FAJA-NW|Johannesburg ACC (Sector 2) - Johannesburg
+FAJA-S|FAJA_S|FAJA-S|Johannesburg ACC (South) - Johannesburg
+FAJA-SE|FAJA_SE|FAJA-SE|Johannesburg ACC (Sector 3) - Johannesburg
+FAJA-SW|FAJA_SW|FAJA-SW|Johannesburg ACC (Sector 4) - Johannesburg
+FAJA-W|FAJA_W|FAJA-W|Johannesburg ACC (West) - Johannesburg
+FAJO||FAJO|Johannesburg Oceanic
+FAMR|FAMR|FAMR|Lowveld Military Airspace Sector (SFC-FL195) - Lowveld Information
+FASA||FASA|South Africa
+FBGR||FBGR|Gaborone
+FCCC||FCCC|Brazzaville
+FIMM||FIMM|Mauritius
+FLFI||FLFI|Lusaka
+FMMM||FMMM|Antananarivo
+FNAN||FNAN|Luanda
+FQBE||FQBE|Beira
+FQMA||FQMA|Maputo
+FSSS||FSSS|Seychelles
+FTTT||FTTT|N'Djamena
+FVHF||FVHF|Harare
+FWLL||FWLL|Lilongwe
+FYWF||FYWF|Windhoek
+FZZA||FZZA|Kinshasa
+GCCC||GCCC|Canarias
+GCCC-NEL|GCCC_NEL|GCCC-NEL|Canarias (-FL285) - Canarias
+GCCC-R6|GCCC_R6|GCCC-R6|Canarias
+GCCC-RC2|GCCC_RC2|GCCC-RC2|Canarias (Central Sector) - Canarias
+GCCC-RCW|GCCC_RCW|GCCC-RCW|Canarias (Central West Sector) - Canarias
+GCCC-RES|GCCC_RES|GCCC-RES|Canarias (South East Sector Combined) - Canarias
+GCCC-RNE|GCCC_RNE|GCCC-RNE|Canarias (North East Sector) - Canarias
+GCCC-RW3|GCCC_RW3|GCCC-RW3|Canarias (North West Sector) - Canarias
+GCCO||GCCO|Canarias Oceanic
+GLRB||GLRB|Roberts
+GMAC||GMAC|Agadir
+GMAC_O|GMAC_O|GMAC-O|Agadir Oceanic
+GMAC-ON|GMAC_ON|GMAC-ON|Agadir Oceanic North
+GMAC-OS|GMAC_OS|GMAC-OS|Agadir Oceanic South
+GMAC-W|GMAC_W|GMAC-W|Agadir West
+GMAC-WN|GMAC_WN|GMAC-WN|Agadir North West
+GMAC-WS|GMAC_WS|GMAC-WS|Agadir Oceanic South West
+GMMM||GMMM|Casablanca
+GMMM-ALL|GMMM_ALL|GMMM-ALL|Casablanca
+GMMM-ALL|GMMM_AL1|GMMM-ALL|Casablanca
+GMMM-ALL|GMMM_M|GMMM-ALL|Casablanca
+GMMM-E|GMMM_E|GMMM-E|Casablanca East
+GMMM-N|GMMM_N|GMMM-N|Casablanca North
+GMMM-NE|GMMM_NE|GMMM-NE|Casablanca North East
+GMMM-W|GMMM_W|GMMM-W|Casablanca West
+GMMM-S|GMMM_S|GMMM-S|Casablanca South
+GMMM-SW|GMMM_SW|GMMM-SW|Casablanca South West
+GOOC||GOOC|Dakar Oceanic
+GOOO||GOOO|Dakar
+GVSC||GVSC|Sal Oceanic
+HAAA||HAAA|Addis Ababa
+HBBA||HBBA|Bujumbura
+HCSM||HCSM|Mogadishu
+HECC||HECC|Cairo
+HECC-1|HECC_1|HECC-1|Cairo ACC (Sector 1) - Cairo
+HECC-2|HECC_2|HECC-2|Cairo ACC (Sector 2) - Cairo
+HECC-3|HECC_3|HECC-3|Cairo ACC (Sector 3) - Cairo
+HECC-4|HECC_4|HECC-4|Cairo ACC (Sector 4) - Cairo
+HECC-46|HECC_46|HECC-46|Cairo ACC (Sectors 4-6) - Cairo
+HECC-5|HECC_5|HECC-5|Cairo ACC (Sector 5) - Cairo
+HECC-6|HECC_6|HECC-6|Cairo ACC (Sector 6) - Cairo
+HHAA||HHAA|Asmara
+HJJJ||HJJJ|Juba (Up to FL245)
+HKNA||HKNA|Nairobi
+HLLB|BEN|HLLL|Benina
+HLLL|TIP|HLLL|Tripoli
+HLLL|HLLT|HLLL|Tripoli
+HRYR||HRYR|Kigali
+HSSS||HSSS|Khartoum
+HTDC||HTDC|Dar-Es-Salaam
+HUEC||HUEC|Entebbe
+KZA1|SF|KZAK|San Francisco Oceanic
+KZA1|SFR|KZAK|San Francisco Oceanic
+KZA1|SFRO|KZAK|San Francisco Oceanic
+KZAB|ABQ|KZAB|Albuquerque
+KZAK|ZAK|KZAK|Oakland Oceanic
+KZAK|OO|KZAK|Oakland Oceanic
+KZAK|OOR|KZAK|Oakland Oceanic
+KZAK|OORO|KZAK|Oakland Oceanic
+KZAU|CHI|KZAU|Chicago
+KZAU|ORD|KZAU|Chicago
+KZBW|BOS|KZBW|Boston
+KZDC|DC|KZDC|Washington
+KZDC|WAS|KZDC|Washington
+KZDV|DEN|KZDV|Denver
+KZFW|FTW|KZFW|Fort Worth
+KZHU|HOU|KZHU|Houston
+KZID|IND|KZID|Indianapolis
+KZJX|JAX|KZJX|Jacksonville
+KZJX-A|JAX_A|KZJX-A|Jacksonville (Atlantic)
+KZJX-C|JAX_C|KZJX-C|Jacksonville (Central)
+KZJX-P|JAX_P|KZJX-P|Jacksonville (Panhandle)
+KZKC|MCI|KZKC|Kansas City
+KZKC|KC|KZKC|Kansas City
+KZKC-E|MCI_E|KZKC-E|Kansas City (East)
+KZKC-E|KC_E|KZKC-E|Kansas City (East)
+KZKC-W|MCI_W|KZKC-W|Kansas City (West)
+KZKC-W|KC_W|KZKC-W|Kansas City (West)
+KZLA|LAX|KZLA|Los Angeles
+KZLA|LA|KZLA|Los Angeles
+KZLC|SLC|KZLC|Salt Lake
+KZMA|MIA|KZMA|Miami
+KZMA-N|ZMA|KZMA-N|Miami
+KZMA-N|MIA_N|KZMA-N|Miami
+KZMA-N|MIA_N1|KZMA-N|Miami
+KZMA-N|MIA_N2|KZMA-N|Miami
+KZMA-N|MIA_N3|KZMA-N|Miami
+KZMA-N|MIA_N4|KZMA-N|Miami
+KZMA-N|MIA_N5|KZMA-N|Miami
+KZMA-N|MIA_N6|KZMA-N|Miami
+KZMA-N|MIA_N7|KZMA-N|Miami
+KZMA-N|MIA_N8|KZMA-N|Miami
+KZMA-N|MIA_N9|KZMA-N|Miami
+KZMA-OCN|ZMO|KZMA-OCN|Miami
+KZME|MEM|KZME|Memphis
+KZMP|MSP|KZMP|Minneapolis
+KZNY|NY|KZNY|New York
+KZNY-BDA|BDA|KZNY-BDA|New York - Bermuda TMA
+KZNY-W|NY_W|KZNY-W|New York (West)
+KZOA|OAK|KZOA|Oakland
+KZOB|CLE|KZOB|Cleveland
+KZSE|SEA|KZSE|Seattle
+KZTL|ATL|KZTL|Atlanta
+LAAA||LAAA|Tirana
+LBSR||LBSR|Sofia
+LBSR-B|LBSR_B|LBSR-B|Sofia (Black Sea Sector) - Sofia
+LBSR-E|LBSR_E|LBSR-E|Sofia (East Sector) - Sofia
+LBSR-S|LBSR_S|LBSR-S|Sofia (Sofia Sector) - Sofia
+LBSR-V|LBSR_V|LBSR-V|Sofia (Varna Sector) - Sofia
+LCCC||LCCC|Nicosia
+LCCC-E|LCCC_E|LCCC-E|Nicosia-East
+LCCC-S1|LCCC_S1|LCCC-S1|Nicosia-South1
+LCCC-S2|LCCC_S2|LCCC-S2|Nicosia-South2
+LCCC-W|LCCC_W|LCCC-W|Nicosia-West
+LDZO||LDZO|Zagreb
+LECB|LEBL|LECB|Barcelona
+LECB-CCC|LECB_CCC|LECB-CCC|Barcelona (Central Sector) - Barcelona
+LECB-CVN|LECB_CVN|LECB-CVN|Barcelona (CCC+VNI Sector) - Barcelona
+LECB-E|LECB_RE|LECB-E|Barcelona (Combined East) - Barcelona
+LECB-LLI|LECB_LLI|LECB-LLI|Barcelona (Levante Sector) - Barcelona
+LECB-MVS|LECB_MVS|LECB-MVS|Barcelona (Mediterraneo Sector) - Barcelona
+LECB-N|LECB_RN|LECB-N|Barcelona (Combined North) - Barcelona
+LECB-PPI|LECB_PPI|LECB-PPI|Barcelona (North East Sector) - Barcelona
+LECB-S|LECB_RS|LECB-S|Barcelona (Combined South) - Barcelona
+LECB-TMA|LECB_DDI|LECB-TMA|Barcelona (FL305-) - Barcelona
+LECB-TMA|LECB_XAL|LECB-TMA|Barcelona (FL305-) - Barcelona
+LECB-VNI|LECB_VNI|LECB-VNI|Barcelona (Verso North Sector) - Barcelona
+LECB-W|LECB_RW|LECB-W|Barcelona (Combined West) - Barcelona
+LECL||LECL|Valencia (FL245-)
+LECM|LEMD|LECM|Madrid
+LECM-BDP|LECM_BDP|LECM-BDP|Madrid (Bilbao-Pamplona Sector) - Madrid
+LECM-BLU|LECM_BLU|LECM-BLU|Madrid (Covers Above FL345 Bilbao Sector) - Madrid
+LECM-CJU|LECM_CJU|LECM-CJU|Madrid (Covers Above FL345 Castejon Sector) - Madrid
+LECM-CZI|LECM_CZI|LECM-CZI|Madrid (Castejon-Zaragoza Sector) - Madrid
+LECM-PAU|LECM_PAU|LECM-PAU|Madrid (Covers Above FL345 Pamplona Sector) - Madrid
+LECM-R1|LECM_R1|LECM-R1|Madrid
+LECM-R2|LECM_R2|LECM-R2|Madrid
+LECM-SAI|LECM_SAI|LECM-SAI|Madrid (Santiago-Asturias Sector) - Madrid
+LECM-SAO|LECM_SAO|LECM-SAO|Madrid (Covers Above FL345) - Madrid
+LECM-SAS|LECM_SAS|LECM-SAS|Madrid (Covers up to FL345) - Madrid
+LECM-TLI|LECM_TLI|LECM-TLI|Madrid (Toledo Sector) - Madrid
+LECM-TLU|LECM_TLU|LECM-TLU|Madrid (Covers Above FL345 Toledo Sector) - Madrid
+LECM-ZMI|LECM_ZMI|LECM-ZMI|Madrid (Zamora Sector) - Madrid
+LECM-ZMU|LECM_ZMU|LECM-ZMU|Madrid (Covers Above FL345 Zamora Sector) - Madrid
+LECP|LEPA|LECP|Palma (FL245-)
+LECS||LECS|Sevilla
+LECS-CEN|LECS_CEN|LECS-CEN|Sevilla (FL305-) - Sevilla
+LECS-NCS|LECS_NCS|LECS-NCS|Sevilla (East) - Sevilla
+LECS-SM2|LECS_SM2|LECS-SM2|Sevilla (West) - Sevilla
+LFBB||LFBB|Bordeaux
+LFBB-H|LFBB_H|LFBB-H|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-L|LFBB_L|LFBB-L|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-N|LFBB_N|LFBB-N|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-P|LFBB_P|LFBB-P|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-R|LFBB_R|LFBB-R|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-T|LFBB_T|LFBB-T|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-UN|LFBB_UN|LFBB-UN|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-US|LFBB_US|LFBB-US|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-X|LFBB_X|LFBB-X|Bordeaux ACC (FL195+) - Bordeaux
+LFBB-Z|LFBB_Z|LFBB-Z|Bordeaux ACC (FL195+) - Bordeaux
+LFEE||LFEE|Reims
+LFEE-E|LFEE_HE|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_HH|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_KD|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_KE|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_KF|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_KH|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_UE|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_UF|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_UH|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_XE|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-E|LFEE_XH|LFEE-E|Reims ACC (FL195+) - Reims
+LFEE-N|LFEE_N|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_HN|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_HR|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_KN|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_KR|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_UB|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_UN|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_UR|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_XR|LFEE-N|Reims ACC (FL265+) - Reims
+LFEE-N|LFEE_YB|LFEE-N|Reims ACC (FL265+) - Reims
+LFFF|PAR|LFFF|Paris
+LFFF-LOW|PAR_LOW|LFFF-LOW|Paris
+LFFF-AENB|PAR_AENB|LFFF-AENB|Paris
+LFFF-AENB|PAR_TNTB|LFFF-AENB|Paris
+LFFF-AENB|PAR_APTE|LFFF-AENB|Paris
+LFFF-AENB|PAR_TN|LFFF-AENB|Paris
+LFFF-AENB|PAR_TB|LFFF-AENB|Paris
+LFFF-AENB|PAR_AP|LFFF-AENB|Paris
+LFFF-AENB|PAR_TE|LFFF-AENB|Paris
+LFFF-AOML|PAR_AOML|LFFF-AOML|Paris
+LFFF-AOML|PAR_AOUS|LFFF-AOML|Paris
+LFFF-AOML|PAR_ARML|LFFF-AOML|Paris
+LFFF-AOML|PAR_FPAE|LFFF-AOML|Paris
+LFFF-AOML|PAR_TML|LFFF-AOML|Paris
+LFFF-AOML|PAR_AO|LFFF-AOML|Paris
+LFFF-AOML|PAR_AR|LFFF-AOML|Paris
+LFFF-AOML|PAR_US|LFFF-AOML|Paris
+LFFF-AOML|PAR_TM|LFFF-AOML|Paris
+LFFF-AOML|PAR_TL|LFFF-AOML|Paris
+LFFF-DGTJ|PAR_DGTJ|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_DOGS|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_DODG|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_LMHJ|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_LMH|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_DG|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_DO|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_UJ|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_HP|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_PU|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_UP|LFFF-DGTJ|Paris
+LFFF-DGTJ|PAR_UT|LFFF-DGTJ|Paris
+LFFF-OPKZ|PAR_OPKZ|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_HPKZ|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_ORGY|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_THUZ|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_TP|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_TH|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_UZ|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_RT|LFFF-OPKZ|Paris
+LFFF-OPKZ|PAR_OT|LFFF-OPKZ|Paris
+LFFF-RPAE|PAR_RPAE|LFFF-RPAE|Paris
+LFFF-RPAW|PAR_RPAW|LFFF-RPAW|Paris
+LFMM||LFMM|Marseille
+LFMM|LFMM_U|LFMM|Marseille
+LFMM-RAE|LFMM_E|LFMM-MME|Marseille
+LFMM-RAE|LFMM_RAE|LFMM-MRAE|Marseille
+LFMM-RAW|LFMM_EU|LFMM-MEU|Marseille
+LFMM-RAW|LFMM_RAW|LFMM-MRAW|Marseille
+LFMM-RAW|LFMM_W|LFMM-MMW|Marseille
+LFMM-RAW|LFMM_WU|LFMM-MWU|Marseille
+LFRR||LFRR|Brest
+LFRR-A|LFRR_A|LFRR-A|Brest
+LFRR-E|LFRR_E|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-E|LFRR_UE|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-E|LFRR_M|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-E|LFRR_Q|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-E|LFRR_X|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-E|LFRR_Z|LFRR-E|Brest ACC (FL295+) - Brest
+LFRR-G|LFRR_G|LFRR-G|Brest
+LFRR-J|LFRR_J|LFRR-J|Brest
+LFRR-K|LFRR_K|LFRR-K|Brest
+LFRR-N|LFRR_N|LFRR-N|Brest
+LFRR-S|LFRR_S|LFRR-S|Brest
+LFRR-S|LFRR_US|LFRR-S|Brest
+LFRR-V|LFRR_V|LFRR-V|Brest
+LFRR-VK|LFRR_VK|LFRR-VK|Brest
+LFRR-W|LFRR_W|LFRR-W|Brest
+LGGG||LGGG|Athinai
+LGGG|LGGG_U|LGGG|Athinai ACC (Above FL325) - Athinai
+LGGG-KAV|LGGG_KAV|LGGG-KAV|Athinai ACC (Kavos) - Athinai
+LGGG-KFN|LGGG_KFN|LGGG-KFN|Athinai ACC (Kefallinia) - Athinai
+LGGG-KRK|LGGG_KRK|LGGG-KRK|Athinai ACC (Kerkira) - Athinai
+LGGG-MIL|LGGG_MIL|LGGG-MIL|Athinai ACC (Milos) - Athinai
+LGGG-PLH|LGGG_PLH|LGGG-PLH|Athinai ACC (Paleochora) - Athinai
+LGGG-RDS|LGGG_RDS|LGGG-RDS|Athinai ACC (Rodos) - Athinai
+LGGG-SIT|LGGG_SIT|LGGG-SIT|Athinai ACC (Sitia) - Athinai
+LGMD-KVL|LGMD_KVL|LGMD-KVL|Makedonia ACC (Kavala) - Athinai
+LGMD-LMO|LGMD_LMO|LGMD-LMO|Makedonia ACC (Limnos) - Athinai
+LGMD-W|LGMD_W|LGMD-W|Makedonia ACC (West) - Athinai
+LHCC||LHCC|Budapest
+LIBB||LIBB|Brindisi
+LIMM||LIMM|Milano
+LIMM-ES|LIMM_ES2|LIMM-ES|Milano ES - Milano
+LIMM-ES5|LIMM_ES5|LIMM-ES5|Milano ES - Milano
+LIMM-EN|LIMM_EN|LIMM-EN|Milano EN - Milano
+LIMM-WN|LIMM_WN|LIMM-WN|Milano WN - Milano
+LIPP||LIPP|Padova
+LIPP-CW|LIPP_CW|LIPP-CW|Padova CW - Padova
+LIPP-NW|LIPP_NW|LIPP-NW|Padova NW - Padova
+LIPP-SD|LIPP_SD|LIPP-SD|Padova SD - Padova
+LIRR||LIRR|Roma
+LIRR-NE|LIRR_NE|LIRR-NE|Roma NE - Roma
+LIRR-EE|LIRR_EE|LIRR-EE|Roma EE - Roma
+LIRR-ES|LIRR_ES|LIRR-ES|Roma ES - Roma
+LIRR-EW|LIRR_EW|LIRR-EW|Roma EW - Roma
+LIRR-ND|LIRR_ND|LIRR-ND|Roma ND - Roma
+LIRR-NN|LIRR_NN|LIRR-NN|Roma NN - Roma
+LIRR-NW|LIRR_NW|LIRR-NW|Roma NW - Roma
+LIRR-OV|LIRR_OV|LIRR-OV|Roma OV - Roma
+LIRR-SU|LIRR_SU|LIRR-SU|Roma SU - Roma
+LIRR-TS|LIRR_TS|LIRR-TS|Roma TS - Roma
+LIRR-US|LIRR_US|LIRR-US|Roma US - Roma
+LJLA||LJLA|Ljubljana
+LKAA||LKAA|Praha
+LLGV|HAGAV|LLLL|Hagav
+LLLL|LLTA|LLLL|Tel Aviv
+LLLL|SHOLET|LLLL|Tel Aviv
+LLPL|PLUTO|LLLL|Pluto
+LLPT|PLUTO|LLPT|Tel Aviv North
+LLSC||LLSC|Tel Aviv South
+LMMM||LMMM|Malta
+LOVV||LOVV|Wien
+LOVV-B|LOVV_B|LOVV-B|Wien
+LOVV-C|LOVV_C|LOVV-C|Wien
+LOVV-E|LOVV_E|LOVV-E|Wien
+LOVV-N|LOVV_N|LOVV-N|Wien
+LOVV-N|LOVV_F|LOVV-N|Wien
+LOVV-W|LOVV_W|LOVV-W|Wien
+LPAM||LPPC|Lisboa Military
+LPPC||LPPC|Lisboa
+LPPC-C|LPPC_C|LPPC-C|Lisboa - CENTRE Sector
+LPPC-E|LPPC_E|LPPC-E|Lisboa - EAST COMBINED
+LPPC-I|LPPC_I|LPPC-I|Lisboa - MADEIRA Sector
+LPPC-N|LPPC_N|LPPC-N|Lisboa - NORTH Sector
+LPPC-O|LPPC_O|LPPC-O|Lisboa - WEST EXPANDED
+LPPC-S|LPPC_S|LPPC-S|Lisboa - SOUTH Sector
+LPPC-W|LPPC_W|LPPC-W|Lisboa - WEST Sector
+LPPO|LPAZ|LPPO|Santa Maria
+LPPO-TMA|LPPO|LPPO-TMA|Santa Maria Radar
+LQSB|LQSA|LQSB|Sarajevo
+LRBB||LRBB|Bucuresti ACC (Bandbox Sector) - Bucharest
+LRBB-E|LRBB_E|LRBB-E|Bucuresti ACC (East Sector) - Bucharest
+LRBB-W|LRBB_W|LRBB-W|Bucuresti ACC (West Sector) - Bucharest
+LSAG||LSAG|Swiss Radar (Geneva ACC) - Switzerland
+LSAS||LSAS|Swiss Radar - Switzerland
+LSAZ||LSAZ|Swiss Radar (Zurich ACC) - Switzerland
+LTAA||LTAA|Ankara
+LTAA-10|ANK_10|LTAA-10|Ankara (Sector 10)
+LTAA-11|ANK_11|LTAA-11|Ankara (Sector 11)
+LTAA-12|ANK_12|LTAA-12|Ankara (Sector 12)
+LTAA-13|ANK_13|LTAA-13|Ankara (Sector 13)
+LTAA-14|ANK_14|LTAA-14|Ankara (Sector 14)
+LTAA-15|ANK_15|LTAA-15|Ankara (Sector 15)
+LTAA-16|ANK_16|LTAA-16|Ankara (Sector 16)
+LTAA-17|ANK_17|LTAA-17|Ankara (Sector 17)
+LTAA-18|ANK_18|LTAA-18|Ankara (Sector 18)
+LTAA-19|ANK_19|LTAA-19|Ankara (Sector 19)
+LTAA-7|ANK_7|LTAA-7|Ankara (Sector 7)
+LTAA-8|ANK_8|LTAA-8|Ankara (Sector 8)
+LTAA-9|ANK_9|LTAA-9|Ankara (Sector 9)
+LTAA-A|ANK_A|LTAA|Ankara Central & East
+LTAA-C|ANK_C|LTAA-C|Ankara Central
+LTAA-E|ANK_E|LTAA-E|Ankara East
+LTAA-EN|ANK_EN|LTAA-EN|Ankara East North
+LTAA-ES|ANK_ES|LTAA-ES|Ankara East South
+LTAA-N|ANK_N|LTAA-N|Ankara North
+LTAA-S|ANK_S|LTAA-S|Ankara South
+LTBB||LTBB|Istanbul
+LTBB-1|ANK_1|LTBB-1|Ankara (Sector 1)
+LTBB-2|ANK_2|LTBB-2|Ankara (Sector 2)
+LTBB-3|ANK_3|LTBB-3|Ankara (Sector 3)
+LTBB-4|ANK_4|LTBB-4|Ankara (Sector 4)
+LTBB-5|ANK_5|LTBB-5|Ankara (Sector 5)
+LTBB-6|ANK_6|LTBB-6|Ankara (Sector 6)
+LTBB-W|ANK_W|LTBB|Ankara West
+LTBB-W78|ANK_W78|LTBB-W78|Ankara West Combined
+LTBB-WN|ANK_WN|LTBB-WN|Ankara West North
+LTBB-WS|ANK_WS|LTBB-WS|Ankara West South
+LTXX|ANK|LTXX|Ankara Control
+LUUU||LUUU|Chisinau
+LWSS||LWSS|Skopje
+LYBA||LYBA|Beograd
+LZBB||LZBB|Bratislava
+MDCS||MDCS|Santo Domingo
+MHCC||MHCC|Cenamer
+MKJK||MKJK|Kingston
+MMEX||MMEX|Mexico
+MMFO|MZT|MMZT|Mazatlan
+MMFR||MMFR|Mexico
+MMID|MID|MMID|Merida
+MMTY|MTY|MMTY|Monterrey
+MMZT|MZT|MMZT|Mazatlan
+MPZL||MPZL|Panama
+MTEG||MTEG|Port-Au-Prince
+MUFH|HAV|MUFH|Havana
+NAT||NAT|Shanwick & Gander
+NCRG||NCRG|Rarotonga
+NFFF||NFFF|Nadi Oceanic
+NFFJ|NFFN|NFFJ|Nadi
+NSFA||NSFA|Faleolo
+NSTU||NZZO|Pago Pago
+NTTC||NTTC|Tahiti
+NTTT||NTTT|Tahiti Radio
+NZAA||NZAA|Auckland
+NZAA|NZAA-R|NZAR|Auckland (Raglan)
+NZCB|NZCH-B|NZCB|Christchurch (Bay)
+NZCK|NZCH-K|NZCK|Christchurch (Kaikoura)
+NZCM||NZCM|McMurdo (Mac)
+NZCS|NZCH-S|NZCS|Christchurch (South)
+NZCT|NZCH-T|NZCT|Christchurch (Taranaki)
+NZOH||NZOH|Ohakea
+NZZO||NZZO|Auckland Radio
+NZZO|NZZO-E|NZZO|Auckland Radio - East
+NZZO|NZZO-TSN|NZZT|Auckland Radio - Tasman
+OAKX||OAKX|Kabul
+OBBB||OBBB|Bahrain
+OBBB-C|OBBB_CL|OBBB-C|Bahrain Central
+OBBB-C|OBBB_CH|OBBB-C|Bahrain Central
+OBBB-E|OBBB_E|OBBB-E|Bahrain East (FL245+)
+OBBB-E|OBBB_2|OBBB-E|Bahrain East (FL245+)
+OBBB-N|OBBB_N|OBBB-N|Bahrain North
+OBBB-N|OBBB_3|OBBB-N|Bahrain North
+OBBB-S|OBBB_E|OBBB-S|Bahrain South
+OBBB-S|OBBB_2|OBBB-S|Bahrain South
+OEJD||OEJD|Jeddah
+OEJD-2|OEJD_2|OEJD-2|Jeddah
+OEJD-3|OEJD_3|OEJD-3|Jeddah
+OEJD-C|OEJD_C|OEJD-C|Jeddah Central
+OEJD-E|OEJD_E|OEJD-E|Jeddah East
+OEJD-N|OEJD_N|OEJD-N|Jeddah North
+OEJD-NE|OEJD_NE|OEJD-NE|Jeddah North-East
+OEJD-S|OEJD_S|OEJD-S|Jeddah South
+OEJD-SE|OEJD_SE|OEJD-SE|Jeddah South-East
+OEJD-W|OEJD_W|OEJD-W|Jeddah West
+OEJD-W|OEJD_W1|OEJD-W|Jeddah West
+OEJD-W|OEJD_W2|OEJD-W|Jeddah West
+OEJN||OEJN|Jeddah Terminal
+OERD||OERD|Riyadh (From FL345)
+OERD-E|OERD_E|OERD-E|Riyadh East (From FL345)
+OERD-N|OERD_N|OERD-N|Riyadh North (From FL345)
+OERD-NE|OERD_NE|OERD-NE|Riyadh North-East (From FL345)
+OERK||OERK|Riyadh Terminal
+OIIX|TEH|OIIX|Tehran
+OJAC||OJAC|Amman
+OKAC|OKAC|OKAC|Kuwait
+OLBB|OLBA|OLBB|Beirut
+OMAE||OMAE|U.A.E
+OOMM||OOMM|Muscat
+OPKR|OPKR|OPKR|Karachi
+OPKR|OPKR-C|OPKR|Karachi
+OPKR|OPKR-E|OPKR|Karachi
+OPKR|OPKR-S|OPKR|Karachi
+OPKR|OPKR-W|OPKR|Karachi
+OPLR|OPLR|OPLR|Lahore
+OPLR|OPLR-E|OPLR|Lahore
+OPLR|ISB|OPLR|Lahore (Islamabad)
+OPLR|OPLR-S|OPLR|Lahore
+OPLR|OPLR-W|OPLR|Lahore
+ORBB|ORBB|ORBB|Baghdad
+ORBB-N|ORBB_N|ORBB-N|Baghdad (North) - Baghdad
+ORBB-N|ORBB_NU|ORBB-N|Baghdad (North) - Baghdad
+ORBB-S|ORBB_S|ORBB-S|Baghdad (South) - Baghdad
+ORBB-S|ORBB_SU|ORBB-S|Baghdad (South) - Baghdad
+OSTT|OSDI|OSTT|Damascus
+OTDF||OTDF|Doha
+OTDF-N|OTDF_N|OTDF-N|Doha (North SFC-FL245)
+OTDF-S|OTDF_S|OTDF-S|Doha (South SFC-UNL)
+OYSC||OYSC|Sanaa
+PAZA||PAZA|Anchorage
+PAZA-A|ZAN_64|PAZA-A|Anchorage Oceanic - Arctic
+PAZA-D|ANC|PAZA-D|Anchorage
+PAZA-P|ZAN_10|PAZA-P|Anchorage Oceanic - Pacific
+PAZA-P|ZAN_11|PAZA-P|Anchorage Oceanic - Pacific
+PGZU|GU|PGZU|Guam
+PGZU|GUM|PGZU|Guam
+PGZU|GUAM|PGZU|Guam
+PGZU|UAM|PGZU|Guam
+PHZH|HNL|PHZH|Honolulu
+PHZH|HCF|PHZH|Honolulu
+RCAA|TPE|RCAA|Taipei
+RJBG||RJBG|Kobe ACC - Kobe
+RJBG-E|RJBG_E|RJBG-E|Kobe ACC East (Up to FL335) - Kobe
+RJBG-N|RJBG_N|RJBG-N|Kobe ACC North (Up to FL335) - Kobe
+RJBG-S|RJBG_S|RJBG-S|Kobe ACC South (Up to FL335) - Kobe
+RJBG-W|RJBG_W|RJBG-W|Kobe ACC West (Up to FL335) - Kobe
+RJBG-W|RJBG_T|RJBG-W|Kobe ACC West - Kobe
+RJBG-N43|RJBG_43|RJBG-N43|Kobe ACC N43 Sector (Up to FL335) - Kobe
+RJBG-N43|RJBG_B|RJBG-N43|Kobe ACC N43 Sector (Up to FL335) - Kobe
+RJBG-N44|RJBG_44|RJBG-N44|Kobe ACC N44 Sector (Up to FL335) - Kobe
+RJBG-N44|RJBG_D|RJBG-N44|Kobe ACC N44 Sector (Up to FL335) - Kobe
+RJBG-N47|RJBG_47|RJBG-N47|Kobe ACC N47 Sector (Up to FL415) - Kobe
+RJBG-N47|RJBG_F|RJBG-N47|Kobe ACC N47 Sector (Up to FL415) - Kobe
+RJBG-N48|RJBG_48|RJBG-N48|Kobe ACC N48 Sector (Up to FL335) - Kobe
+RJBG-N48|RJBG_48S|RJBG-N48|Kobe ACC N48 Sector (Up to FL335) - Kobe
+RJBG-N48|RJBG_H|RJBG-N48|Kobe ACC N48 Sector (Up to FL335) - Kobe
+RJBG-N48|RJBG_J|RJBG-N48|Kobe ACC N48 Sector (Up to FL335) - Kobe
+RJBG-N49|RJBG_49|RJBG-N49|Kobe ACC N49 Sector (Up to FL415) - Kobe
+RJBG-N49|RJBG_K|RJBG-N49|Kobe ACC N49 Sector (Up to FL415) - Kobe
+RJBG-N50|RJBG_50|RJBG-N50|Kobe ACC N50 Sector (Up to FL335) - Kobe
+RJBG-N50|RJBG_L|RJBG-N50|Kobe ACC N50 Sector (Up to FL335) - Kobe
+RJBG-N51|RJBG_51|RJBG-N51|Kobe ACC N51 Sector (Up to FL335) - Kobe
+RJBG-N51|RJBG_O|RJBG-N51|Kobe ACC N51 Sector (Up to FL335) - Kobe
+RJBG-N52|RJBG_52|RJBG-N52|Kobe ACC N52 Sector (Up to FL335) - Kobe
+RJBG-N52|RJBG_P|RJBG-N52|Kobe ACC N52 Sector (Up to FL335) - Kobe
+RJBG-N53|RJBG_53|RJBG-N53|Kobe ACC N53 Sector (Up to FL335) - Kobe
+RJBG-N53|RJBG_Q|RJBG-N53|Kobe ACC N53 Sector (Up to FL335) - Kobe
+RJBG-N54|RJBG_54|RJBG-N54|Kobe ACC N54 Sector (Up to FL335) - Kobe
+RJBG-N54|RJBG_R|RJBG-N54|Kobe ACC N54 Sector (Up to FL335) - Kobe
+RJBG-N55|RJBG_55|RJBG-N55|Kobe ACC N55 Sector (Up to FL335) - Kobe
+RJBG-N55|RJBG_U|RJBG-N55|Kobe ACC N55 Sector (Up to FL335) - Kobe
+RJDG||RJDG|Fukuoka ACC - Fukuoka
+RJDG-C|RJDG_C|RJDG-C|Fukuoka ACC Central - Fukuoka
+RJDG-E|RJDG_E|RJDG-E|Fukuoka ACC East - Fukuoka
+RJDG-N|RJDG_N|RJDG-N|Fukuoka ACC North - Fukuoka
+RJDG-S|RJDG_S|RJDG-S|Fukuoka ACC South - Fukuoka Control
+RJDG-W|RJDG_W|RJDG-W|Fukuoka ACC West - Fukuoka
+RJDG-F01|RJDG_01|RJDG-F01|Fukuoka ACC F01 Sector - Fukuoka
+RJDG-F01|RJDG_01S|RJDG-F01|Fukuoka ACC F01 Sector - Fukuoka
+RJDG-F01|RJDG_B|RJDG-F01|Fukuoka ACC F01 Sector - Fukuoka
+RJDG-F01|RJDG_D|RJDG-F01|Fukuoka ACC F01 Sector - Fukuoka
+RJDG-F02|RJDG_02|RJDG-F02|Fukuoka ACC F02 Sector - Fukuoka
+RJDG-F02|RJDG_F|RJDG-F02|Fukuoka ACC F02 Sector - Fukuoka
+RJDG-F03|RJDG_03|RJDG-F03|Fukuoka ACC F03 Sector - Fukuoka
+RJDG-F03|RJDG_H|RJDG-F03|Fukuoka ACC F03 Sector - Fukuoka
+RJDG-F04|RJDG_04|RJDG-F04|Fukuoka ACC F04 Sector - Fukuoka
+RJDG-F04|RJDG_J|RJDG-F04|Fukuoka ACC F04 Sector - Fukuoka
+RJDG-F05|RJDG_05|RJDG-F05|Fukuoka ACC F05 Sector - Fukuoka
+RJDG-F05|RJDG_K|RJDG-F05|Fukuoka ACC F05 Sector - Fukuoka
+RJDG-F06|RJDG_06|RJDG-F06|Fukuoka ACC F06 Sector - Fukuoka
+RJDG-F06|RJDG_L|RJDG-F06|Fukuoka ACC F06 Sector - Fukuoka
+RJDG-F07|RJDG_07|RJDG-F07|Fukuoka ACC F07 Sector - Fukuoka
+RJDG-F07|RJDG_O|RJDG-F07|Fukuoka ACC F07 Sector - Fukuoka
+RJDG-F08|RJDG_08|RJDG-F08|Fukuoka ACC F08 Sector - Fukuoka
+RJDG-F08|RJDG_08S|RJDG-F08|Fukuoka ACC F08 Sector - Fukuoka
+RJDG-F08|RJDG_P|RJDG-F08|Fukuoka ACC F08 Sector - Fukuoka
+RJDG-F08|RJDG_Q|RJDG-F08|Fukuoka ACC F08 Sector - Fukuoka
+RJDG-F11|RJDG_11|RJDG-F11|Fukuoka ACC F11 Sector - Fukuoka
+RJDG-F11|RJDG_V|RJDG-F11|Fukuoka ACC F11 Sector - Fukuoka
+RJDG-F12|RJDG_12|RJDG-F12|Fukuoka ACC F12 Sector - Fukuoka
+RJDG-F12|RJDG_X|RJDG-F12|Fukuoka ACC F12 Sector - Fukuoka
+RJDG-F13|RJDG_13|RJDG-F13|Fukuoka ACC F13 Sector - Fukuoka
+RJDG-F13|RJDG_Z|RJDG-F13|Fukuoka ACC F13 Sector - Fukuoka
+RJDG-F14|RJDG_14|RJDG-F14|Fukuoka ACC F14 Sector - Fukuoka
+RJDG-F14|RJDG_9|RJDG-F14|Fukuoka ACC F14 Sector - Fukuoka
+RJDG-F15|RJDG_15|RJDG-F15|Fukuoka ACC F15 Sector - Fukuoka
+RJDG-F15|RJDG_8|RJDG-F15|Fukuoka ACC F15 Sector - Fukuoka
+RJDG-F16|RJDG_16|RJDG-F16|Fukuoka ACC F16 Sector - Fukuoka
+RJDG-F16|RJDG_7|RJDG-F16|Fukuoka ACC F16 Sector - Fukuoka
+RJDG-F17|RJDG_17|RJDG-F17|Fukuoka ACC F17 Sector - Fukuoka
+RJDG-F17|RJDG_17S|RJDG-F17|Fukuoka ACC F17 Sector - Fukuoka
+RJDG-F17|RJDG_6|RJDG-F17|Fukuoka ACC F17 Sector - Fukuoka
+RJDG-F17|RJDG_5|RJDG-F17|Fukuoka ACC F17 Sector - Fukuoka
+RJDG-F19|RJDG_19|RJDG-F19|Fukuoka ACC F19 Sector - Fukuoka
+RJDG-F19|RJDG_3|RJDG-F19|Fukuoka ACC F19 Sector - Fukuoka
+RJDG-F20|RJDG_20|RJDG-F20|Fukuoka ACC F20 Sector - Fukuoka
+RJDG-F20|RJDG_2|RJDG-F20|Fukuoka ACC F20 Sector - Fukuoka
+RJJJ||RJJJ|Tokyo - Tokyo Oceanic
+RJTG||RJTG|Tokyo ACC - Tokyo
+RJTG-E|RJTG_E|RJTG-E|Tokyo ACC East (Up to FL335) - Tokyo
+RJTG-N|RJTG_N|RJTG-N|Tokyo ACC North (Up to FL335) - Tokyo
+RJTG-S|RJTG_S|RJTG-S|Tokyo ACC South (Up to FL335) - Tokyo
+RJTG-W|RJTG_W|RJTG-W|Tokyo ACC West (Up to FL335) - Tokyo
+RJTG-T25|RJTG_9|RJTG-T25|Tokyo ACC T25 Sector (Above FL275 / Up to FL415) - Tokyo
+RJTG-T25|RJTG_25|RJTG-T25|Tokyo ACC T25 Sector (Above FL275 / Up to FL415) - Tokyo
+RJTG-T30|RJTG_30|RJTG-T30|Tokyo ACC T30 Sector (Up to FL335) - Tokyo
+RJTG-T30|RJTG_30S|RJTG-T30|Tokyo ACC T30 Sector (Up to FL335) - Tokyo
+RJTG-T30|RJTG_B|RJTG-T30|Tokyo ACC T30 Sector (Up to FL335) - Tokyo
+RJTG-T30|RJTG_D|RJTG-T30|Tokyo ACC T30 Sector (Up to FL335) - Tokyo
+RJTG-T31|RJTG_31|RJTG-T31|Tokyo ACC T31 Sector (Up to FL375) - Tokyo
+RJTG-T31|RJTG_F|RJTG-T31|Tokyo ACC T31 Sector (Up to FL375) - Tokyo
+RJTG-T32|RJTG_32|RJTG-T32|Tokyo ACC T32 Sector (Up to FL335) - Tokyo
+RJTG-T32|RJTG_H|RJTG-T32|Tokyo ACC T32 Sector (Up to FL335) - Tokyo
+RJTG-T33|RJTG_33|RJTG-T33|Tokyo ACC T33 Sector (Up to FL335) - Tokyo
+RJTG-T33|RJTG_J|RJTG-T33|Tokyo ACC T33 Sector (Up to FL335) - Tokyo
+RJTG-T34|RJTG_34|RJTG-T34|Tokyo ACC T34 Sector (Up to FL335) - Tokyo
+RJTG-T34|RJTG_K|RJTG-T34|Tokyo ACC T34 Sector (Up to FL335) - Tokyo
+RJTG-T35|RJTG_35|RJTG-T35|Tokyo ACC T35 Sector (Up to FL335) - Tokyo
+RJTG-T35|RJTG_L|RJTG-T35|Tokyo ACC T35 Sector (Up to FL335) - Tokyo
+RJTG-T36|RJTG_36|RJTG-T36|Tokyo ACC T36 Sector (Up to FL335) - Tokyo
+RJTG-T36|RJTG_O|RJTG-T36|Tokyo ACC T36 Sector (Up to FL335) - Tokyo
+RJTG-T38|RJTG_38|RJTG-T38|Tokyo ACC T38 Sector (Up to FL335) - Tokyo
+RJTG-T38|RJTG_Q|RJTG-T38|Tokyo ACC T38 Sector (Up to FL335) - Tokyo
+RJTG-T39|RJTG_39|RJTG-T39|Tokyo ACC T39 Sector (Up to FL335) - Tokyo
+RJTG-T39|RJTG_R|RJTG-T39|Tokyo ACC T39 Sector (Up to FL335) - Tokyo
+RJTG-T40|RJTG_40|RJTG-T40|Tokyo ACC T40 Sector (Up to FL335) - Tokyo
+RJTG-T40|RJTG_U|RJTG-T40|Tokyo ACC T40 Sector (Up to FL335) - Tokyo
+RJTG-T41|RJTG_41|RJTG-T41|Tokyo ACC T41 Sector (Up to FL335) - Tokyo
+RJTG-T41|RJTG_V|RJTG-T41|Tokyo ACC T41 Sector (Up to FL335) - Tokyo
+RJTG-T42|RJTG_42|RJTG-T42|Tokyo ACC T42 Sector (Up to FL335) - Tokyo
+RJTG-T42|RJTG_X|RJTG-T42|Tokyo ACC T42 Sector (Up to FL335) - Tokyo
+RJTG-T45|RJTG_45|RJTG-T45|Tokyo ACC T45 Sector (Up to FL275) - Tokyo
+RJTG-T45|RJTG_Y|RJTG-T45|Tokyo ACC T45 Sector (Up to FL275) - Tokyo
+RJTG-T46|RJTG_46|RJTG-T46|Tokyo ACC T46 Sector (Up to FL335) - Tokyo
+RJTG-T46|RJTG_Z|RJTG-T46|Tokyo ACC T46 Sector (Up to FL335) - Tokyo
+RKDA||RKDA|Daegu ACC - Incheon
+RKDA-C|RKDA_C|RKDA-C|Daegu ACC (Central) - Incheon
+RKDA-E|RKDA_E|RKDA-E|Daegu ACC (East) - Incheon
+RKDA-W|RKDA_W|RKDA-W|Daegu ACC (West) - Incheon
+RKRR||RKRR|Incheon ACC - Incheon
+RKRR-N|RKRR_N|RKRR-N|Incheon ACC (North) - Incheon
+RKRR-S|RKRR_S|RKRR-S|Incheon ACC (South) - Incheon
+RPHI|MNL|RPHI|Manila
+RPHI-2|MNL_2|RPHI-2|Manila South Combined
+RPHI-C|MNL_C|RPHI-C|Manila Central Combined
+RPHI-CE|MNL_CE|RPHI-CE|Manila Central East
+RPHI-CN|MNL_CN|RPHI-CN|Manila Central North
+RPHI-CS|MNL_CS|RPHI-CS|Manila Central South
+RPHI-CW|MNL_CW|RPHI-CW|Manila Central West
+RPHI-N|MNL_N|RPHI-N|Manila North Combined
+RPHI-N1|MNL_N1|RPHI-N1|Manila Central North Combined
+RPHI-NE|MNL_NE|RPHI-NE|Manila Oceanic
+RPHI-NW|MNL_NW|RPHI-NW|Manila Northwest
+RPHI-S|MNL_S|RPHI-S|Manila South Combined
+RPHI-S1|MNL_S1|RPHI-S1|Manila Central South Combined
+RPHI-SE|MNL_SE|RPHI-SE|Manila Southeast
+RPHI-SW|MNL_SW|RPHI-SW|Manila Southwest
+RPHI-W|MNL_W|RPHI-W|Manila West
+SACF||SACF|Cordoba
+SACO||SACO|Cordoba TMA - Cordoba
+SAEF||SAEF|Ezeiza
+SAEF-N|SAEF_N|SAEF-N|Ezeiza ACC (North) - Ezeiza
+SAEF-S|SAEF_S|SAEF-S|Ezeiza ACC (South) - Ezeiza
+SAME||SAME|Mendoza TMA - Mendoza
+SAMF||SAMF|Mendoza
+SARE||SARE|Resistencia TMA - Resistencia
+SARR||SARR|Resistencia
+SAVC||SAVC|Comodoro Rivadavia TMA - Comodoro Rivadavia
+SAVF||SAVF|Comodoro Rivadavia
+SBAO||SBAO|Atlantico (Completo) - Atlantico
+SBAO-N|SBAO_N|SBAO-N|Atlantico (Supercombinado Norte) - Atlantico
+SBAO-S|SBAO_S|SBAO-S|Atlantico (Supercombinado Sul) - Atlantico
+SBAO-NW|SBAO_NW|SBAO-NW|Atlantico (Combinado Noroeste) - Atlantico
+SBAO-NE|SBAO_NE|SBAO-NE|Atlantico (Combinado Nordeste) - Atlantico
+SBAO-SW|SBAO_SW|SBAO-SW|Atlantico (Combinado Sudoeste) - Atlantico
+SBAO-SE|SBAO_SE|SBAO-SE|Atlantico (Combinado Sudeste) - Atlantico
+SBAZ||SBAZ|Amazonico (Completo) - Amazonico
+SBAZ-CW|SBAZ_CW|SBAZ-CW|Amazonico (Supercombinado Centro-Oeste) - Amazonico
+SBAZ-CE|SBAZ_CE|SBAZ-CE|Amazonico (Supercombinado Centro-Leste) - Amazonico
+SBAZ-W|SBAZ_W|SBAZ-W|Amazonico (Combinado Oeste) - Amazonico
+SBAZ-C|SBAZ_C|SBAZ-C|Amazonico (Combinado Central) - Amazonico
+SBAZ-E|SBAZ_E|SBAZ-E|Amazonico (Combinado Leste) - Amazonico
+SBBS||SBBS|Brasilia (Completo) - Brasilia
+SBBS-NS|SBBS_NS|SBBS-NS|Brasilia (Supercombinado Norte-Sul) - Brasilia
+SBBS-NE|SBBS_NE|SBBS-NE|Brasilia (Supercombinado Norte-Leste) - Brasilia
+SBBS-SE|SBBS_SE|SBBS-SE|Brasilia (Supercombinado Sul-Leste) - Brasilia
+SBBS-N|SBBS_N|SBBS-N|Brasilia (Combinado Norte) - Brasilia
+SBBS-S|SBBS_S|SBBS-S|Brasilia (Combinado Sul) - Brasilia
+SBBS-E|SBBS_E|SBBS-E|Brasilia (Combinado Leste) - Brasilia
+SBCW||SBCW|Curitiba (Completo) - Curitiba
+SBCW-CWE|SBCW_CWE|SBCW-CWE|Curitiba (Supercombinado Centro-Oeste-Leste) - Curitiba
+SBCW-CSW|SBCW_CSW|SBCW-CSW|Curitiba (Supercombinado Centro-Sul-Oeste) - Curitiba
+SBCW-CSE|SBCW_CSE|SBCW-CSE|Curitiba (Supercombinado Centro-Sul-Leste) - Curitiba
+SBCW-CW|SBCW_CW|SBCW-CW|Curitiba (Supercombinado Centro-Oeste) - Curitiba
+SBCW-CS|SBCW_CS|SBCW-CS|Curitiba (Supercombinado Centro-Sul) - Curitiba
+SBCW-CE|SBCW_CE|SBCW-CE|Curitiba (Supercombinado Centro-Leste) - Curitiba
+SBCW-SW|SBCW_SW|SBCW-SW|Curitiba (Supercombinado Sul-Oeste) - Curitiba
+SBCW-SE|SBCW_SE|SBCW-SE|Curitiba (Supercombinado Sul-Leste) - Curitiba
+SBCW-C|SBCW_C|SBCW-C|Curitiba (Combinado Central) - Curitiba
+SBCW-W|SBCW_W|SBCW-W|Curitiba (Combinado Oeste) - Curitiba
+SBCW-E|SBCW_E|SBCW-E|Curitiba (Combinado Leste) - Curitiba
+SBCW-S|SBCW_S|SBCW-S|Curitiba (Combinado Sul) - Curitiba
+SBRE||SBRE|Recife (Completo) - Recife
+SBRE-NS|SBRE_NS|SBRE-NS|Recife (Supercombinado Norte-Sul) - Recife
+SBRE-NW|SBRE_NW|SBRE-NW|Recife (Supercombinado Norte-Oeste) - Recife
+SBRE-SW|SBRE_SW|SBRE-SW|Recife (Supercombinado Sul-Oeste) - Recife
+SBRE-N|SBRE_N|SBRE-N|Recife (Combinado Norte) - Recife
+SBRE-S|SBRE_S|SBRE-S|Recife (Combinado Sul) - Recife
+SBRE-W|SBRE_W|SBRE-W|Recife (Combinado Oeste) - Recife
+SCCZ||SCCZ|Punta Arenas
+SCEZ||SCEZ|Santiago
+SCFZ||SCFZ|Antofagasta
+SCIZ||SCIZ|Pascua
+SCTZ||SCTZ|Puerto Montt
+SEFG||SEFG|Guayaquil
+SGFA||SGFA|Asuncion
+SKCL||SKCL|Cali (Up To FL245)
+SKEC||SKEC|Barranquilla
+SKED||SKED|Bogota
+SKMD||SKMD|Cali (Up To FL245)
+SLLF||SLLF|La Paz
+SMPM||SMPM|Paramaribo
+SOOO||SOOO|Cayenne
+SPI1|SP-N|SPIM|Lima North
+SPI2|SP-S|SPIM|Lima South
+SPI3|SP-E|SPIM|Lima North East
+SPI3|SP-NE|SPIM|Lima North East
+SPIM|LIM|SPIM|Lima
+SUEO||SUEO|Montevideo
+SVZM||SVZM|Maiquetia
+SYGC||SYGC|Georgetown
+TEH-1|TEH_1|TEH-1|Tehran 1
+TEH-1E|TEH_1E|TEH-1E|Tehran 1 East
+TEH-1N|TEH_1N|TEH-1N|Tehran 1 North
+TEH-1W|TEH_1W|TEH-1W|Tehran 1 West
+TEH-2|TEH_2|TEH-2|Tehran 2
+TEH-2E|TEH_2E|TEH-2E|Tehran 2 East
+TEH-2W|TEH_2W|TEH-2W|Tehran 2 West
+TEH-3|TEH_3|TEH-3|Tehran 3
+TEH-3N|TEH_3N|TEH-3N|Tehran 3 North
+TEH-3S|TEH_3S|TEH-3S|Tehran 3 South
+TEH-4|TEH_4|TEH-4|Tehran 4
+TEH-4E|TEH_4E|TEH-4E|Tehran 4 East
+TEH-4S|TEH_4S|TEH-4S|Tehran 4 South
+TEH-4W|TEH_4W|TEH-4W|Tehran 4 West
+TEH-5|TEH_5|TEH-5|Tehran 5
+TEH-5E|TEH_5E|TEH-5E|Tehran 5 East
+TEH-5W|TEH_5W|TEH-5W|Tehran 5 West
+TEH-6|TEH_6|TEH-6|Tehran 6
+TEH-6E|TEH_6E|TEH-6E|Tehran 6 East
+TEH-6W|TEH_6W|TEH-6W|Tehran 6 West
+TEH-7|TEH_7|TEH-7|Tehran 7
+TEH-E|TEH_E|TEH-E|Tehran East
+TEH-N|TEH_N|TEH-N|Tehran North
+TEH-S|TEH_S|TEH-S|Tehran South
+TEH-W|TEH_W|TEH-W|Tehran West
+TJZS|SJU|TJZS|San Juan
+TNCF||TNCF|Curaçao
+TTZO||TTZO|Piarco Oceanic
+TTZP||TTZP|Piarco
+UAAA||UAAA|Almaty
+UAAA-A1A|UAAA_A1A|UAAA-A1A|Almaty ACC Sector A1A - Almaty
+UAAA-A3A|UAAA_A3A|UAAA-A3A|Almaty ACC Sector A3A - Almaty
+UAAA-A4A|UAAA_A4A|UAAA-A4A|Almaty ACC Sector A4A - Almaty
+UAAA-A5A|UAAA_A5A|UAAA-A5A|Almaty ACC Sector A5A - Almaty
+UACN||UACN|Astana
+UACN-A1C|UACN_A1C|UACN-A1C|Astana ACC Sector A1C - Astana
+UACN-A2C|UACN_A2C|UACN-A2C|Astana ACC Sector A2C - Astana
+UACN-A3C|UACN_A3C|UACN-A3C|Astana ACC Sector A3C - Astana
+UACN-A4C|UACN_A4C|UACN-A4C|Astana ACC Sector A4C - Astana
+UAII||UAII|Shymkent
+UAII-A1I|UAII_A1I|UAII-A1I|Shymkent ACC Sector A1I - Shymkent
+UAII-A2I|UAII_A2I|UAII-A2I|Shymkent ACC Sector A2I - Shymkent
+UATT||UATT|Aktobe
+UATT-A1B|UATT_A1B|UATT-A1B|Aktobe ACC Sector A1B - Aktobe
+UATT-A2B|UATT_A2B|UATT-A2B|Aktobe ACC Sector A2B - Aktobe
+UATT-A3B|UATT_A3B|UATT-A3B|Aktobe ACC Sector A3B - Aktobe
+UATT-A4B|UATT_A4B|UATT-A4B|Aktobe ACC Sector A4B - Aktobe
+UATT-A5B|UATT_A5B|UATT-A5B|Aktobe ACC Sector A5B - Aktobe
+UATT-A6B|UATT_A6B|UATT-A6B|Aktobe ACC Sector A6B - Aktobe
+UBBA|UBBB|UBBA|Baku
+UBBA-S|UBBA_S|UBBA-S|Baku South
+UCFM||UCFM|Bishkek
+UCFO||UCFO|Osh
+UDDD|UGEE|UDDD|Yerevan
+UEEE||UEEE|Yakutsk
+UGGG||UGGG|Tbilisi
+UHHH||UHHH|Khabarovsk
+UHHH-1|UHHH_1|UHHH-1|Khabarovsk ACC Sector 1 - Khabarovsk
+UHHH-2|UHHH_2|UHHH-2|Khabarovsk ACC Sector 2 - Khabarovsk
+UHHH-3|UHHH_3|UHHH-3|Khabarovsk ACC Sector 3 - Khabarovsk
+UHHH-HF|UHHH_HF|UHHH-HF|Khabarovsk ACC Sector HF - Khabarovsk
+UHMM||UHMM|Magadan
+UHMM-K1|UHMM_K1|UHMM-K1|Magadan ACC Sector Kamchatka-1 - Magadan
+UHMM-K2|UHMM_K2|UHMM-K2|Magadan ACC Sector Kamchatka-2 - Magadan
+UHMM-N|UHMM_N|UHMM-N|Magadan ACC Sector North - Magadan
+UHMM-N1|UHMM_N1|UHMM-N1|Magadan ACC Sector North-1 - Magadan
+UHMM-N2|UHMM_N2|UHMM-N2|Magadan ACC Sector North-2 - Magadan
+UHMM-O|UHMM_O|UHMM-O|Magadan ACC Sector Oceanic - Magadan
+UHMM-S|UHMM_S|UHMM-S|Magadan ACC Sector South - Magadan
+UIII||UIII|Irkutsk
+UIII-E|UIII_E|UIII-E|Irkutsk ACC Sector East - Irkutsk
+UIII-N|UIII_N|UIII-N|Irkutsk ACC Sector North - Irkutsk
+UIII-W|UIII_W|UIII-W|Irkutsk ACC Sector West - Irkutsk
+UKBV|UKBB|UKBV|Kyiv
+UKDV||UKDV|Dnipro
+UKFV|UKFF|UKFV|Simferopol
+UKLV|UKLL|UKLV|Lviv
+UKOV|UKOO|UKOV|Odesa
+UKR||UKR|Ukraine
+ULLL||ULLL|Sankt-Peterburg ACC - Peterburg
+ULLL-AM|ULLL_AM|ULLL-AM|Sankt-Peterburg ACC, sectors Arkhangelsk, Murmansk, Naryan-Mar, Oceanic - Peterburg
+ULLL-AR|ULLL_AR|ULLL-AR|Sankt-Peterburg ACC, sector Arkhangelsk - Peterburg
+ULLL-KT|ULLL_KT|ULLL-KT|Sankt-Peterburg ACC, sector Kotlas - Peterburg
+ULLL-MO|ULLL_MO|ULLL-MO|Sankt-Peterburg ACC, sector Oceanic - Peterburg
+ULLL-MR|ULLL_MR|ULLL-MR|Sankt-Peterburg ACC, sector Murmansk - Peterburg
+ULLL-NM|ULLL_NM|ULLL-NM|Sankt-Peterburg ACC, sector Naryan-Mar - Peterburg
+ULLL-R|ULLL_R|ULLL-R|Sankt-Peterburg ACC, sector Peterburg - Peterburg
+ULLL-R1|ULLL_R1|ULLL-R1|Sankt-Peterburg ACC, sector R1 North - Peterburg
+ULLL-R2|ULLL_R2|ULLL-R2|Sankt-Peterburg ACC, sector R2 South-East - Peterburg
+ULLL-R3|ULLL_R3|ULLL-R3|Sankt-Peterburg ACC, sector R3 South-West - Peterburg
+ULLL-R4|ULLL_R4|ULLL-R4|Sankt-Peterburg ACC, sector R4 West - Peterburg
+ULLL-R5|ULLL_R5|ULLL-R5|Sankt-Peterburg ACC, sector R5 Petrozavodsk - Peterburg
+ULLL-R6|ULLL_R6|ULLL-R6|Sankt-Peterburg ACC, sector R6 Velikiye Luki - Peterburg
+ULLL-S|ULLL_S|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_SC|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_S1|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_S2|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_S3|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_S4|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-S|ULLL_S5|ULLL-S|Sankt-Peterburg ACC, sector Syktyvkar - Peterburg
+ULLL-SW|ULLL_SW|ULLL-SW|Sankt-Peterburg ACC, sector SW (R3+R4) South-West - Peterburg
+ULLL-W|ULLL_W|ULLL-W|Sankt-Peterburg ACC, sector Vologda - Peterburg
+ULLL-W|ULLL_W1|ULLL-W|Sankt-Peterburg ACC, sector Vologda - Peterburg
+ULLL-W|ULLL_W2|ULLL-W|Sankt-Peterburg ACC, sector Vologda - Peterburg
+ULLL-WK|ULLL_WK|ULLL-WK|Sankt-Peterburg ACC, sectors Kotlas, Vologda - Peterburg
+UMKK||UMKK|Kaliningrad
+UMMV|UMMM|UMMV|Minsk
+UMMV-N|UMMV_N|UMMV-N|Minsk ACC sector North
+UMMV-S|UMMV_S|UMMV-S|Minsk ACC sector South
+UMMV-W|UMMV_W|UMMV-W|Minsk ACC sector West
+UNKL||UNKL|Krasnoyarsk
+UNKL-N|UNKL_N|UNKL-N|Krasnoyarsk ACC Sector North - Krasnoyarsk
+UNKL-N1|UNKL_N1|UNKL-N1|Krasnoyarsk ACC Sector North 1 - Krasnoyarsk
+UNKL-N2|UNKL_N2|UNKL-N2|Krasnoyarsk ACC Sector North 2 - Krasnoyarsk
+UNKL-S|UNKL_S|UNKL-S|Krasnoyarsk ACC Sector South - Krasnoyarsk
+UNKL-S1|UNKL_S1|UNKL-S1|Krasnoyarsk ACC Sector South 1 - Krasnoyarsk
+UNKL-S2|UNKL_S2|UNKL-S2|Krasnoyarsk ACC Sector South 2 - Krasnoyarsk
+UNKL-S3|UNKL_S3|UNKL-S3|Krasnoyarsk ACC Sector South 3 - Krasnoyarsk
+UNNT||UNNT|Novosibirsk
+UNNT-C|UNNT_C|UNNT-C|Novosibirsk ACC Sector Center - Novosibirsk
+UNNT-E|UNNT_E|UNNT-E|Novosibirsk ACC Sector East - Novosibirsk
+UNNT-N|UNNT_N|UNNT-N|Novosibirsk ACC Sector North - Novosibirsk
+UNNT-S|UNNT_S|UNNT-S|Novosibirsk ACC Sector South - Novosibirsk
+UNNT-W|UNNT_W|UNNT-W|Novosibirsk ACC Sector West - Novosibirsk
+URRV||URRV|Rostov
+USSV||USSV|Yekaterinburg ACC - Ural
+USSV-C|USSV_C|USSV-C|Yekaterinburg ACC Sector Center - Ural
+USSV-E|USSV_E|USSV-E|Yekaterinburg ACC Sector East - Ural
+USSV-N|USSV_N|USSV-N|Yekaterinburg ACC Sector North - Ural
+USSV-P|USSV_P|USSV-P|Yekaterinburg ACC Sector Perm - Ural
+USSV-S|USSV_S|USSV-S|Yekaterinburg ACC Sector South - Ural
+USSV-W|USSV_W|USSV-W|Yekaterinburg ACC Sector West - Ural
+USTV||USTV|Tyumen ACC - Tyumen
+USTV-C|USTV_C|USTV-C|Tyumen ACC Sector Center - Tyumen
+USTV-E|USTV_E|USTV-E|Tyumen ACC Sector East - Tyumen
+USTV-N|USTV_N|USTV-N|Tyumen ACC Sector North - Tyumen
+USTV-S|USTV_S|USTV-S|Tyumen ACC Sector South - Tyumen
+USTV-W|USTV_W|USTV-W|Tyumen ACC Sector West - Tyumen
+UTAA||UTAA|Ashgabat
+UTAK||UTAK|Turkmenbashi
+UTAT||UTAT|Dashoguz
+UTAV||UTAV|Turkmenabat
+UTDD||UTDD|Dushanbe
+UUWV||UUWV|Moscow
+UUWV-E|UUWV_E|UUWV-E|Moscow ACC sector Penza - Moscow
+UUWV-N|UUWV_N|UUWV-N|Moscow ACC sector Combined North - Moscow
+UUWV-NE|UUWV_NE|UUWV-NE|Moscow ACC sector Gorky - Moscow
+UUWV-NW|UUWV_NW|UUWV-NW|Moscow ACC sector North - Moscow
+UUWV-S|UUWV_S|UUWV-S|Moscow ACC sector Combined South - Moscow
+UUWV-SE|UUWV_SE|UUWV-SE|Moscow ACC sectors Penza and Voronezh - Moscow
+UUWV-SW|UUWV_SW|UUWV-SW|Moscow ACC sector South-West - Moscow
+UUWV-W|UUWV_W|UUWV-W|Moscow ACC sector West - Moscow
+UWWW||UWWW|Samara
+UWWW-E|UWWW_E|UWWW-E|Samara ACC samara East - Samara
+UWWW-N|UWWW_N|UWWW-N|Samara ACC sector Kazan - Samara
+UWWW-SE|UWWW_SE|UWWW-SE|Samara ACC sector Orenburg - Samara
+UWWW-SW|UWWW_SW|UWWW-SW|Samara ACC sector Saratov - Samara
+UWWW-W|UWWW_W|UWWW-W|Samara ACC sector West - Samara
+UWWW-LG|UWWW_LG|UWWW-LG|Samara FSS sector Ulyanovsk - Ulyanovsk Information
+UWWW-KG|UWWW_KG|UWWW-KG|Samara FSS sector Kazan - Kazan Information
+UWWW-SG|UWWW_SG|UWWW-SG|Samara FSS sector Samara - Samara Control
+UZSD||UZSD|Samarkand
+UZTR||UZTR|Tashkent
+VAAH||VAAH|Ahmedabad ACC - Mumbai
+VABB||VABB|Mumbai ACC - Mumbai
+VABB-LC|VABB_LC|VABB-LC|Mumbai Lower ACC - Mumbai
+VABB-U5|VABB_U5|VABB-U5|Mumbai (U5) ACC - Mumbai
+VABF||VABF|Mumbai
+VABF-OC|VABF_OC|VABF-OC|Oceanic Sector - Mumbai
+VABF-UAC|VABF_UAC|VABF-UAC|Upper Area Control - Mumbai
+VANP||VANP|Nagpur ACC - Mumbai
+VANP-UAC|VANP_UAC|VANP-UAC|Nagpur (Upper) ACC - Mumbai
+VCCF||VCCF|Colombo
+VDPF||VDPF|Phnom Penh
+VEBN||VEBN|Varanasi ACC - Kolkata
+VECC||VECC|Kolkata ACC - Kolkata
+VECC-E|VECC_E|VECC-E|Kolkata (East) ACC - Kolkata
+VECC-N|VECC_N|VECC-N|Kolkata (North) ACC - Kolkata
+VECC-W|VECC_W|VECC-W|Kolkata (West) ACC - Kolkata
+VECF||VECF|Kolkata
+VECF-OC|VECF_OC|VECF-OC|Oceanic Sector - Kolkata
+VECF-UAC|VECF_UAC|VECF-UAC|Upper Area Control - Kolkata
+VECF-UBN|VECF_UBN|VECF-UBN|Upper Varanasi Sector - Kolkata
+VECF-UBS|VECF_UBS|VECF-UBS|Upper Bhubaneswar Sector - Kolkata
+VECF-UGT|VECF_UGT|VECF-UGT|Upper Guwahati Sector - Kolkata
+VECF-UKE|VECF_UKE|VECF-UKE|Upper Kolkata (East) Sector - Kolkata
+VECF-UKN|VECF_UKN|VECF-UKN|Upper Kolkata (North) Sector - Kolkata
+VECF-UKW|VECF_UKW|VECF-UKW|Upper Kolkata (West) Sector - Kolkata
+VECF-URP|VECF_URP|VECF-URP|Upper Raipur Sector - Kolkata
+VEGF||VEGF|Guwahati
+VGFR||VGFR|Dhaka
+VHHK|HKG|VHHK|Hong Kong
+VIAR||VIAR|Amritsar ACC - Delhi
+VIDF||VIDF|Delhi
+VIDF-LD1|VIDF_LD1|VIDF-LD1|Lower Delhi (Northeast) ACC - Delhi
+VIDF-LD2|VIDF_LD2|VIDF-LD2|Lower Delhi (Southeast) ACC - Delhi
+VIDF-LD3|VIDF_LD3|VIDF-LD3|Lower Delhi (Southwest) ACC - Delhi
+VIDF-LD4|VIDF_LD4|VIDF-LD4|Lower Delhi (Northwest) ACC - Delhi
+VIDF-UAC|VIDF_UAC|VIDF-UAC|Upper Area Control - Delhi
+VIDF-UD1|VIDF_UD1|VIDF-UD1|Upper Delhi (Northeast) ACC - Delhi
+VIDF-UD2|VIDF_UD2|VIDF-UD2|Upper Delhi (Southeast) ACC - Delhi
+VIDF-UD3|VIDF_UD3|VIDF-UD3|Upper Delhi (Southwest) ACC - Delhi
+VIDF-UD4|VIDF_UD4|VIDF-UD4|Upper Delhi (Northwest) ACC - Delhi
+VIDF-UD5|VIDF_UD5|VIDF-UD5|Upper Delhi (Central) ACC - Delhi
+VIJP||VIJP|Jaipur ACC - Delhi
+VILK||VILK|Lucknow ACC - Delhi
+VIUX||VIUX|Udhampur ACC (Northern Control) - Delhi
+VLVT||VLVT|Vientiane
+VNSM||VNSM|Kathmandu
+VOBG||VOBG|Bengaluru (HAL) ACC - Chennai
+VOBL||VOBL|Bengaluru ACC - Chennai
+VOCI||VOCI|Cochin ACC - Chennai
+VOHS||VOHS|Hyderabad ACC - Chennai
+VOMF||VOMF|Chennai
+VOMF-OC|VOMF_OC|VOMF-OC|Oceanic Sector - Chennai
+VOMF-UAC|VOMF_UAC|VOMF-UAC|Upper Area Control - Chennai
+VOMF-UBL|VOMF_UBL|VOMF-UBL|Upper Bengaluru Sector - Chennai
+VOMF-UBW|VOMF_UBW|VOMF-UBW|Upper Bengaluru (West) Sector - Chennai
+VOMF-UHS|VOMF_UHS|VOMF-UHS|Upper Hyderabad Sector - Chennai
+VOMF-UML|VOMF_UML|VOMF-UML|Upper Mangaluru Sector - Chennai
+VOMF-UMM|VOMF_UMM|VOMF-UMM|Upper Chennai Sector - Chennai
+VOMF-UTV|VOMF_UTV|VOMF-UTV|Upper Thiruvananthapuram Sector - Chennai
+VOML||VOML|Mangaluru ACC - Chennai
+VOMM||VOMM|Chennai ACC - Chennai
+VOMM-S|VOMM_S|VOMM-S|Chennai (South) ACC - Chennai
+VOTV||VOTV|Thiruvananthapuram ACC - Chennai
+VRMF||VRMF|Male
+VTBB||VTBB|Bangkok ACC - Bangkok
+VTBB-1N|VTBB_1N|VTBB-1N|Bangkok ACC (Sector 1N) - Bangkok
+VTBB-1S|VTBB_1S|VTBB-1S|Bangkok ACC (Sector 1S) - Bangkok
+VTBB-2N|VTBB_2N|VTBB-2N|Bangkok ACC (Sector 2N) - Bangkok
+VTBB-2S|VTBB_2S|VTBB-2S|Bangkok ACC (Sector 2S) - Bangkok
+VTBB-3N|VTBB_3N|VTBB-3N|Bangkok ACC (Sector 3N) - Bangkok
+VTBB-3S|VTBB_3S|VTBB-3S|Bangkok ACC (Sector 3S) - Bangkok
+VTBB-4N|VTBB_4N|VTBB-4N|Bangkok ACC (Sector 4N) - Bangkok
+VTBB-4S|VTBB_4S|VTBB-4S|Bangkok ACC (Sector 4S) - Bangkok
+VTBB-5N|VTBB_5N|VTBB-5N|Bangkok ACC (Sector 5N) - Bangkok
+VTBB-5S|VTBB_5S|VTBB-5S|Bangkok ACC (Sector 5S) - Bangkok
+VTBB-6N|VTBB_6N|VTBB-6N|Bangkok ACC (Sector 6N) - Bangkok
+VTBB-6S|VTBB_6S|VTBB-6S|Bangkok ACC (Sector 6S) - Bangkok
+VTBB-N|VTBB_N|VTBB-N|Bangkok ACC (Sectors 1N-6N) - Bangkok
+VTBB-NE|VTBB_NE|VTBB-NE|Bangkok ACC (Sectors 2N/5N/6N) - Bangkok
+VTBB-NW|VTBB_NW|VTBB-NW|Bangkok ACC (Sectors 1N/3N/4N) - Bangkok
+VTBB-S|VTBB_S|VTBB-S|Bangkok ACC (Sectors 1S-6S) - Bangkok
+VTBB-SE|VTBB_SE|VTBB-SE|Bangkok ACC (Sectors 5S-6S) - Bangkok
+VTBB-SW|VTBB_SW|VTBB-SW|Bangkok ACC (Sectors 1S-4S) - Bangkok
+VVHM||VVHM|Ho Chi Minh
+VVHM-1|VVHM_1|VVHM-1|Ho Chi Minh ACC (Sector 1) - Ho Chi Minh
+VVHM-2|VVHM_2|VVHM-2|Ho Chi Minh ACC (Sector 2) - Ho Chi Minh
+VVHM-3|VVHM_3|VVHM-3|Ho Chi Minh ACC (Sector 3) - Ho Chi Minh
+VVHM-4|VVHM_4|VVHM-4|Ho Chi Minh ACC (Sector 4) - Ho Chi Minh
+VVHM-5|VVHM_5|VVHM-5|Ho Chi Minh ACC (Sector 5) - Ho Chi Minh
+VVHM-6|VVHM_6|VVHM-6|Ho Chi Minh ACC (Sector 6) - Ho Chi Minh
+VVHM-7|VVHM_7|VVHM-7|Ho Chi Minh ACC (Sector 7) - Ho Chi Minh
+VVHM-A|VVHM_A|VVHM-A|Ho Chi Minh ACC (Sector N) - Ho Chi Minh
+VVHM-B|VVHM_B|VVHM-B|Ho Chi Minh ACC (Sector S) - Ho Chi Minh
+VVHN||VVHN|Ha Noi
+VVHN-1|VVHN_1|VVHN-1|Ha Noi ACC (Sector 1) - Ha Noi
+VVHN-2|VVHN_2|VVHN-2|Ha Noi ACC (Sector 2) - Ha Noi
+VVHN-3|VVHN_3|VVHN-3|Ha Noi ACC (Sector 3) - Ha Noi
+VVHN-4|VVHN_4|VVHN-4|Ha Noi ACC (Sector 4) - Ha Noi
+VYYF||VYYF|Yangon
+WAAF||WAAF|Ujung Pandang
+WAAF-AN|WAAF_AN|WAAF-AN|Ujung Pandang (Ambon)
+WAAF-BI|WAAF_BI|WAAF-BI|Ujung Pandang (Bali)
+WAAF-BN|WAAF_BN|WAAF-BN|Ujung Pandang (Balikpapan)
+WAAF-MO|WAAF_MO|WAAF-MO|Ujung Pandang (Manado)
+WAAF-MS|WAAF_MS|WAAF-MS|Ujung Pandang (Makassar)
+WAAF-NA|WAAF_NA|WAAF-NA|Ujung Pandang (Nusa Tenggara)
+WAAF-PA|WAAF_PA|WAAF-PA|Ujung Pandang (Papua)
+WAAF-PN|WAAF_PN|WAAF-PN|Ujung Pandang (Pangkalan Bun)
+WAAF-SY|WAAF_SY|WAAF-SY|Ujung Pandang (Surabaya)
+WBFC||WBFC|Kota Kinabalu
+WBGG||WBGG|Kuching
+WIIF||WIIF|Jakarta
+WIIF-BC|WIIF_BC|WIIF-BC|Jakarta (Banda Aceh)
+WIIF-BD|WIIF_BD|WIIF-BD|Jakarta (Bandung)
+WIIF-IS|WIIF_IS|WIIF-IS|Jakarta (Upper Indian Ocean)
+WIIF-JG|WIIF_JG|WIIF-JG|Jakarta (Yogyakarta)
+WIIF-JT|WIIF_JT|WIIF-JT|Jakarta (Jakarta)
+WIIF-MN|WIIF_MN|WIIF-MN|Jakarta (Medan)
+WIIF-NA|WIIF_NA|WIIF-NA|Jakarta (Natuna)
+WIIF-PB|WIIF_PB|WIIF-PB|Jakarta (Palembang)
+WIIF-PK|WIIF_PK|WIIF-PK|Jakarta (Pontianak)
+WIIF-PP|WIIF_PP|WIIF-PP|Jakarta (Pangkalpinang)
+WIIF-PU|WIIF_PU|WIIF-PU|Jakarta (Pekanbaru)
+WIIF-SG|WIIF_SG|WIIF-SG|Jakarta (Semarang)
+WIIF-TG|WIIF_TG|WIIF-TG|Jakarta (Tanjungpinang)
+WIIF-TN|WIIF_TN|WIIF-TN|Jakarta (Tanjung Pandan)
+WMFC||WMFC|Kuala Lumpur
+WSJC||WSJC|Singapore
+XVCL|VCL|XVCL|Mekong
+YARA|BN-ARA|YARA|Brisbane (Arafura) 133.7* (125.7)
+YARL|BN-ARL|YARL|Brisbane (Armidale) 130.9
+YASH|BN-ASH|YASH|Brisbane (Ashmore) 133.4* (123.85)
+YASP|ML-ASP|YASP|Melbourne (Alice Springs) 128.85
+YASW|ML-ASW|YASW|Melbourne (Alice Springs West) 131.8* (128.85)
+YAUG|ML-AUG|YAUG|Melbourne (Augusta) 127.05* (123.05)
+YBAR|BN-BAR|YBAR|Brisbane (Barra) 123.8* (120.15)
+YBIK|ML-BIK|YBIK|Melbourne (Bindook) 129.8* (133.15)
+YBKE|ML-BKE|YBKE|Melbourne (Bourke) 128.2* (128.85)
+YBLA|ML-BLA|YBLA|Melbourne (Benalla) 132.2
+YBUR|BN-BUR|YBUR|Brisbane (Burnett) 123.0* (134.2)
+YCNK|BN-CNK|YCNK|Brisbane (Cessnock) 123.4* (130.9)
+YCOL|BN-COL|YCOL|Brisbane Radio (Coral) 133.15* (124.65)
+YCVN|BN-CVN|YCVN|Brisbane (Carnarvon) 133.8* (125.9)
+YDAL|ML-DAL|YDAL|Melbourne (Dally) 124.8* (118.2)
+YDEN|BN-DEN|YDEN|Brisbane (Denman) 134.15* (130.9)
+YDOS|BN-DOS|YDOS|Brisbane (Downs) 135.6* (134.2)
+YELW|ML-ELW|YELW|Melbourne (Eildon Weir) 123.75* (132.2)
+YESP|ML-ESP|YESP|Melbourne (Esperance) 123.95* (128.85)
+YFLD|BN-FLD|YFLD|Brisbane Radio (Flinders) 132.85* (124.65)
+YFOR|ML-FOR|YFOR|Melbourne (Forrest) 132.7* (128.85)
+YGAH|BN-GAH|YGAH|Brisbane (Gunnedah) 121.15* (130.9)
+YGEL|ML-GEL|YGEL|Melbourne (Geraldton) 134.2* (118.2)
+YGOL|BN-GOL|YGOL|Brisbane (Gold Coast) 130.4* (134.2)
+YGTH|ML-GTH|YGTH|Melbourne (Griffith) 122.75* (132.6)
+YGUN|ML-GUN|YGUN|Melbourne (Gundagai) 133.15
+YGVE|ML-GVE|YGVE|Melbourne (Grove) 133.8* (118.2)
+YHUO|ML-HUO|YHUO|Melbourne (Huon) 122.6
+YHWE|BN-HWE|YHWE|Brisbane (Howe) 124.95
+YHYD|ML-HYD|YHYD|Melbourne (Hyden) 118.2
+YIND|ML-IND|YIND|Brisbane Radio (Indian) 129.25
+YINE|ML-INE|YINE|Brisbane Radio (Indian East) 123.65* (129.25)
+YINL|BN-INL|YINL|Brisbane (Inverell) 134.2
+YINS|ML-INS|YINS|Brisbane Radio (Indian South) 123.2* (129.25)
+YISA|BN-ISA|YISA|Brisbane (Isa) 125.7
+YJAR|ML-JAR|YJAR|Melbourne (Jarrah) 120.3* (118.2)
+YKAT|ML-KAT|YKAT|Melbourne (Katoomba) 133.5* (133.15)
+YKEN|BN-KEN|YKEN|Brisbane (Kennedy) 120.15
+YKIY|BN-KIY|YKIY|Brisbane (Kimberley) 132.1* (123.85)
+YKPL|BN-KPL|YKPL|Brisbane (Keppel) 125.9
+YLEA|ML-LEA|YLEA|Melbourne (Leeman) 122.4* (118.2)
+YLEO|ML-LEO|YLEO|Melbourne (Leonora) 133.7* (134.0)
+YLIG|BN-LIG|YLIG|Brisbane (Lightning) 133.0* (130.9)
+YMEK|ML-MEK|YMEK|Melbourne (Meekatharra) 132.0* (134.0)
+YMLD|BN-MLD|YMLD|Brisbane (Maitland) 132.35* (130.1)
+YMNN|BN-MNN|YMNN|Brisbane (Manning) 130.1
+YMOR|BN-MOR|YMOR|Brisbane (Moree) 134.85* (130.9)
+YMTK|ML-MTK|YMTK|Melbourne (Mount) 118.95* (134.0)
+YMUN|ML-MUN|YMUN|Melbourne (Mungo) 132.6
+YMZI|ML-MZI|YMZI|Melbourne (Menzies) 134.3* (134.0)
+YNEW|ML-NEW|YNEW|Melbourne (Newman) 125.4* (134.0)
+YNSA|BN-NSA|YNSA|Brisbane (Noosa) 124.1* (134.2)
+YOCN|BN-OCN|YOCN|Brisbane (Ocean) 128.6* (130.1)
+YOLW|ML-OLW|YOLW|Melbourne (Onslow) 134.0
+YOXL|ML-OXL|YOXL|Melbourne (Oxley) 128.5* (132.6)
+YPAR|ML-PAR|YPAR|Melbourne (Paraburdoo) 133.5* (134.0)
+YPIY|ML-PIY|YPIY|Melbourne (Pingelly) 133.9* (118.2)
+YPOT|ML-POT|YPOT|Melbourne (Port) 127.0* (134.0)
+YRYS|BN-RYS|YRYS|Brisbane (Rylstone) 119.7* (130.9)
+YSCR|ML-SCR|YSCR|Melbourne (Cross) 135.8* (118.2)
+YSDY|BN-SDY|YSDY|Brisbane (Straddy) 134.3* (134.2)
+YSNO|ML-SNO|YSNO|Melbourne (Snowy) 124.0* (125.0)
+YSTR|BN-STR|YSTR|Brisbane (Sturt) 134.4* (125.7)
+YSWY|BN-SWY|YSWY|Brisbane (Swampy) 133.2* (125.9)
+YTBD|ML-TBD|YTBD|Melbourne (Tailem Bend) 123.05
+YTBP|BN-TBP|YTBP|Brisbane (Tabletop) 120.55* (120.15)
+YTRS|BN-TRS|YTRS|Brisbane (Territory South) 133.2* (123.85)
+YTRT|BN-TRT|YTRT|Brisbane (Territory North) 123.85
+YTSN|BN-TSN|YTSN|Brisbane Radio (Tasman) 124.65
+YWAR|ML-WAR|YWAR|Melbourne (Warburton) 124.9* (128.85)
+YWEG|BN-WEG|YWEG|Brisbane (Warrego) 132.45* (125.7)
+YWIL|BN-WIL|YWIL|Brisbane (Willis) 127.6* (120.15)
+YWOL|ML-WOL|YWOL|Melbourne (Wollongong) 125.0
+YWON|ML-WON|YWON|Melbourne (Wonthaggi) 135.3* (122.6)
+YWRA|ML-WRA|YWRA|Melbourne (Woomera) 132.9* (128.85)
+YYWE|ML-YWE|YYWE|Melbourne (Yarrowee) 134.325* (132.6)
+ZBAA||ZBAA|Beijing ACC - Beijing FIR - Beijing
+ZBAA-E|ZBAA_E|ZBAA-E|Beijing ACC East Sector - Beijing FIR - Beijing
+ZBAA-N|ZBAA_N|ZBAA-N|Beijing ACC North High Sector - Beijing FIR - Beijing
+ZBAA-S|ZBAA_S|ZBAA-S|Beijing ACC South High Sector - Beijing FIR - Beijing
+ZBAA-W|ZBAA_W|ZBAA-W|Beijing ACC West Sector - Beijing FIR - Beijing
+ZBAA-SW|ZBAA_SW|ZBAA-SW|Beijing ACC Southwest Sector - Beijing FIR - Beijing
+ZBHH||ZBHH|Hohhot ACC - Beijing FIR - Hohhot
+ZBPE||ZBPE|Beijing FIR - Beijing
+ZGGG||ZGGG|Guangzhou ACC - Guangzhou FIR - Guangzhou
+ZGHA||ZGHA|Changsha ACC - Guangzhou FIR - Changsha
+ZGNN||ZGNN|Nanning ACC - Guangzhou FIR - Nanning
+ZGZU||ZGZU|Guangzhou FIR - Guangzhou
+ZHCC||ZHCC|Zhengzhou ACC - Wuhan FIR - Zhengzhou
+ZHHH||ZHHH|Wuhan ACC - Wuhan FIR - Wuhan
+ZHWH||ZHWH|Wuhan FIR - Wuhan
+ZJSA||ZJSA|Sanya FIR - Sanya
+ZJSY-L|ZJSY_L|ZJSY-L|Sanya ACC Land Sector - Sanya FIR - Sanya
+ZJSY-O|ZJSY_O|ZJSY-O|Sanya ACC Oceanic Sector - Sanya FIR - Sanya
+ZKKP||ZKKP|Pyongyang
+ZLHW||ZLHW|Lanzhou FIR - Lanzhou
+ZLLL||ZLLL|Lanzhou ACC - Lanzhou FIR - Lanzhou
+ZLXY||ZLXY|Xi'an ACC - Lanzhou FIR - Xi'an
+ZMUB||ZMUB|Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-A|ZMUB_A|ZMUB-A|Ulaanbaatar ACC Altai Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-B|ZMUB_B|ZMUB-B|Ulaanbaatar ACC Bayan Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-C|ZMUB_C|ZMUB-C|Ulaanbaatar ACC Central Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-D|ZMUB_D|ZMUB-D|Ulaanbaatar ACC Dornod Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-G|ZMUB_G|ZMUB-G|Ulaanbaatar ACC Gobi Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZMUB-M|ZMUB_M|ZMUB-M|Ulaanbaatar ACC Muren Sector - Ulaanbaatar FIR - Ulaanbaatar
+ZPKM||ZPKM|Kunming FIR - Kunming
+ZPPP||ZPPP|Kunming ACC - Kunming FIR - Kunming
+ZSAM||ZSAM|Xiamen ACC - Shanghai FIR - Xiamen
+ZSCN||ZSCN|Nanchang ACC - Shanghai FIR - Nanchang
+ZSHA||ZSHA|Shanghai FIR - Shanghai FIR - Shanghai
+ZSJN||ZSJN|Jinan ACC - Shanghai FIR - Jinan
+ZSOF||ZSOF|Hefei ACC - Shanghai FIR - Hefei
+ZSQD||ZSQD|Qingdao ACC - Shanghai FIR - Qingdao
+ZSSS||ZSSS|Shanghai ACC - Shanghai FIR - Shanghai
+ZSSS-C|ZSSS_C|ZSSS-C|Shanghai ACC Central High Sector - Shanghai FIR - Shanghai
+ZSSS-N|ZSSS_N|ZSSS-N|Shanghai ACC North High Sector - Shanghai FIR - Shanghai
+ZSSS-S|ZSSS_S|ZSSS-S|Shanghai ACC South High Sector - Shanghai FIR - Shanghai
+ZSSS-W|ZSSS_W|ZSSS-W|Shanghai ACC West High Sector - Shanghai FIR - Shanghai
+ZUGY||ZUGY|Guiyang ACC - Kunming FIR - Guiyang
+ZULS||ZULS|Lhasa ACC - Kunming FIR - Lhasa
+ZUUU||ZUUU|Chengdu ACC - Kunming FIR - Chengdu
+ZWUQ||ZWUQ|Urumqi FIR - Urumqi
+ZWWW-N|ZWWW_N|ZWWW-N|Urumqi ACC North Sector- Urumqi FIR - Urumqi
+ZWWW-S|ZWWW_S|ZWWW-S|Urumqi ACC South Sector- Urumqi FIR - Urumqi
+ZYHB||ZYHB|Harbin ACC - Shenyang FIR - Harbin
+ZYSH||ZYSH|Shenyang FIR - Shenyang
+ZYTL||ZYTL|Dalian ACC - Shenyang FIR - Dalian
+ZYTX||ZYTX|Shenyang ACC - Shenyang FIR - Shenyang

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Compose 전용 앱이므로 View 기반 Material Components(com.google.android.material) 의존성을 넣지 않습니다.
+  Theme.Material3.* 는 그 라이브러리의 리소스라 여기서는 쓸 수 없습니다.
+  실제 색상/타이포는 Compose의 MaterialTheme이 담당하고, 이 XML 테마는 앱 시작 시
+  윈도우 배경과 시스템 바만 결정합니다. 다크 모드는 values-night/themes.xml에서 처리합니다.
+-->
+<resources>
+    <style name="Theme.VATRadar" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+</resources>

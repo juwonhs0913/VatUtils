@@ -1,0 +1,145 @@
+package com.vatradar.app.data.local
+
+import android.content.Context
+import android.util.Log
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+
+/**
+ * VATSpy 기반 FIR 경계 저장소.
+ *
+ * VATSIM 데이터 피드는 관제사 좌표를 주지 않으므로, 콜사인에서 FIR을 역추적해
+ * 실제 관제 구역 폴리곤을 그립니다.
+ *
+ * assets:
+ *   firs.txt            ICAO|콜사인접두사|경계ID|이름
+ *   uirs.txt            ID|이름|FIR1,FIR2,...
+ *   fir_boundaries.txt  경계ID|lat,lon lat,lon ...|(링 구분)
+ *
+ * 경계 좌표는 요청된 것만 파싱해 캐시합니다. 전부 올리면 메모리 낭비이고,
+ * 실제로 접속 중인 관제소는 보통 수십~수백 곳뿐입니다.
+ */
+class FirBoundaryStore(private val context: Context) {
+
+    private data class FirRecord(
+        val icao: String,
+        val callsignPrefix: String,
+        val boundaryId: String,
+        val name: String
+    )
+
+    private val mutex = Mutex()
+    private var loaded = false
+
+    /** 콜사인 접두사(대문자) → FIR */
+    private val byCallsignPrefix = HashMap<String, FirRecord>()
+    /** FIR ICAO → FIR */
+    private val byIcao = HashMap<String, FirRecord>()
+    /** UIR ID → 소속 FIR ICAO 목록 */
+    private val uirs = HashMap<String, List<String>>()
+    /** 경계 ID → 아직 파싱하지 않은 원본 라인 */
+    private val rawBoundaries = HashMap<String, String>()
+    /** 경계 ID → 파싱된 폴리곤 (링 여러 개 가능) */
+    private val parsedBoundaries = HashMap<String, List<List<LatLng>>>()
+
+    private suspend fun ensureLoaded() {
+        if (loaded) return
+        mutex.withLock {
+            if (loaded) return
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    context.assets.open("firs.txt").bufferedReader().forEachLine { line ->
+                        val p = line.split("|")
+                        if (p.size >= 4) {
+                            val record = FirRecord(p[0], p[1], p[2], p[3])
+                            byIcao[record.icao.uppercase()] = record
+                            if (record.callsignPrefix.isNotBlank()) {
+                                byCallsignPrefix[record.callsignPrefix.uppercase()] = record
+                            }
+                        }
+                    }
+                    context.assets.open("uirs.txt").bufferedReader().forEachLine { line ->
+                        val p = line.split("|")
+                        if (p.size >= 3) {
+                            uirs[p[0].uppercase()] = p[2].split(",").map { it.trim().uppercase() }
+                        }
+                    }
+                    context.assets.open("fir_boundaries.txt").bufferedReader().forEachLine { line ->
+                        val id = line.substringBefore('|')
+                        if (id.isNotBlank()) rawBoundaries[id.uppercase()] = line
+                    }
+                }.onFailure { Log.e("VATRadar", "FIR 데이터 로드 실패", it) }
+            }
+            loaded = true
+        }
+    }
+
+    /**
+     * 관제사 콜사인에 해당하는 폴리곤을 찾습니다.
+     *
+     * 예) RKRR_CTR    → FIR RKRR
+     *     RKRR_N_CTR  → FIR RKRR-N (콜사인 접두사 RKRR_N), 없으면 RKRR로 폴백
+     *     AFRE_CTR    → UIR AFRE → 소속 FIR 여러 개의 폴리곤을 모두 반환
+     */
+    suspend fun boundariesFor(callsign: String): List<List<LatLng>> {
+        ensureLoaded()
+
+        val upper = callsign.uppercase()
+        // 뒤쪽 시설 접미사를 떼어냅니다. RKRR_N_CTR → RKRR_N
+        val base = upper.substringBeforeLast('_')
+
+        // 1) 콜사인 접두사 정확 일치 (RKRR_N)
+        byCallsignPrefix[base]?.let { return boundaryById(it.boundaryId) }
+
+        // 2) 첫 토큰으로 FIR ICAO 일치 (RKRR)
+        val root = base.substringBefore('_')
+        byIcao[root]?.let { return boundaryById(it.boundaryId) }
+
+        // 3) UIR (여러 FIR의 합집합)
+        uirs[base]?.let { members -> return unionOf(members) }
+        uirs[root]?.let { members -> return unionOf(members) }
+
+        // 4) 경계 ID가 콜사인과 그대로 같은 경우
+        return boundaryById(root)
+    }
+
+    private suspend fun unionOf(firIcaos: List<String>): List<List<LatLng>> =
+        firIcaos.flatMap { icao ->
+            byIcao[icao]?.let { boundaryById(it.boundaryId) } ?: boundaryById(icao)
+        }
+
+    private suspend fun boundaryById(boundaryId: String): List<List<LatLng>> {
+        val id = boundaryId.uppercase()
+        parsedBoundaries[id]?.let { return it }
+
+        val raw = rawBoundaries[id] ?: return emptyList()
+        val parsed = withContext(Dispatchers.Default) { parse(raw) }
+
+        mutex.withLock { parsedBoundaries[id] = parsed }
+        return parsed
+    }
+
+    private fun parse(line: String): List<List<LatLng>> =
+        line.split('|')
+            .drop(1) // 첫 토큰은 경계 ID
+            .mapNotNull { ring ->
+                val points = ring.split(' ').mapNotNull { pair ->
+                    val comma = pair.indexOf(',')
+                    if (comma <= 0) return@mapNotNull null
+                    val lat = pair.substring(0, comma).toDoubleOrNull() ?: return@mapNotNull null
+                    val lon = pair.substring(comma + 1).toDoubleOrNull() ?: return@mapNotNull null
+                    LatLng(lat, lon)
+                }
+                points.takeIf { it.size >= 3 }
+            }
+
+    /** 폴리곤 무게중심 — 마커/라벨 위치로 씁니다. */
+    fun centroid(rings: List<List<LatLng>>): LatLng? {
+        val all = rings.flatten()
+        if (all.isEmpty()) return null
+        return LatLng(all.sumOf { it.latitude } / all.size, all.sumOf { it.longitude } / all.size)
+    }
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground. 108x108 뷰포트 중 중앙 72x72만 안전 영역이므로 그 안에 그립니다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 레이더 링 -->
+    <path
+        android:strokeColor="#4DFFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M54,24 a30,30 0 1,0 0.1,0" />
+    <path
+        android:strokeColor="#66FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M54,36 a18,18 0 1,0 0.1,0" />
+
+    <!-- 레이더 스윕 -->
+    <path
+        android:fillColor="#3382E0FF"
+        android:pathData="M54,54 L54,24 A30,30 0 0,1 75.2,32.8 Z" />
+
+    <!-- 항공기 실루엣 (기수 북동쪽) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,38 L57,47 L72,56 L72,60 L57,56 L57,66 L61,70 L61,73 L54,71 L47,73 L47,70 L51,66 L51,56 L36,60 L36,56 L51,47 Z" />
+</vector>
