@@ -16,7 +16,9 @@
     <string name="airspace_shown">%1$d airspaces shown (VATSpy boundaries)</string>
     <string name="altitude">Altitude</string>
     <string name="ground_speed">Ground speed</string>
-    <string name="heading">Heading</string>
+    <string name="departure_time">Departure</string>
+    <string name="eta_live">ETA</string>
+    <string name="eta_planned">ETA (plan)</string>
     <string name="departure_chip">DEP %1$s</string>
     <string name="arrival_chip">ARR %1$s</string>
     <string name="tap_airport_for_weather">Tap an airport to see its weather.</string>

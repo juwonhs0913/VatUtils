@@ -16,7 +16,11 @@ data class Aircraft(
     val departure: String?,
     val arrival: String?,
     val route: String?,
-    val flightRules: String?     // "I" / "V" / null
+    val flightRules: String?,    // "I" / "V" / null
+    /** 비행계획상 출발 예정 시각. "1430" (HHMM, Zulu) 형식입니다. */
+    val plannedDepartureHhmm: String?,
+    /** 비행계획상 순항 소요 시간. "0530" (HHMM) 형식입니다. */
+    val enrouteTimeHhmm: String?
 )
 
 enum class FacilityType(val code: Int, val label: String) {

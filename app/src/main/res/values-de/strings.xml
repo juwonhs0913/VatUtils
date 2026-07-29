@@ -13,7 +13,9 @@
     <string name="airspace_shown">%1$d Lufträume angezeigt (VATSpy-Grenzen)</string>
     <string name="altitude">Höhe</string>
     <string name="ground_speed">Geschwindigkeit</string>
-    <string name="heading">Steuerkurs</string>
+    <string name="departure_time">Abflug</string>
+    <string name="eta_live">ETA</string>
+    <string name="eta_planned">ETA (Plan)</string>
     <string name="departure_chip">AB %1$s</string>
     <string name="arrival_chip">AN %1$s</string>
     <string name="tap_airport_for_weather">Tippe auf einen Flughafen, um das Wetter zu sehen.</string>

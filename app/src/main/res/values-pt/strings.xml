@@ -13,7 +13,9 @@
     <string name="airspace_shown">%1$d espaços aéreos exibidos (limites VATSpy)</string>
     <string name="altitude">Altitude</string>
     <string name="ground_speed">Velocidade de solo</string>
-    <string name="heading">Proa</string>
+    <string name="departure_time">Partida</string>
+    <string name="eta_live">ETA</string>
+    <string name="eta_planned">ETA (plano)</string>
     <string name="departure_chip">PART %1$s</string>
     <string name="arrival_chip">CHEG %1$s</string>
     <string name="tap_airport_for_weather">Toque em um aeroporto para ver a meteorologia.</string>

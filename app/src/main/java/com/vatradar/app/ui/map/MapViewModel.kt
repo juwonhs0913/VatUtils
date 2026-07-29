@@ -10,6 +10,10 @@ import com.vatradar.app.data.repository.WeatherReport
 import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Controller
+import com.vatradar.app.domain.model.greatCircleNm
+import com.vatradar.app.util.plannedArrivalZulu
+import com.vatradar.app.util.zuluAfterMinutes
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +36,12 @@ data class MapUiState(
     /** 선택한 항공기의 항로. 지나온 구간과 남은 구간을 나눠 그립니다. */
     val routeFlown: List<LatLng> = emptyList(),
     val routeRemaining: List<LatLng> = emptyList(),
-    val routeEndpoints: List<LatLng> = emptyList()
+    val routeEndpoints: List<LatLng> = emptyList(),
+
+    /** 도착 예상시각(Zulu). 순항 중이면 잔여 거리로 계산하고, 아니면 비행계획값을 씁니다. */
+    val estimatedArrival: String? = null,
+    /** 위 값이 실시간 계산인지(true) 비행계획상 예정인지(false). */
+    val etaIsLive: Boolean = false
 )
 
 class MapViewModel(app: Application) : AndroidViewModel(app) {
@@ -87,7 +96,9 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             selectedControllers = emptyList(),
             routeFlown = emptyList(),
             routeRemaining = emptyList(),
-            routeEndpoints = emptyList()
+            routeEndpoints = emptyList(),
+            estimatedArrival = null,
+            etaIsLive = false
         )
         if (aircraft != null) loadRoutePath(aircraft)
     }
@@ -108,10 +119,29 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             val from = departure?.let { LatLng(it.latitude, it.longitude) }
             val to = arrival?.let { LatLng(it.latitude, it.longitude) }
 
+            // 순항 중이면 잔여 거리 ÷ 대지속도가 비행계획값보다 훨씬 정확합니다.
+            // 지상에 있거나 도착지를 모르면 비행계획상 예정 도착시각으로 물러섭니다.
+            val liveEta = if (arrival != null && aircraft.groundSpeed >= MIN_SPEED_FOR_ETA_KT) {
+                val remainingNm = greatCircleNm(
+                    aircraft.latitude, aircraft.longitude,
+                    arrival.latitude, arrival.longitude
+                )
+                zuluAfterMinutes((remainingNm / aircraft.groundSpeed * 60).roundToInt())
+            } else {
+                null
+            }
+
+            val plannedEta = plannedArrivalZulu(
+                aircraft.plannedDepartureHhmm,
+                aircraft.enrouteTimeHhmm
+            )
+
             _uiState.value = _uiState.value.copy(
                 routeFlown = if (from != null) listOf(from, current) else emptyList(),
                 routeRemaining = if (to != null) listOf(current, to) else emptyList(),
-                routeEndpoints = listOfNotNull(from, to)
+                routeEndpoints = listOfNotNull(from, to),
+                estimatedArrival = liveEta ?: plannedEta,
+                etaIsLive = liveEta != null
             )
         }
     }
@@ -123,7 +153,9 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             selectedAircraft = null,
             routeFlown = emptyList(),
             routeRemaining = emptyList(),
-            routeEndpoints = emptyList()
+            routeEndpoints = emptyList(),
+            estimatedArrival = null,
+            etaIsLive = false
         )
         // 공항 단위 관제석이면 그 공항 기상을 함께 띄웁니다.
         loadWeather(controllers.first().prefix)
@@ -152,7 +184,9 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             weatherLoading = false,
             routeFlown = emptyList(),
             routeRemaining = emptyList(),
-            routeEndpoints = emptyList()
+            routeEndpoints = emptyList(),
+            estimatedArrival = null,
+            etaIsLive = false
         )
     }
 
@@ -166,5 +200,8 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
 
     companion object {
         const val REFRESH_INTERVAL_MS = 15_000L
+
+        /** 이보다 느리면 지상 이동 중으로 보고 실시간 ETA를 내지 않습니다. */
+        private const val MIN_SPEED_FOR_ETA_KT = 60
     }
 }

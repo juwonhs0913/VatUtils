@@ -13,7 +13,9 @@
     <string name="airspace_shown">已显示 %1$d 个管制空域（VATSpy 边界）</string>
     <string name="altitude">高度</string>
     <string name="ground_speed">地速</string>
-    <string name="heading">航向</string>
+    <string name="departure_time">起飞</string>
+    <string name="eta_live">预计落地</string>
+    <string name="eta_planned">计划落地</string>
     <string name="departure_chip">起飞 %1$s</string>
     <string name="arrival_chip">落地 %1$s</string>
     <string name="tap_airport_for_weather">点击机场可查看天气信息。</string>

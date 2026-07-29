@@ -45,7 +45,9 @@ class VatsimRepository(
                         departure = pilot.flightPlan?.departure,
                         arrival = pilot.flightPlan?.arrival,
                         route = pilot.flightPlan?.route,
-                        flightRules = pilot.flightPlan?.flightRules
+                        flightRules = pilot.flightPlan?.flightRules,
+                        plannedDepartureHhmm = pilot.flightPlan?.deptime,
+                        enrouteTimeHhmm = pilot.flightPlan?.enrouteTime
                     )
                 }
 

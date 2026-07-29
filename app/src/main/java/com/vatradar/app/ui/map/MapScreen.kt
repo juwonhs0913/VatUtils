@@ -60,6 +60,7 @@ import com.vatradar.app.R
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Controller
 import com.vatradar.app.domain.model.FacilityType
+import com.vatradar.app.util.formatZuluHhmm
 
 @OptIn(MapsComposeExperimentalApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -225,7 +226,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     if (aircraft != null) {
-                        AircraftDetails(aircraft, onAirportClick = viewModel::loadWeather)
+                        AircraftDetails(
+                            aircraft = aircraft,
+                            estimatedArrival = state.estimatedArrival,
+                            etaIsLive = state.etaIsLive,
+                            onAirportClick = viewModel::loadWeather
+                        )
                     }
                     controllers.forEachIndexed { index, controller ->
                         if (index > 0) HorizontalDivider()
@@ -360,7 +366,12 @@ private fun MapOverlay(
  * 수치 세 개를 한 줄에, 항로 원문은 두 줄로 잘라서 보여줍니다.
  */
 @Composable
-private fun AircraftDetails(aircraft: Aircraft, onAirportClick: (String) -> Unit) {
+private fun AircraftDetails(
+    aircraft: Aircraft,
+    estimatedArrival: String?,
+    etaIsLive: Boolean,
+    onAirportClick: (String) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -374,13 +385,29 @@ private fun AircraftDetails(aircraft: Aircraft, onAirportClick: (String) -> Unit
         )
     }
 
+    Text(
+        aircraft.pilotName,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         CompactStat(stringResource(R.string.altitude), "%,d ft".format(aircraft.altitude))
         CompactStat(stringResource(R.string.ground_speed), "${aircraft.groundSpeed} kt")
-        CompactStat(stringResource(R.string.heading), "${aircraft.heading.toInt()}°")
+        CompactStat(
+            stringResource(R.string.departure_time),
+            formatZuluHhmm(aircraft.plannedDepartureHhmm) ?: "—"
+        )
+        CompactStat(
+            // 실시간 계산인지 비행계획상 예정인지 구분해 라벨을 붙입니다.
+            stringResource(if (etaIsLive) R.string.eta_live else R.string.eta_planned),
+            estimatedArrival ?: "—"
+        )
     }
 
     if (aircraft.departure != null || aircraft.arrival != null) {
