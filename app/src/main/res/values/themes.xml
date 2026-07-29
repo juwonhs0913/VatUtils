@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Compose 전용 앱이므로 View 기반 Material Components(com.google.android.material) 의존성을 넣지 않습니다.
-  Theme.Material3.* 는 그 라이브러리의 리소스라 여기서는 쓸 수 없습니다.
-  실제 색상/타이포는 Compose의 MaterialTheme이 담당하고, 이 XML 테마는 앱 시작 시
-  윈도우 배경과 시스템 바만 결정합니다. 다크 모드는 values-night/themes.xml에서 처리합니다.
+  AppCompat 테마를 쓰는 이유는 앱별 언어 설정(AppCompatDelegate.setApplicationLocales) 때문입니다.
+  AppCompatActivity는 Theme.AppCompat 계열이 아니면 실행 시 예외를 던집니다.
+
+  실제 색상/타이포는 Compose의 MaterialTheme이 담당하고,
+  이 XML 테마는 앱 시작 시 윈도우 배경과 시스템 바만 결정합니다.
+  DayNight 계열이라 다크 모드는 이 한 줄로 함께 처리됩니다.
 -->
 <resources>
-    <style name="Theme.VATRadar" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@android:color/white</item>
+    <style name="Theme.VATRadar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
     </style>
 </resources>

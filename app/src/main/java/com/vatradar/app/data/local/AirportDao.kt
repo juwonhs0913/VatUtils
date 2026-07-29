@@ -31,54 +31,14 @@ interface AirportDao {
     suspend fun search(q: String): List<AirportEntity>
 
     /**
-     * F3 무작위 공항 추첨.
-     * 대륙/국가는 null이면 전체를 뜻합니다(= 필터 미적용).
-     * hardOnly가 true면 포장 활주로만 대상으로 합니다.
+     * 국제공항급 전체.
+     *
+     * SQLite에는 삼각함수가 없어 대권거리를 쿼리에서 계산할 수 없습니다.
+     * 대상이 2천여 곳뿐이라 한 번 읽어 메모리에서 거리 계산을 합니다.
      */
-    @Query(
-        """
-        SELECT * FROM airports
-        WHERE maxRunwayFt >= :minRunwayFt
-          AND (:continent IS NULL OR continent = :continent)
-          AND (:country IS NULL OR country = :country)
-          AND (:hardOnly = 0 OR hardSurface = 1)
-        ORDER BY RANDOM()
-        LIMIT :limit
-        """
-    )
-    suspend fun randomAirports(
-        minRunwayFt: Int,
-        continent: String?,
-        country: String?,
-        hardOnly: Boolean,
-        limit: Int
-    ): List<AirportEntity>
+    @Query("SELECT * FROM airports WHERE international = 1")
+    suspend fun internationalAirports(): List<AirportEntity>
 
-    /** 후보 수를 미리 보여줘 필터가 너무 좁은지 사용자가 알 수 있게 합니다. */
-    @Query(
-        """
-        SELECT COUNT(*) FROM airports
-        WHERE maxRunwayFt >= :minRunwayFt
-          AND (:continent IS NULL OR continent = :continent)
-          AND (:country IS NULL OR country = :country)
-          AND (:hardOnly = 0 OR hardSurface = 1)
-        """
-    )
-    suspend fun countMatching(
-        minRunwayFt: Int,
-        continent: String?,
-        country: String?,
-        hardOnly: Boolean
-    ): Int
-
-    @Query(
-        """
-        SELECT DISTINCT country AS code, countryName AS name FROM airports
-        WHERE (:continent IS NULL OR continent = :continent)
-        ORDER BY countryName
-        """
-    )
-    suspend fun countries(continent: String?): List<CountryRow>
+    @Query("SELECT COUNT(*) FROM airports WHERE international = 1")
+    suspend fun internationalCount(): Int
 }
-
-data class CountryRow(val code: String, val name: String)

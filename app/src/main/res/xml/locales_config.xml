@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 13+ 시스템 앱별 언어 설정에 노출되는 목록입니다. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ko" />
+    <locale android:name="zh" />
+    <locale android:name="de" />
+    <locale android:name="pt" />
+</locale-config>

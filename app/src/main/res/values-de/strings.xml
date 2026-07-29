@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="tab_map">Karte</string>
+    <string name="tab_route">Route</string>
+    <string name="tab_events">Events</string>
+    <string name="settings">Einstellungen</string>
+    <string name="back">Zurück</string>
+
+    <!-- Map -->
+    <string name="aircraft_count">Flugzeuge %1$d</string>
+    <string name="controller_count">Lotsen %1$d</string>
+    <string name="airspace_shown">%1$d Lufträume angezeigt (VATSpy-Grenzen)</string>
+    <string name="altitude">Höhe</string>
+    <string name="ground_speed">Geschwindigkeit</string>
+    <string name="heading">Steuerkurs</string>
+    <string name="departure_chip">AB %1$s</string>
+    <string name="arrival_chip">AN %1$s</string>
+    <string name="tap_airport_for_weather">Tippe auf einen Flughafen, um das Wetter zu sehen.</string>
+    <string name="route_label">Route</string>
+    <string name="frequency">Frequenz</string>
+    <string name="visual_range">Sichtbereich</string>
+    <string name="atis">ATIS</string>
+    <string name="airspace_drawn">Der Luftraum dieses Lotsen ist auf der Karte eingezeichnet.</string>
+    <string name="unknown_type">Typ unbekannt</string>
+
+    <!-- Route -->
+    <string name="random_route">Zufällige Route</string>
+    <string name="haul_short">Kurzstrecke</string>
+    <string name="haul_medium">Mittelstrecke</string>
+    <string name="haul_long">Langstrecke</string>
+    <string name="haul_short_desc">Unter 1.500 NM · Schmalrumpf</string>
+    <string name="haul_medium_desc">1.500–3.500 NM · Großraumflugzeug</string>
+    <string name="haul_long_desc">Über 3.500 NM · Langstrecken-Großraumflugzeug</string>
+    <string name="intl_airport_pool">Auswahl aus %1$s internationalen Flughäfen weltweit.</string>
+    <string name="roll_route">Route auslosen</string>
+    <string name="roll_failed">Für diese Distanz wurde kein Paar gefunden. Bitte erneut versuchen.</string>
+    <string name="departure">Abflug</string>
+    <string name="arrival">Ankunft</string>
+    <string name="distance">Distanz</string>
+    <string name="longest_runway">längste Bahn</string>
+    <string name="elevation">Höhe ü. NN</string>
+
+    <!-- SimBrief -->
+    <string name="simbrief_plan">SimBrief-Flugplan</string>
+    <string name="aircraft_label">Muster %1$s</string>
+    <string name="airline_label">Airline %1$s</string>
+    <string name="generate_on_simbrief">Auf SimBrief erstellen</string>
+    <string name="simbrief_hint">Sobald SimBrief geöffnet ist, auf Generate tippen und danach unten das Ergebnis abrufen.</string>
+    <string name="fetch_ofp">Erstellten OFP abrufen</string>
+    <string name="ofp_summary">OFP-Übersicht</string>
+    <string name="cruise_altitude">Reiseflughöhe</string>
+    <string name="block_fuel">Blockkraftstoff</string>
+    <string name="enroute_burn">Streckenverbrauch</string>
+    <string name="time_enroute">Flugdauer</string>
+    <string name="cost_index">Cost Index</string>
+    <string name="open_ofp_pdf">OFP-PDF öffnen</string>
+    <string name="simbrief_id_required">Bitte zuerst die SimBrief-ID (Alias oder Pilot-ID) in den Einstellungen hinterlegen.</string>
+
+    <!-- Weather -->
+    <string name="weather_of">Wetter %1$s</string>
+    <string name="loading_weather">Wetter wird geladen…</string>
+    <string name="taf_forecast">TAF (Vorhersage)</string>
+    <string name="metar_unavailable">Für %1$s wird kein METAR veröffentlicht.</string>
+
+    <!-- Events -->
+    <string name="events_ongoing">Laufend (%1$d)</string>
+    <string name="events_upcoming">Geplant (%1$d)</string>
+    <string name="no_ongoing_events">Derzeit laufen keine Events.</string>
+    <string name="no_upcoming_events">Keine geplanten Events.</string>
+    <string name="organised_by">Veranstalter: %1$s</string>
+    <string name="view_on_vatsim">Auf VATSIM ansehen</string>
+
+    <!-- Settings -->
+    <string name="language">Sprache</string>
+    <string name="language_hint">Die App startet neu, um die gewählte Sprache anzuwenden.</string>
+    <string name="simbrief">SimBrief</string>
+    <string name="simbrief_id">SimBrief-ID (Alias oder Pilot-ID)</string>
+    <string name="simbrief_id_hint">Gib den Alias oder die numerische Pilot-ID aus deinen SimBrief-Kontoeinstellungen ein. Wird zum Abrufen des OFP verwendet.</string>
+    <string name="preferred_aircraft">Bevorzugtes Muster (ICAO, z. B. B77W)</string>
+    <string name="airline_code">Airline-Code (optional, z. B. DLH)</string>
+    <string name="controller_alerts">Lotsen-Benachrichtigungen</string>
+    <string name="enable_alerts">Benachrichtigungen aktivieren</string>
+    <string name="callsign_or_prefix">Rufzeichen oder Präfix (z. B. EDDF, EDGG_CTR)</string>
+    <string name="add">Hinzufügen</string>
+    <string name="remove">Entfernen</string>
+    <string name="no_watched_controllers">Keine Positionen hinterlegt.</string>
+    <string name="alerts_hint">Ein Präfix erfasst alle darunterliegenden Positionen (EDDF → EDDF_TWR, EDDF_APP, …).\nDie Abfrage auf dem Gerät ist durch Android auf 15-Minuten-Intervalle begrenzt. Für sofortige Benachrichtigungen siehe die FCM-Server-Anleitung in der README.</string>
+
+    <!-- Common -->
+    <string name="loading">Wird geladen…</string>
+    <string name="refresh">Aktualisieren</string>
+    <string name="error_prefix">Fehler: %1$s</string>
+</resources>

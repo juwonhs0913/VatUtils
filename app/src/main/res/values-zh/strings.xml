@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="tab_map">地图</string>
+    <string name="tab_route">航线</string>
+    <string name="tab_events">活动</string>
+    <string name="settings">设置</string>
+    <string name="back">返回</string>
+
+    <!-- Map -->
+    <string name="aircraft_count">航空器 %1$d</string>
+    <string name="controller_count">管制员 %1$d</string>
+    <string name="airspace_shown">已显示 %1$d 个管制空域（VATSpy 边界）</string>
+    <string name="altitude">高度</string>
+    <string name="ground_speed">地速</string>
+    <string name="heading">航向</string>
+    <string name="departure_chip">起飞 %1$s</string>
+    <string name="arrival_chip">落地 %1$s</string>
+    <string name="tap_airport_for_weather">点击机场可查看天气信息。</string>
+    <string name="route_label">航路</string>
+    <string name="frequency">频率</string>
+    <string name="visual_range">可视范围</string>
+    <string name="atis">ATIS</string>
+    <string name="airspace_drawn">该管制员的负责空域已在地图上标出。</string>
+    <string name="unknown_type">机型未知</string>
+
+    <!-- Route -->
+    <string name="random_route">随机航线生成</string>
+    <string name="haul_short">短途</string>
+    <string name="haul_medium">中途</string>
+    <string name="haul_long">长途</string>
+    <string name="haul_short_desc">1,500 海里以内 · 窄体机</string>
+    <string name="haul_medium_desc">1,500–3,500 海里 · 宽体机</string>
+    <string name="haul_long_desc">3,500 海里以上 · 远程宽体机</string>
+    <string name="intl_airport_pool">从全球 %1$s 个国际机场中推荐。</string>
+    <string name="roll_route">抽取航线</string>
+    <string name="roll_failed">未能找到符合该距离区间的组合，请重试。</string>
+    <string name="departure">起飞地</string>
+    <string name="arrival">目的地</string>
+    <string name="distance">距离</string>
+    <string name="longest_runway">最长跑道</string>
+    <string name="elevation">标高</string>
+
+    <!-- SimBrief -->
+    <string name="simbrief_plan">SimBrief 飞行计划</string>
+    <string name="aircraft_label">机型 %1$s</string>
+    <string name="airline_label">航空公司 %1$s</string>
+    <string name="generate_on_simbrief">在 SimBrief 生成</string>
+    <string name="simbrief_hint">SimBrief 页面打开后，点击 Generate 生成 OFP，然后用下方按钮获取结果。</string>
+    <string name="fetch_ofp">获取已生成的 OFP</string>
+    <string name="ofp_summary">OFP 摘要</string>
+    <string name="cruise_altitude">巡航高度</string>
+    <string name="block_fuel">总油量</string>
+    <string name="enroute_burn">航路耗油</string>
+    <string name="time_enroute">预计飞行时间</string>
+    <string name="cost_index">成本指数</string>
+    <string name="open_ofp_pdf">打开 OFP PDF</string>
+    <string name="simbrief_id_required">请先在设置中登记您的 SimBrief ID（别名或飞行员 ID）。</string>
+
+    <!-- Weather -->
+    <string name="weather_of">%1$s 天气</string>
+    <string name="loading_weather">正在获取天气…</string>
+    <string name="taf_forecast">TAF（预报）</string>
+    <string name="metar_unavailable">%1$s 未提供 METAR。</string>
+
+    <!-- Events -->
+    <string name="events_ongoing">进行中 (%1$d)</string>
+    <string name="events_upcoming">即将开始 (%1$d)</string>
+    <string name="no_ongoing_events">当前没有进行中的活动。</string>
+    <string name="no_upcoming_events">没有即将开始的活动。</string>
+    <string name="organised_by">主办：%1$s</string>
+    <string name="view_on_vatsim">在 VATSIM 查看</string>
+
+    <!-- Settings -->
+    <string name="language">语言</string>
+    <string name="language_hint">应用将重启以应用所选语言。</string>
+    <string name="simbrief">SimBrief</string>
+    <string name="simbrief_id">SimBrief ID（别名或飞行员 ID）</string>
+    <string name="simbrief_id_hint">请输入 SimBrief 账号设置中的别名或数字飞行员 ID，用于获取 OFP。</string>
+    <string name="preferred_aircraft">常用机型（ICAO，如 B77W）</string>
+    <string name="airline_code">航空公司代码（可选，如 CCA）</string>
+    <string name="controller_alerts">关注管制席位提醒</string>
+    <string name="enable_alerts">开启提醒</string>
+    <string name="callsign_or_prefix">呼号或前缀（如 ZBAA、ZBPE_CTR）</string>
+    <string name="add">添加</string>
+    <string name="remove">删除</string>
+    <string name="no_watched_controllers">尚未登记任何管制席位。</string>
+    <string name="alerts_hint">按前缀登记会匹配其下所有席位（ZBAA → ZBAA_TWR、ZBAA_APP 等）。\n受 Android 限制，仅靠设备轮询最短间隔为 15 分钟。如需即时提醒，请参考 README 中的 FCM 服务器部署说明。</string>
+
+    <!-- Common -->
+    <string name="loading">加载中…</string>
+    <string name="refresh">刷新</string>
+    <string name="error_prefix">错误：%1$s</string>
+</resources>

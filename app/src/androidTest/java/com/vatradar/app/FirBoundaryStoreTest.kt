@@ -5,6 +5,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.vatradar.app.data.local.AirportSeeder
 import com.vatradar.app.data.local.AppDatabase
 import com.vatradar.app.data.local.FirBoundaryStore
+import com.vatradar.app.data.repository.AirportRepository
+import com.vatradar.app.domain.model.HaulRange
+import com.vatradar.app.domain.model.distanceNmTo
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -85,29 +88,46 @@ class FirBoundaryStoreTest {
         assertEquals("Incheon International Airport", incheon!!.name)
         assertEquals(13123, incheon.maxRunwayFt)
         assertTrue(incheon.hardSurface)
-
-        // F3 핵심 제약: 활주로 길이 필터가 실제로 걸러내는지
-        val b777Capable = dao.countMatching(8000, null, null, true)
-        val small = dao.countMatching(2000, null, null, false)
-        assertTrue("활주로 필터가 동작하지 않습니다", b777Capable < small)
-        assertTrue("B777급 공항 수가 비정상: $b777Capable", b777Capable in 1000..5000)
+        assertTrue("RKSI가 국제공항으로 분류되지 않았습니다", incheon.international)
     }
 
     @Test
-    fun 무작위_추첨이_필터를_지킨다() = runBlocking {
+    fun 국제공항_분류가_군용_비행장을_제외한다() = runBlocking {
         val database = AppDatabase.get(context)
         val dao = database.airportDao()
         AirportSeeder.seedIfNeeded(context, database)
 
-        repeat(20) {
-            val picked = dao.randomAirports(9000, "AS", null, true, 2)
-            assertEquals(2, picked.size)
-            picked.forEach {
-                assertTrue("활주로 길이 위반: ${it.icao} ${it.maxRunwayFt}ft", it.maxRunwayFt >= 9000)
-                assertEquals("대륙 필터 위반: ${it.icao}", "AS", it.continent)
-                assertTrue("포장 필터 위반: ${it.icao}", it.hardSurface)
+        // 활주로는 9,301ft로 충분히 길지만 정기편이 없는 해군 보조 활주로
+        val naval = dao.findByIcao("KNUC")
+        assertNotNull(naval)
+        assertTrue("군용 비행장이 국제공항으로 잡혔습니다", !naval!!.international)
+
+        val count = dao.internationalCount()
+        assertTrue("국제공항 수가 비정상: $count", count in 1500..4000)
+    }
+
+    @Test
+    fun 거리_구간별_추천이_구간을_지킨다() = runBlocking {
+        val database = AppDatabase.get(context)
+        AirportSeeder.seedIfNeeded(context, database)
+        val repo = AirportRepository(database.airportDao())
+
+        HaulRange.entries.forEach { haul ->
+            repeat(10) {
+                val route = repo.randomRoute(haul)
+                assertNotNull("$haul 구간 추천 실패", route)
+                route!!
+
+                assertTrue("출발지와 도착지가 같습니다", route.origin.icao != route.destination.icao)
+                assertTrue("국제공항이 아닙니다: ${route.origin.icao}", route.origin.international)
+                assertTrue("국제공항이 아닙니다: ${route.destination.icao}", route.destination.international)
+
+                val d = route.origin.distanceNmTo(route.destination)
+                assertTrue(
+                    "$haul 구간 위반: ${route.origin.icao}→${route.destination.icao} ${d.toInt()}nm",
+                    haul.contains(d)
+                )
             }
-            assertTrue("출발지와 도착지가 같습니다", picked[0].icao != picked[1].icao)
         }
     }
 }

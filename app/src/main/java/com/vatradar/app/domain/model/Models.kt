@@ -83,7 +83,8 @@ data class Airport(
     val longitude: Double,
     val elevationFt: Int,
     val maxRunwayFt: Int,
-    val hardSurface: Boolean
+    val hardSurface: Boolean,
+    val international: Boolean
 ) {
     val maxRunwayMeters: Int get() = (maxRunwayFt * 0.3048).toInt()
 }
@@ -99,7 +100,8 @@ fun AirportEntity.toDomain() = Airport(
     longitude = longitude,
     elevationFt = elevationFt,
     maxRunwayFt = maxRunwayFt,
-    hardSurface = hardSurface
+    hardSurface = hardSurface,
+    international = international
 )
 
 /** F5 결과 요약. PRD 요구: 순항 고도, 연료량, 항로, PDF 링크. */
@@ -120,12 +122,3 @@ data class OfpSummary(
     val pdfUrl: String?
 )
 
-enum class Continent(val code: String, val label: String) {
-    AF("AF", "아프리카"),
-    AN("AN", "남극"),
-    AS("AS", "아시아"),
-    EU("EU", "유럽"),
-    NA("NA", "북아메리카"),
-    OC("OC", "오세아니아"),
-    SA("SA", "남아메리카")
-}

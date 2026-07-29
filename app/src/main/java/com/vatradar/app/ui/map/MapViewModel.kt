@@ -21,7 +21,8 @@ data class MapUiState(
     val isRefreshing: Boolean = false,
     val error: String? = null,
     val selectedAircraft: Aircraft? = null,
-    val selectedController: Controller? = null,
+    /** 한 공항에 여러 관제석이 동시에 열려 있을 수 있어 목록으로 다룹니다. */
+    val selectedControllers: List<Controller> = emptyList(),
     val weather: WeatherReport? = null,
     val weatherLoading: Boolean = false,
     val showControllers: Boolean = true,
@@ -75,12 +76,20 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun selectAircraft(aircraft: Aircraft?) {
-        _uiState.value = _uiState.value.copy(selectedAircraft = aircraft, selectedController = null)
+        _uiState.value = _uiState.value.copy(
+            selectedAircraft = aircraft,
+            selectedControllers = emptyList()
+        )
     }
 
-    fun selectController(controller: Controller?) {
-        _uiState.value = _uiState.value.copy(selectedController = controller, selectedAircraft = null)
-        controller?.prefix?.let { loadWeather(it) }
+    fun selectControllers(controllers: List<Controller>) {
+        if (controllers.isEmpty()) return
+        _uiState.value = _uiState.value.copy(
+            selectedControllers = controllers,
+            selectedAircraft = null
+        )
+        // 공항 단위 관제석이면 그 공항 기상을 함께 띄웁니다.
+        loadWeather(controllers.first().prefix)
     }
 
     /** F6: 지도에서 공항/관제소를 탭하면 기상 정보를 띄웁니다. */
@@ -101,7 +110,7 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     fun dismissSheet() {
         _uiState.value = _uiState.value.copy(
             selectedAircraft = null,
-            selectedController = null,
+            selectedControllers = emptyList(),
             weather = null,
             weatherLoading = false
         )

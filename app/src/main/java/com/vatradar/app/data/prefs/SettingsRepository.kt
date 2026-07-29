@@ -3,7 +3,6 @@ package com.vatradar.app.data.prefs
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -18,9 +17,9 @@ data class UserSettings(
     val aircraftType: String = "B77W",
     val airline: String = "",
     val watchedCallsigns: Set<String> = emptySet(),
-    val minRunwayFt: Int = 8000,
-    val hardSurfaceOnly: Boolean = true,
-    val notifyEnabled: Boolean = false
+    val notifyEnabled: Boolean = false,
+    /** 빈 문자열이면 시스템 언어를 따릅니다. */
+    val languageTag: String = ""
 )
 
 class SettingsRepository(private val context: Context) {
@@ -30,9 +29,8 @@ class SettingsRepository(private val context: Context) {
         val AIRCRAFT_TYPE = stringPreferencesKey("aircraft_type")
         val AIRLINE = stringPreferencesKey("airline")
         val WATCHED = stringSetPreferencesKey("watched_callsigns")
-        val MIN_RUNWAY = intPreferencesKey("min_runway_ft")
-        val HARD_ONLY = booleanPreferencesKey("hard_surface_only")
         val NOTIFY = booleanPreferencesKey("notify_enabled")
+        val LANGUAGE = stringPreferencesKey("language_tag")
         /** 이미 알린 콜사인을 기억해 접속이 유지되는 동안 중복 알림을 막습니다. */
         val ALREADY_NOTIFIED = stringSetPreferencesKey("already_notified")
     }
@@ -43,9 +41,8 @@ class SettingsRepository(private val context: Context) {
             aircraftType = p[Keys.AIRCRAFT_TYPE] ?: "B77W",
             airline = p[Keys.AIRLINE] ?: "",
             watchedCallsigns = p[Keys.WATCHED] ?: emptySet(),
-            minRunwayFt = p[Keys.MIN_RUNWAY] ?: 8000,
-            hardSurfaceOnly = p[Keys.HARD_ONLY] ?: true,
-            notifyEnabled = p[Keys.NOTIFY] ?: false
+            notifyEnabled = p[Keys.NOTIFY] ?: false,
+            languageTag = p[Keys.LANGUAGE] ?: ""
         )
     }
 
@@ -54,9 +51,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setSimBriefId(value: String) = edit { it[Keys.SIMBRIEF_ID] = value.trim() }
     suspend fun setAircraftType(value: String) = edit { it[Keys.AIRCRAFT_TYPE] = value.trim().uppercase() }
     suspend fun setAirline(value: String) = edit { it[Keys.AIRLINE] = value.trim().uppercase() }
-    suspend fun setMinRunwayFt(value: Int) = edit { it[Keys.MIN_RUNWAY] = value }
-    suspend fun setHardSurfaceOnly(value: Boolean) = edit { it[Keys.HARD_ONLY] = value }
     suspend fun setNotifyEnabled(value: Boolean) = edit { it[Keys.NOTIFY] = value }
+    suspend fun setLanguageTag(value: String) = edit { it[Keys.LANGUAGE] = value }
 
     suspend fun addWatched(callsign: String) = edit { p ->
         val v = callsign.trim().uppercase()

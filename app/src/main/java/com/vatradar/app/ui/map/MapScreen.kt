@@ -18,6 +18,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -30,17 +31,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
@@ -49,13 +52,12 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polygon
-import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import com.vatradar.app.R
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Controller
 import com.vatradar.app.domain.model.FacilityType
-import com.vatradar.app.ui.weather.WeatherSection
 
 /** 클러스터링에 넣기 위한 래퍼. equals/hashCode가 필요해 data class로 둡니다. */
 data class AircraftClusterItem(val aircraft: Aircraft) : ClusterItem {
@@ -65,11 +67,18 @@ data class AircraftClusterItem(val aircraft: Aircraft) : ClusterItem {
     override fun getZIndex() = 0f
 }
 
+/** 한 공항에 동시에 열린 TWR/GND/DEL 묶음. */
+private data class BadgeGroup(
+    val position: LatLng,
+    val controllers: List<Controller>
+) {
+    val facilities: List<FacilityType> get() = controllers.map { it.facility }
+}
+
 @OptIn(MapsComposeExperimentalApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
     val context = LocalContext.current
     val clusterManagerRef = remember { mutableStateOf<ClusterManager<AircraftClusterItem>?>(null) }
 
@@ -88,12 +97,33 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
         else state.snapshot?.controllerList.orEmpty()
     }
 
-    // 광역 관제(CTR/FSS)는 FIR 폴리곤으로, 공항 관제는 마커로 표시합니다.
+    // 광역 관제(CTR/FSS): VATSpy FIR 폴리곤
     val boundaryControllers = remember(allControllers) {
         allControllers.filter { it.hasBoundary }
     }
-    val markerControllers = remember(allControllers) {
-        allControllers.filter { !it.hasBoundary && it.latitude != null && it.longitude != null }
+
+    // 접근 관제(APP): FIR 경계가 없으므로 가시 범위 반경의 원으로 담당 공역을 나타냅니다.
+    val approachControllers = remember(allControllers) {
+        allControllers.filter {
+            it.facility == FacilityType.APP && it.latitude != null && it.longitude != null
+        }
+    }
+
+    // 공항 관제(TWR/GND/DEL): 공항 옆 문자 배지. 공항 단위로 한 줄에 모읍니다.
+    val badgeGroups = remember(allControllers) {
+        allControllers
+            .filter {
+                AirportBadgeIcons.letterFor(it.facility) != null &&
+                    it.latitude != null && it.longitude != null
+            }
+            .groupBy { it.prefix }
+            .mapNotNull { (_, group) ->
+                val first = group.first()
+                BadgeGroup(
+                    position = LatLng(first.latitude!!, first.longitude!!),
+                    controllers = group.sortedBy { AirportBadgeIcons.sortKey(it.facility) }
+                )
+            }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -104,40 +134,58 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             uiSettings = MapUiSettings(zoomControlsEnabled = false, mapToolbarEnabled = false),
             onMapClick = { viewModel.dismissSheet() }
         ) {
-            // 광역 관제 구역: VATSpy FIR 경계 폴리곤
+            // 1) 광역 관제 구역 — FIR 폴리곤
             boundaryControllers.forEach { controller ->
                 val color = facilityColor(controller.facility)
-                controller.boundary.forEachIndexed { index, ring ->
+                controller.boundary.forEach { ring ->
                     Polygon(
                         points = ring,
                         strokeColor = color,
                         strokeWidth = 3f,
                         fillColor = color.copy(alpha = 0.12f),
                         clickable = true,
-                        onClick = { viewModel.selectController(controller) }
+                        onClick = { viewModel.selectControllers(listOf(controller)) }
                     )
                 }
             }
 
-            // 공항 관제 마커: 클러스터링 없이 그대로 (수백 개 수준)
-            markerControllers.forEach { controller ->
-                val markerState = rememberMarkerState(
-                    key = controller.callsign,
-                    position = LatLng(controller.latitude!!, controller.longitude!!)
-                )
-                Marker(
-                    state = markerState,
-                    title = controller.callsign,
-                    snippet = "${controller.frequency} · ${controller.facility.label}",
-                    icon = BitmapDescriptorFactory.defaultMarker(facilityHue(controller.facility)),
-                    onClick = {
-                        viewModel.selectController(controller)
-                        true
-                    }
+            // 2) 접근 관제 구역 — 가시 범위 반경 원
+            approachControllers.forEach { controller ->
+                val color = facilityColor(FacilityType.APP)
+                Circle(
+                    center = LatLng(controller.latitude!!, controller.longitude!!),
+                    radius = controller.approachRadiusMeters(),
+                    strokeColor = color,
+                    strokeWidth = 3f,
+                    fillColor = color.copy(alpha = 0.12f),
+                    clickable = true,
+                    onClick = { viewModel.selectControllers(listOf(controller)) }
                 )
             }
 
-            // 항공기: 축소 시 그룹화 (PRD 성능 요구사항).
+            // 3) 공항 관제석 — T / G / D 배지
+            badgeGroups.forEach { group ->
+                val icon = AirportBadgeIcons.forFacilities(group.facilities)
+                if (icon != null) {
+                    val markerState = rememberMarkerState(
+                        key = group.controllers.first().prefix,
+                        position = group.position
+                    )
+                    Marker(
+                        state = markerState,
+                        icon = icon,
+                        // 배지가 공항 점 오른쪽에 붙도록 왼쪽 중앙을 기준점으로 둡니다.
+                        anchor = Offset(0f, 0.5f),
+                        title = group.controllers.first().prefix,
+                        onClick = {
+                            viewModel.selectControllers(group.controllers)
+                            true
+                        }
+                    )
+                }
+            }
+
+            // 4) 항공기 — 축소 시 그룹화 (PRD 성능 요구사항).
             // ClusterManager를 직접 다뤄 네이티브 마커 회전을 씁니다 — MapEffect 안은
             // Compose 밖이라 항공기 수천 대에서도 컴포지션 비용이 들지 않습니다.
             MapEffect(aircraftItems) { map ->
@@ -160,10 +208,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             }
         }
 
-        // 상단 상태 바
         MapOverlay(
             state = state,
-            boundaryCount = boundaryControllers.size,
+            airspaceCount = boundaryControllers.size + approachControllers.size,
             onToggleAircraft = viewModel::toggleAircraft,
             onToggleControllers = viewModel::toggleControllers,
             modifier = Modifier.align(Alignment.TopCenter)
@@ -171,9 +218,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
 
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
         val aircraft = state.selectedAircraft
-        val controller = state.selectedController
+        val controllers = state.selectedControllers
 
-        if (aircraft != null || controller != null) {
+        if (aircraft != null || controllers.isNotEmpty()) {
             ModalBottomSheet(
                 onDismissRequest = viewModel::dismissSheet,
                 sheetState = sheetState
@@ -188,13 +235,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     if (aircraft != null) {
                         AircraftDetails(aircraft, onAirportClick = viewModel::loadWeather)
                     }
-                    if (controller != null) {
+                    controllers.forEachIndexed { index, controller ->
+                        if (index > 0) HorizontalDivider()
                         ControllerDetails(controller)
                     }
-                    WeatherSection(
-                        report = state.weather,
-                        loading = state.weatherLoading
-                    )
+                    WeatherSectionHost(state)
                 }
             }
         }
@@ -202,9 +247,26 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
 }
 
 @Composable
+private fun WeatherSectionHost(state: MapUiState) {
+    com.vatradar.app.ui.weather.WeatherSection(
+        report = state.weather,
+        loading = state.weatherLoading
+    )
+}
+
+/**
+ * APP 담당 공역 반경.
+ * visual_range는 관제사가 설정하는 값이라 0이거나 비현실적으로 큰 경우가 있어 범위를 제한합니다.
+ */
+private fun Controller.approachRadiusMeters(): Double {
+    val nm = visualRangeNm.coerceIn(20, 150)
+    return nm * 1852.0
+}
+
+@Composable
 private fun MapOverlay(
     state: MapUiState,
-    boundaryCount: Int,
+    airspaceCount: Int,
     onToggleAircraft: () -> Unit,
     onToggleControllers: () -> Unit,
     modifier: Modifier = Modifier
@@ -224,14 +286,28 @@ private fun MapOverlay(
             ) {
                 AssistChip(
                     onClick = onToggleAircraft,
-                    label = { Text("항공기 ${state.snapshot?.aircraftList?.size ?: 0}") },
+                    label = {
+                        Text(
+                            stringResource(
+                                R.string.aircraft_count,
+                                state.snapshot?.aircraftList?.size ?: 0
+                            )
+                        )
+                    },
                     leadingIcon = { Icon(Icons.Default.Flight, null, Modifier.size(16.dp)) },
                     colors = if (state.showAircraft) AssistChipDefaults.assistChipColors()
                     else AssistChipDefaults.assistChipColors(labelColor = Color.Gray)
                 )
                 AssistChip(
                     onClick = onToggleControllers,
-                    label = { Text("관제사 ${state.snapshot?.controllerList?.size ?: 0}") },
+                    label = {
+                        Text(
+                            stringResource(
+                                R.string.controller_count,
+                                state.snapshot?.controllerList?.size ?: 0
+                            )
+                        )
+                    },
                     leadingIcon = { Icon(Icons.Default.Headset, null, Modifier.size(16.dp)) },
                     colors = if (state.showControllers) AssistChipDefaults.assistChipColors()
                     else AssistChipDefaults.assistChipColors(labelColor = Color.Gray)
@@ -241,16 +317,13 @@ private fun MapOverlay(
                 }
             }
 
-            // 관제 시설 범례 — 폴리곤·마커 색을 구분해 읽을 수 있게 합니다.
             if (state.showControllers) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    listOf(
-                        FacilityType.CTR, FacilityType.FSS, FacilityType.APP,
-                        FacilityType.TWR, FacilityType.GND, FacilityType.DEL
-                    ).forEach { facility ->
+                    // 구역으로 그려지는 시설
+                    listOf(FacilityType.CTR, FacilityType.FSS, FacilityType.APP).forEach { facility ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
@@ -259,10 +332,19 @@ private fun MapOverlay(
                             Text(facility.label, style = MaterialTheme.typography.labelSmall)
                         }
                     }
+                    // 배지로 그려지는 시설
+                    listOf(
+                        FacilityType.TWR to "T",
+                        FacilityType.GND to "G",
+                        FacilityType.DEL to "D"
+                    ).forEach { (facility, letter) ->
+                        LegendBadge(letter, facilityColor(facility))
+                    }
                 }
-                if (boundaryCount > 0) {
+
+                if (airspaceCount > 0) {
                     Text(
-                        "관제 구역 $boundaryCount 곳 표시 중 (VATSpy FIR 경계)",
+                        stringResource(R.string.airspace_shown, airspaceCount),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -280,51 +362,46 @@ private fun MapOverlay(
     }
 }
 
-/** Google Maps 기본 마커 색상(Hue)으로 매핑 — 시설별 색을 마커에도 반영합니다. */
-fun facilityHue(facility: FacilityType): Float = when (facility) {
-    FacilityType.CTR -> BitmapDescriptorFactory.HUE_RED
-    FacilityType.APP -> BitmapDescriptorFactory.HUE_ORANGE
-    FacilityType.TWR -> BitmapDescriptorFactory.HUE_AZURE
-    FacilityType.GND -> BitmapDescriptorFactory.HUE_GREEN
-    FacilityType.DEL -> BitmapDescriptorFactory.HUE_VIOLET
-    FacilityType.FSS -> BitmapDescriptorFactory.HUE_CYAN
-    FacilityType.OBS -> BitmapDescriptorFactory.HUE_YELLOW
-}
-
 @Composable
 private fun AircraftDetails(aircraft: Aircraft, onAirportClick: (String) -> Unit) {
     Text(aircraft.callsign, style = MaterialTheme.typography.headlineSmall)
     Text(
-        "${aircraft.pilotName} · ${aircraft.aircraftType ?: "기종 미상"}",
+        "${aircraft.pilotName} · ${aircraft.aircraftType ?: stringResource(R.string.unknown_type)}",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-        DetailStat("고도", "%,d ft".format(aircraft.altitude))
-        DetailStat("대지속도", "${aircraft.groundSpeed} kt")
-        DetailStat("기수", "${aircraft.heading.toInt()}°")
+        DetailStat(stringResource(R.string.altitude), "%,d ft".format(aircraft.altitude))
+        DetailStat(stringResource(R.string.ground_speed), "${aircraft.groundSpeed} kt")
+        DetailStat(stringResource(R.string.heading), "${aircraft.heading.toInt()}°")
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         aircraft.departure?.let {
-            AssistChip(onClick = { onAirportClick(it) }, label = { Text("출발 $it") })
+            AssistChip(
+                onClick = { onAirportClick(it) },
+                label = { Text(stringResource(R.string.departure_chip, it)) }
+            )
         }
         aircraft.arrival?.let {
-            AssistChip(onClick = { onAirportClick(it) }, label = { Text("도착 $it") })
+            AssistChip(
+                onClick = { onAirportClick(it) },
+                label = { Text(stringResource(R.string.arrival_chip, it)) }
+            )
         }
     }
 
     if (aircraft.departure != null || aircraft.arrival != null) {
         Text(
-            "공항을 누르면 기상 정보를 확인할 수 있습니다.",
+            stringResource(R.string.tap_airport_for_weather),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 
     aircraft.route?.takeIf { it.isNotBlank() }?.let {
-        Text("항로", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.route_label), style = MaterialTheme.typography.labelMedium)
         Text(it, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
     }
 }
@@ -332,7 +409,12 @@ private fun AircraftDetails(aircraft: Aircraft, onAirportClick: (String) -> Unit
 @Composable
 private fun ControllerDetails(controller: Controller) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        LegendDot(facilityColor(controller.facility))
+        val letter = AirportBadgeIcons.letterFor(controller.facility)
+        if (letter != null) {
+            LegendBadge(letter, facilityColor(controller.facility))
+        } else {
+            LegendDot(facilityColor(controller.facility))
+        }
         Text(controller.callsign, style = MaterialTheme.typography.headlineSmall)
     }
     Text(
@@ -341,21 +423,21 @@ private fun ControllerDetails(controller: Controller) {
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-        DetailStat("주파수", controller.frequency)
-        DetailStat("가시 범위", "${controller.visualRangeNm} nm")
+        DetailStat(stringResource(R.string.frequency), controller.frequency)
+        DetailStat(stringResource(R.string.visual_range), "${controller.visualRangeNm} nm")
     }
     controller.airportName?.let {
         Text(it, style = MaterialTheme.typography.bodySmall)
     }
-    if (controller.hasBoundary) {
+    if (controller.hasBoundary || controller.facility == FacilityType.APP) {
         Text(
-            "관제 구역이 지도에 표시되어 있습니다 (VATSpy FIR 경계).",
+            stringResource(R.string.airspace_drawn),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary
         )
     }
     if (controller.textAtis.isNotEmpty()) {
-        Text("ATIS", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.atis), style = MaterialTheme.typography.labelMedium)
         Surface(
             color = MaterialTheme.colorScheme.surfaceVariant,
             shape = RoundedCornerShape(8.dp)
@@ -378,7 +460,7 @@ private fun DetailStat(label: String, value: String) {
     }
 }
 
-/** 관제 시설 종류별 색 (범례·마커에서 공용) */
+/** 관제 시설 종류별 색 (폴리곤·원·배지·범례에서 공용) */
 fun facilityColor(facility: FacilityType): Color = when (facility) {
     FacilityType.CTR -> Color(0xFFD32F2F)
     FacilityType.APP -> Color(0xFFF57C00)
@@ -392,4 +474,17 @@ fun facilityColor(facility: FacilityType): Color = when (facility) {
 @Composable
 fun LegendDot(color: Color) {
     Box(modifier = Modifier.size(10.dp).background(color, CircleShape))
+}
+
+/** 지도 배지와 같은 모양의 작은 사각 범례. */
+@Composable
+fun LegendBadge(letter: String, color: Color) {
+    Surface(color = color, shape = RoundedCornerShape(3.dp)) {
+        Text(
+            letter,
+            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White
+        )
+    }
 }

@@ -27,8 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.vatradar.app.R
 import com.vatradar.app.data.repository.WeatherReport
 import com.vatradar.app.domain.metar.FlightCategory
 import com.vatradar.app.domain.metar.MetarIcon
@@ -50,7 +52,7 @@ fun WeatherSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-            Text("기상 정보 조회 중...", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.loading_weather), style = MaterialTheme.typography.bodySmall)
         }
         return
     }
@@ -60,7 +62,7 @@ fun WeatherSection(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("${report.icao} 기상", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.weather_of, report.icao), style = MaterialTheme.typography.titleMedium)
             report.metar?.let { FlightCategoryBadge(it.flightCategory) }
         }
 
@@ -103,7 +105,7 @@ fun WeatherSection(
         }
 
         report.taf?.let { taf ->
-            Text("TAF (예보)", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.taf_forecast), style = MaterialTheme.typography.labelMedium)
             Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(8.dp)) {
                 Text(
                     taf,

@@ -14,7 +14,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index("continent"),
         Index("country"),
-        Index("maxRunwayFt")
+        Index("maxRunwayFt"),
+        Index("international")
     ]
 )
 data class AirportEntity(
@@ -28,5 +29,7 @@ data class AirportEntity(
     val longitude: Double,
     @ColumnInfo(name = "elevationFt") val elevationFt: Int,
     @ColumnInfo(name = "maxRunwayFt") val maxRunwayFt: Int,
-    @ColumnInfo(name = "hardSurface") val hardSurface: Boolean
+    @ColumnInfo(name = "hardSurface") val hardSurface: Boolean,
+    /** 정기 여객편이 취항하는 국제공항급인지. Route 탭 추천 대상의 기준입니다. */
+    @ColumnInfo(name = "international") val international: Boolean
 )

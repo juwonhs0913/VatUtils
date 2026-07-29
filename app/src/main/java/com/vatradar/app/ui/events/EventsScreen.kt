@@ -25,7 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.vatradar.app.R
 import androidx.core.net.toUri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.lifecycle.AndroidViewModel
@@ -86,12 +88,12 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
             Tab(
                 selected = state.selectedTab == 0,
                 onClick = { viewModel.selectTab(0) },
-                text = { Text("진행 중 (${ongoing.size})") }
+                text = { Text(stringResource(R.string.events_ongoing, ongoing.size)) }
             )
             Tab(
                 selected = state.selectedTab == 1,
                 onClick = { viewModel.selectTab(1) },
-                text = { Text("예정 (${upcoming.size})") }
+                text = { Text(stringResource(R.string.events_upcoming, upcoming.size)) }
             )
         }
 
@@ -104,7 +106,10 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
 
             shown.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                 Text(
-                    if (state.selectedTab == 0) "진행 중인 이벤트가 없습니다." else "예정된 이벤트가 없습니다.",
+                    stringResource(
+                        if (state.selectedTab == 0) R.string.no_ongoing_events
+                        else R.string.no_upcoming_events
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -155,7 +160,7 @@ private fun EventCard(event: VatsimEvent) {
 
                 if (event.organisers.isNotEmpty()) {
                     Text(
-                        "주최: ${event.organisers.joinToString(", ")}",
+                        stringResource(R.string.organised_by, event.organisers.joinToString(", ")),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -174,7 +179,7 @@ private fun EventCard(event: VatsimEvent) {
                         onClick = {
                             CustomTabsIntent.Builder().build().launchUrl(context, event.link.toUri())
                         }
-                    ) { Text("VATSIM에서 보기") }
+                    ) { Text(stringResource(R.string.view_on_vatsim)) }
                 }
             }
         }

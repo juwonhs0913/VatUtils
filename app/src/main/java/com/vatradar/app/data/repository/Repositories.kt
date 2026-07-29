@@ -1,7 +1,6 @@
 package com.vatradar.app.data.repository
 
 import com.vatradar.app.data.local.AirportDao
-import com.vatradar.app.data.local.CountryRow
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
 import com.vatradar.app.data.remote.WeatherApiService
@@ -9,8 +8,10 @@ import com.vatradar.app.di.NetworkModule
 import com.vatradar.app.domain.metar.DecodedMetar
 import com.vatradar.app.domain.metar.MetarDecoder
 import com.vatradar.app.domain.model.Airport
+import com.vatradar.app.domain.model.HaulRange
 import com.vatradar.app.domain.model.OfpSummary
 import com.vatradar.app.domain.model.VatsimEvent
+import com.vatradar.app.domain.model.distanceNmTo
 import com.vatradar.app.domain.model.toDomain
 import com.vatradar.app.util.toEpochMillis
 import kotlinx.coroutines.CancellationException
@@ -18,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 /** 모든 저장소가 공유하는 결과 타입. */
 sealed interface Outcome<out T> {
@@ -106,31 +108,52 @@ class WeatherRepository(private val api: WeatherApiService) {
 
 // ---------------------------------------------------------------- F3 공항
 
+data class RandomRoute(
+    val origin: Airport,
+    val destination: Airport,
+    val distanceNm: Int
+)
+
 class AirportRepository(private val dao: AirportDao) {
 
-    suspend fun random(
-        minRunwayFt: Int,
-        continent: String?,
-        country: String?,
-        hardOnly: Boolean
-    ): Pair<Airport, Airport>? = withContext(Dispatchers.IO) {
-        // 출발/도착이 같은 공항이 되지 않도록 2개를 한 번에 뽑습니다.
-        val picked = dao.randomAirports(minRunwayFt, continent, country, hardOnly, 2)
-        if (picked.size < 2) null else picked[0].toDomain() to picked[1].toDomain()
+    /** 국제공항급 목록은 2천여 곳뿐이라 한 번 읽어 캐시합니다. */
+    private var internationalCache: List<Airport>? = null
+
+    private suspend fun international(): List<Airport> =
+        internationalCache ?: withContext(Dispatchers.IO) {
+            dao.internationalAirports().map { it.toDomain() }.also { internationalCache = it }
+        }
+
+    /**
+     * 거리 구간에 맞는 출발/도착 공항을 무작위로 뽑습니다.
+     *
+     * 출발지를 먼저 정하고 그 기준으로 후보를 좁히기 때문에, 출발지가 외딴 곳이면
+     * 해당 구간 후보가 없을 수 있습니다. 그럴 때는 다른 출발지로 몇 번 다시 시도합니다.
+     */
+    suspend fun randomRoute(haul: HaulRange): RandomRoute? = withContext(Dispatchers.Default) {
+        // 거리 구간에 맞는 기재가 실제로 뜨고 내릴 수 있는 공항만 후보로 둡니다.
+        val airports = international().filter { haul.admits(it) }
+        if (airports.size < 2) return@withContext null
+
+        repeat(MAX_ATTEMPTS) {
+            val origin = airports.random()
+            val candidates = airports.filter {
+                it.icao != origin.icao && haul.contains(origin.distanceNmTo(it))
+            }
+            if (candidates.isNotEmpty()) {
+                val destination = candidates.random()
+                return@withContext RandomRoute(
+                    origin = origin,
+                    destination = destination,
+                    distanceNm = origin.distanceNmTo(destination).roundToInt()
+                )
+            }
+        }
+        null
     }
 
-    suspend fun countMatching(
-        minRunwayFt: Int,
-        continent: String?,
-        country: String?,
-        hardOnly: Boolean
-    ): Int = withContext(Dispatchers.IO) {
-        dao.countMatching(minRunwayFt, continent, country, hardOnly)
-    }
-
-    suspend fun countries(continent: String?): List<CountryRow> = withContext(Dispatchers.IO) {
-        dao.countries(continent)
-    }
+    /** 해당 거리 구간에서 실제 후보가 되는 공항 수. */
+    suspend fun poolSize(haul: HaulRange): Int = international().count { haul.admits(it) }
 
     suspend fun find(icao: String): Airport? = withContext(Dispatchers.IO) {
         dao.findByIcao(icao.uppercase())?.toDomain()
@@ -138,6 +161,10 @@ class AirportRepository(private val dao: AirportDao) {
 
     suspend fun search(query: String): List<Airport> = withContext(Dispatchers.IO) {
         dao.search(query.uppercase()).map { it.toDomain() }
+    }
+
+    private companion object {
+        const val MAX_ATTEMPTS = 40
     }
 }
 

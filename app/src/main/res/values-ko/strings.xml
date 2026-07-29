@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="tab_map">지도</string>
+    <string name="tab_route">경로</string>
+    <string name="tab_events">이벤트</string>
+    <string name="settings">설정</string>
+    <string name="back">뒤로</string>
+
+    <!-- Map -->
+    <string name="aircraft_count">항공기 %1$d</string>
+    <string name="controller_count">관제사 %1$d</string>
+    <string name="airspace_shown">관제 구역 %1$d곳 표시 중 (VATSpy 경계)</string>
+    <string name="altitude">고도</string>
+    <string name="ground_speed">대지속도</string>
+    <string name="heading">기수</string>
+    <string name="departure_chip">출발 %1$s</string>
+    <string name="arrival_chip">도착 %1$s</string>
+    <string name="tap_airport_for_weather">공항을 누르면 기상 정보를 확인할 수 있습니다.</string>
+    <string name="route_label">항로</string>
+    <string name="frequency">주파수</string>
+    <string name="visual_range">가시 범위</string>
+    <string name="atis">ATIS</string>
+    <string name="airspace_drawn">이 관제사의 담당 공역이 지도에 표시되어 있습니다.</string>
+    <string name="unknown_type">기종 미상</string>
+
+    <!-- Route -->
+    <string name="random_route">무작위 경로 생성</string>
+    <string name="haul_short">단거리</string>
+    <string name="haul_medium">중거리</string>
+    <string name="haul_long">장거리</string>
+    <string name="haul_short_desc">1,500해리 미만 · 협동체</string>
+    <string name="haul_medium_desc">1,500~3,500해리 · 광동체</string>
+    <string name="haul_long_desc">3,500해리 초과 · 장거리 광동체</string>
+    <string name="intl_airport_pool">전 세계 국제공항 %1$s곳에서 추천합니다.</string>
+    <string name="roll_route">경로 뽑기</string>
+    <string name="roll_failed">이 거리 구간에 맞는 조합을 찾지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="departure">출발</string>
+    <string name="arrival">도착</string>
+    <string name="distance">거리</string>
+    <string name="longest_runway">최장 활주로</string>
+    <string name="elevation">표고</string>
+
+    <!-- SimBrief -->
+    <string name="simbrief_plan">SimBrief 비행 계획</string>
+    <string name="aircraft_label">기종 %1$s</string>
+    <string name="airline_label">항공사 %1$s</string>
+    <string name="generate_on_simbrief">SimBrief에서 생성하기</string>
+    <string name="simbrief_hint">SimBrief 페이지가 열리면 Generate를 눌러 OFP를 만든 뒤, 아래 버튼으로 결과를 가져옵니다.</string>
+    <string name="fetch_ofp">생성된 OFP 가져오기</string>
+    <string name="ofp_summary">OFP 요약</string>
+    <string name="cruise_altitude">순항 고도</string>
+    <string name="block_fuel">블록 연료</string>
+    <string name="enroute_burn">순항 소모</string>
+    <string name="time_enroute">예상 비행시간</string>
+    <string name="cost_index">코스트 인덱스</string>
+    <string name="open_ofp_pdf">OFP PDF 열기</string>
+    <string name="simbrief_id_required">설정에서 SimBrief ID(Alias 또는 Pilot ID)를 먼저 등록해 주세요.</string>
+
+    <!-- Weather -->
+    <string name="weather_of">%1$s 기상</string>
+    <string name="loading_weather">기상 정보 조회 중…</string>
+    <string name="taf_forecast">TAF (예보)</string>
+    <string name="metar_unavailable">%1$s의 METAR가 제공되지 않습니다.</string>
+
+    <!-- Events -->
+    <string name="events_ongoing">진행 중 (%1$d)</string>
+    <string name="events_upcoming">예정 (%1$d)</string>
+    <string name="no_ongoing_events">진행 중인 이벤트가 없습니다.</string>
+    <string name="no_upcoming_events">예정된 이벤트가 없습니다.</string>
+    <string name="organised_by">주최: %1$s</string>
+    <string name="view_on_vatsim">VATSIM에서 보기</string>
+
+    <!-- Settings -->
+    <string name="language">언어</string>
+    <string name="language_hint">선택한 언어를 적용하기 위해 앱이 다시 시작됩니다.</string>
+    <string name="simbrief">SimBrief</string>
+    <string name="simbrief_id">SimBrief ID (Alias 또는 Pilot ID)</string>
+    <string name="simbrief_id_hint">SimBrief 계정 설정의 Alias 또는 숫자 Pilot ID를 입력하세요. OFP를 가져올 때 사용합니다.</string>
+    <string name="preferred_aircraft">선호 기종 (ICAO, 예: B77W)</string>
+    <string name="airline_code">항공사 코드 (선택, 예: KAL)</string>
+    <string name="controller_alerts">관심 관제소 알림</string>
+    <string name="enable_alerts">알림 켜기</string>
+    <string name="callsign_or_prefix">콜사인 또는 접두사 (예: RKSI, RKRR_CTR)</string>
+    <string name="add">추가</string>
+    <string name="remove">삭제</string>
+    <string name="no_watched_controllers">등록된 관제소가 없습니다.</string>
+    <string name="alerts_hint">접두사로 등록하면 하위 관제석까지 모두 감지합니다 (RKSI → RKSI_TWR, RKSI_APP 등).\n기기 단독 감시는 Android 제약으로 최대 15분 간격입니다. 즉시 알림이 필요하면 README의 FCM 서버 배포 안내를 참고하세요.</string>
+
+    <!-- Common -->
+    <string name="loading">불러오는 중…</string>
+    <string name="refresh">새로고침</string>
+    <string name="error_prefix">오류: %1$s</string>
+</resources>

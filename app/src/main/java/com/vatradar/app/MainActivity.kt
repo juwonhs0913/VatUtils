@@ -1,8 +1,8 @@
 package com.vatradar.app
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,7 +32,12 @@ import com.vatradar.app.ui.route.RouteScreen
 import com.vatradar.app.ui.settings.SettingsScreen
 import com.vatradar.app.ui.theme.VatRadarTheme
 
-class MainActivity : ComponentActivity() {
+/**
+ * AppCompatActivity를 쓰는 이유는 앱별 언어 설정 때문입니다.
+ * AppCompatDelegate.setApplicationLocales()는 활성 AppCompat 델리게이트가 있어야
+ * 시스템 LocaleManager에 도달합니다. 순수 ComponentActivity로는 호출이 무시됩니다.
+ */
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,24 +61,34 @@ fun VatRadarRoot() {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
+                    val labelRes = Destination.entries
+                        .firstOrNull { d -> currentRoute?.hierarchy?.any { it.route == d.route } == true }
+                        ?.labelRes
                     Text(
-                        if (isSettings) "설정"
-                        else Destination.entries
-                            .firstOrNull { d -> currentRoute?.hierarchy?.any { it.route == d.route } == true }
-                            ?.label ?: "VATRadar"
+                        when {
+                            isSettings -> stringResource(R.string.settings)
+                            labelRes != null -> stringResource(labelRes)
+                            else -> stringResource(R.string.app_name)
+                        }
                     )
                 },
                 navigationIcon = {
                     if (isSettings) {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
                         }
                     }
                 },
                 actions = {
                     if (!isSettings) {
                         IconButton(onClick = { navController.navigate(Destination.SETTINGS) }) {
-                            Icon(Icons.Default.Settings, contentDescription = "설정")
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.settings)
+                            )
                         }
                     }
                 }
@@ -92,8 +108,13 @@ fun VatRadarRoot() {
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(destination.icon, contentDescription = destination.label) },
-                            label = { Text(destination.label) }
+                            icon = {
+                                Icon(
+                                    destination.icon,
+                                    contentDescription = stringResource(destination.labelRes)
+                                )
+                            },
+                            label = { Text(stringResource(destination.labelRes)) }
                         )
                     }
                 }

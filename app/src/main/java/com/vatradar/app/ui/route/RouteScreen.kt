@@ -1,6 +1,6 @@
 package com.vatradar.app.ui.route
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
@@ -18,44 +17,33 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.browser.customtabs.CustomTabsIntent
+import com.vatradar.app.R
 import com.vatradar.app.domain.model.Airport
-import com.vatradar.app.domain.model.Continent
+import com.vatradar.app.domain.model.HaulRange
 import com.vatradar.app.domain.model.OfpSummary
 import com.vatradar.app.ui.weather.WeatherSection
-import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val missingId = stringResource(R.string.simbrief_id_required)
 
     LaunchedEffect(Unit) { viewModel.reloadSettings() }
 
@@ -74,101 +62,37 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("무작위 경로 생성", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.random_route), style = MaterialTheme.typography.headlineSmall)
 
-        // ---------------- 필터 ----------------
         Card {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("대륙", style = MaterialTheme.typography.labelLarge)
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    FilterChip(
-                        selected = state.continent == null,
-                        onClick = { viewModel.setContinent(null) },
-                        label = { Text("전체") }
-                    )
-                    Continent.entries.forEach { c ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    HaulRange.entries.forEach { haul ->
                         FilterChip(
-                            selected = state.continent == c.code,
-                            onClick = { viewModel.setContinent(c.code) },
-                            label = { Text(c.label) }
+                            selected = state.haul == haul,
+                            onClick = { viewModel.setHaul(haul) },
+                            label = { Text(stringResource(haul.labelRes())) },
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
 
-                // 국가 드롭다운
-                var expanded by remember { mutableStateOf(false) }
-                val selectedCountryName = state.countries
-                    .firstOrNull { it.code == state.country }?.name ?: "전체"
-
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = selectedCountryName,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("국가") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier
-                            .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable)
-                            .fillMaxWidth()
-                    )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(
-                            text = { Text("전체") },
-                            onClick = { viewModel.setCountry(null); expanded = false }
-                        )
-                        state.countries.forEach { c ->
-                            DropdownMenuItem(
-                                text = { Text("${c.name} (${c.code})") },
-                                onClick = { viewModel.setCountry(c.code); expanded = false }
-                            )
-                        }
-                    }
-                }
-
-                // 최소 활주로 길이 — PRD의 핵심 제약 조건
                 Text(
-                    "최소 활주로 길이: ${"%,d".format(state.minRunwayFt)} ft " +
-                        "(${"%,d".format((state.minRunwayFt * 0.3048).roundToInt())} m)",
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Slider(
-                    value = state.minRunwayFt.toFloat(),
-                    onValueChange = { viewModel.setMinRunway((it / 500).roundToInt() * 500) },
-                    valueRange = 2000f..14000f,
-                    steps = 23
-                )
-                Text(
-                    "B777·A350급은 보통 8,000ft 이상이 필요합니다.",
-                    style = MaterialTheme.typography.labelSmall,
+                    stringResource(state.haul.descriptionRes()),
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("포장 활주로만", style = MaterialTheme.typography.bodyMedium)
-                    Switch(
-                        checked = state.hardSurfaceOnly,
-                        onCheckedChange = viewModel::setHardSurfaceOnly
-                    )
-                }
-
                 Text(
-                    "조건 충족 공항: ${"%,d".format(state.candidateCount)}곳",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (state.candidateCount < 2) MaterialTheme.colorScheme.error
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+                    stringResource(
+                        R.string.intl_airport_pool,
+                        "%,d".format(state.airportPoolSize)
+                    ),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -176,26 +100,46 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
         Button(
             onClick = viewModel::roll,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.rolling && state.candidateCount >= 2
+            enabled = !state.rolling
         ) {
             if (state.rolling) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
             } else {
                 Icon(Icons.Default.Casino, null, Modifier.size(18.dp))
             }
-            Text("  경로 뽑기", style = MaterialTheme.typography.titleMedium)
+            Text("  " + stringResource(R.string.roll_route), style = MaterialTheme.typography.titleMedium)
         }
 
         state.error?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.roll_failed),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
-        // ---------------- 결과 ----------------
-        val origin = state.origin
-        val destination = state.destination
-        if (origin != null && destination != null) {
-            AirportCard("출발", origin)
-            AirportCard("도착", destination)
+        val route = state.route
+        if (route != null) {
+            Card {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        "${route.origin.icao} → ${route.destination.icao}",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        "${stringResource(R.string.distance)} ${"%,d".format(route.distanceNm)} nm · " +
+                            stringResource(state.haul.labelRes()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            AirportCard(stringResource(R.string.departure), route.origin)
+            AirportCard(stringResource(R.string.arrival), route.destination)
 
             // F5 SimBrief
             Card {
@@ -203,26 +147,27 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("SimBrief 비행 계획", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.simbrief_plan), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "기종 ${state.aircraftType}" +
-                            (state.airline.takeIf { it.isNotBlank() }?.let { " · 항공사 $it" } ?: ""),
+                        stringResource(R.string.aircraft_label, state.aircraftType) +
+                            (state.airline.takeIf { it.isNotBlank() }
+                                ?.let { " · " + stringResource(R.string.airline_label, it) } ?: ""),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Button(onClick = viewModel::prepareDispatch, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.OpenInNew, null, Modifier.size(18.dp))
-                        Text("  SimBrief에서 생성하기")
+                        Text("  " + stringResource(R.string.generate_on_simbrief))
                     }
                     Text(
-                        "SimBrief 페이지가 열리면 Generate를 눌러 OFP를 만든 뒤, 아래 버튼으로 결과를 가져옵니다.",
+                        stringResource(R.string.simbrief_hint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     OutlinedButton(
-                        onClick = viewModel::fetchOfp,
+                        onClick = { viewModel.fetchOfp(missingId) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.ofpLoading
                     ) {
@@ -231,7 +176,7 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
                         } else {
                             Icon(Icons.Default.Description, null, Modifier.size(18.dp))
                         }
-                        Text("  생성된 OFP 가져오기")
+                        Text("  " + stringResource(R.string.fetch_ofp))
                     }
 
                     state.ofpError?.let {
@@ -256,6 +201,18 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
     }
 }
 
+private fun HaulRange.labelRes(): Int = when (this) {
+    HaulRange.SHORT -> R.string.haul_short
+    HaulRange.MEDIUM -> R.string.haul_medium
+    HaulRange.LONG -> R.string.haul_long
+}
+
+private fun HaulRange.descriptionRes(): Int = when (this) {
+    HaulRange.SHORT -> R.string.haul_short_desc
+    HaulRange.MEDIUM -> R.string.haul_medium_desc
+    HaulRange.LONG -> R.string.haul_long_desc
+}
+
 @Composable
 private fun AirportCard(role: String, airport: Airport) {
     Card {
@@ -267,8 +224,9 @@ private fun AirportCard(role: String, airport: Airport) {
             )
             Text(airport.name, style = MaterialTheme.typography.bodyMedium)
             Text(
-                "${airport.countryName} · 최장 활주로 ${"%,d".format(airport.maxRunwayFt)}ft " +
-                    "(${"%,d".format(airport.maxRunwayMeters)}m) · 표고 ${airport.elevationFt}ft",
+                "${airport.countryName} · ${stringResource(R.string.longest_runway)} " +
+                    "${"%,d".format(airport.maxRunwayFt)}ft (${"%,d".format(airport.maxRunwayMeters)}m) · " +
+                    "${stringResource(R.string.elevation)} ${airport.elevationFt}ft",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -281,26 +239,22 @@ private fun OfpCard(ofp: OfpSummary) {
     val context = LocalContext.current
     Card {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("OFP 요약", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.ofp_summary), style = MaterialTheme.typography.titleMedium)
             Text(
                 "${ofp.flightNumber}  ${ofp.origin} → ${ofp.destination}",
                 style = MaterialTheme.typography.titleLarge
             )
             Text(ofp.aircraft, style = MaterialTheme.typography.bodySmall)
 
-            OfpRow("순항 고도", ofp.cruiseAltitude)
-            OfpRow("블록 연료", ofp.blockFuel)
-            OfpRow("순항 소모", ofp.enrouteBurn)
-            OfpRow("예상 비행시간", ofp.timeEnroute)
-            OfpRow("거리", ofp.distanceNm)
-            OfpRow("코스트 인덱스", ofp.costIndex)
+            OfpRow(stringResource(R.string.cruise_altitude), ofp.cruiseAltitude)
+            OfpRow(stringResource(R.string.block_fuel), ofp.blockFuel)
+            OfpRow(stringResource(R.string.enroute_burn), ofp.enrouteBurn)
+            OfpRow(stringResource(R.string.time_enroute), ofp.timeEnroute)
+            OfpRow(stringResource(R.string.distance), ofp.distanceNm)
+            OfpRow(stringResource(R.string.cost_index), ofp.costIndex)
 
-            Text("항로", style = MaterialTheme.typography.labelMedium)
-            Text(
-                ofp.route,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace
-            )
+            Text(stringResource(R.string.route_label), style = MaterialTheme.typography.labelMedium)
+            Text(ofp.route, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
 
             ofp.pdfUrl?.let { url ->
                 Button(
@@ -308,7 +262,7 @@ private fun OfpCard(ofp: OfpSummary) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.PictureAsPdf, null, Modifier.size(18.dp))
-                    Text("  OFP PDF 열기")
+                    Text("  " + stringResource(R.string.open_ofp_pdf))
                 }
             }
         }

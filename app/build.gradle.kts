@@ -61,6 +61,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    // 앱별 언어 설정(AppCompatDelegate.setApplicationLocales)을 Android 13 미만으로 백포트합니다.
+    implementation("androidx.appcompat:appcompat:1.7.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

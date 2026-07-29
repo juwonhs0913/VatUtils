@@ -40,13 +40,13 @@ object AirportSeeder {
     }
 
     /**
-     * icao,name,iata,country,country_name,continent,lat,lon,elev_ft,max_rwy_ft,hard
+     * icao,name,iata,country,country_name,continent,lat,lon,elev_ft,max_rwy_ft,hard,intl
      * 공항명에 쉼표가 들어갈 수 있어 따옴표를 인식하는 최소 CSV 파서를 씁니다.
      */
     private fun parse(line: String): AirportEntity? {
         if (line.isBlank()) return null
         val f = splitCsv(line)
-        if (f.size < 11) return null
+        if (f.size < 12) return null
         return try {
             AirportEntity(
                 icao = f[0],
@@ -59,7 +59,8 @@ object AirportSeeder {
                 longitude = f[7].toDouble(),
                 elevationFt = f[8].toIntOrNull() ?: 0,
                 maxRunwayFt = f[9].toIntOrNull() ?: 0,
-                hardSurface = f[10] == "1"
+                hardSurface = f[10] == "1",
+                international = f[11] == "1"
             )
         } catch (e: NumberFormatException) {
             null

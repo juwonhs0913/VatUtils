@@ -3,25 +3,20 @@ package com.vatradar.app.ui.route
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.vatradar.app.data.local.CountryRow
 import com.vatradar.app.data.repository.Outcome
+import com.vatradar.app.data.repository.RandomRoute
 import com.vatradar.app.data.repository.WeatherReport
 import com.vatradar.app.di.ServiceLocator
-import com.vatradar.app.domain.model.Airport
+import com.vatradar.app.domain.model.HaulRange
 import com.vatradar.app.domain.model.OfpSummary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class RouteUiState(
-    val continent: String? = null,
-    val country: String? = null,
-    val countries: List<CountryRow> = emptyList(),
-    val minRunwayFt: Int = 8000,
-    val hardSurfaceOnly: Boolean = true,
-    val candidateCount: Int = 0,
-    val origin: Airport? = null,
-    val destination: Airport? = null,
+    val haul: HaulRange = HaulRange.MEDIUM,
+    val airportPoolSize: Int = 0,
+    val route: RandomRoute? = null,
     val rolling: Boolean = false,
     val error: String? = null,
 
@@ -54,83 +49,36 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val s = settingsRepo.current()
             _uiState.value = _uiState.value.copy(
-                minRunwayFt = s.minRunwayFt,
-                hardSurfaceOnly = s.hardSurfaceOnly,
                 simBriefId = s.simBriefId,
                 aircraftType = s.aircraftType,
-                airline = s.airline
+                airline = s.airline,
+                airportPoolSize = airportRepo.poolSize(_uiState.value.haul)
             )
-            reloadCountries()
-            recount()
         }
     }
 
-    // ---------------- 필터 ----------------
-
-    fun setContinent(code: String?) {
-        _uiState.value = _uiState.value.copy(continent = code, country = null)
+    fun setHaul(haul: HaulRange) {
+        _uiState.value = _uiState.value.copy(haul = haul)
         viewModelScope.launch {
-            reloadCountries()
-            recount()
+            _uiState.value = _uiState.value.copy(airportPoolSize = airportRepo.poolSize(haul))
         }
     }
-
-    fun setCountry(code: String?) {
-        _uiState.value = _uiState.value.copy(country = code)
-        viewModelScope.launch { recount() }
-    }
-
-    fun setMinRunway(ft: Int) {
-        _uiState.value = _uiState.value.copy(minRunwayFt = ft)
-        viewModelScope.launch {
-            settingsRepo.setMinRunwayFt(ft)
-            recount()
-        }
-    }
-
-    fun setHardSurfaceOnly(value: Boolean) {
-        _uiState.value = _uiState.value.copy(hardSurfaceOnly = value)
-        viewModelScope.launch {
-            settingsRepo.setHardSurfaceOnly(value)
-            recount()
-        }
-    }
-
-    private suspend fun reloadCountries() {
-        _uiState.value = _uiState.value.copy(
-            countries = airportRepo.countries(_uiState.value.continent)
-        )
-    }
-
-    private suspend fun recount() {
-        val s = _uiState.value
-        _uiState.value = s.copy(
-            candidateCount = airportRepo.countMatching(
-                s.minRunwayFt, s.continent, s.country, s.hardSurfaceOnly
-            )
-        )
-    }
-
-    // ---------------- F3 추첨 ----------------
 
     fun roll() {
         viewModelScope.launch {
-            val s = _uiState.value
-            _uiState.value = s.copy(rolling = true, error = null, ofp = null, ofpError = null)
+            _uiState.value = _uiState.value.copy(
+                rolling = true, error = null, ofp = null, ofpError = null
+            )
 
-            val pair = airportRepo.random(s.minRunwayFt, s.continent, s.country, s.hardSurfaceOnly)
-            if (pair == null) {
-                _uiState.value = _uiState.value.copy(
-                    rolling = false,
-                    error = "조건을 만족하는 공항이 2곳 미만입니다. 필터를 완화해 주세요."
-                )
+            val result = airportRepo.randomRoute(_uiState.value.haul)
+            if (result == null) {
+                _uiState.value = _uiState.value.copy(rolling = false, error = ROLL_FAILED)
                 return@launch
             }
 
             _uiState.value = _uiState.value.copy(
                 rolling = false,
-                origin = pair.first,
-                destination = pair.second,
+                route = result,
                 originWeather = null,
                 destinationWeather = null
             )
@@ -140,17 +88,15 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
 
     /** F6: 뽑힌 두 공항의 기상을 함께 조회합니다. */
     private fun loadWeather() {
-        val s = _uiState.value
-        val origin = s.origin ?: return
-        val destination = s.destination ?: return
+        val route = _uiState.value.route ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(weatherLoading = true)
-            val o = weatherRepo.fetch(origin.icao)
-            val d = weatherRepo.fetch(destination.icao)
+            val origin = weatherRepo.fetch(route.origin.icao)
+            val destination = weatherRepo.fetch(route.destination.icao)
             _uiState.value = _uiState.value.copy(
                 weatherLoading = false,
-                originWeather = o,
-                destinationWeather = d
+                originWeather = origin,
+                destinationWeather = destination
             )
         }
     }
@@ -159,12 +105,11 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun prepareDispatch() {
         val s = _uiState.value
-        val origin = s.origin ?: return
-        val destination = s.destination ?: return
+        val route = s.route ?: return
         _uiState.value = s.copy(
             dispatchUrl = simBriefRepo.buildDispatchUrl(
-                origin = origin.icao,
-                destination = destination.icao,
+                origin = route.origin.icao,
+                destination = route.destination.icao,
                 aircraftType = s.aircraftType,
                 airline = s.airline.takeIf { it.isNotBlank() },
                 flightNumber = null
@@ -176,12 +121,10 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
         _uiState.value = _uiState.value.copy(dispatchUrl = null)
     }
 
-    fun fetchOfp() {
+    fun fetchOfp(missingIdMessage: String) {
         val id = _uiState.value.simBriefId
         if (id.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                ofpError = "설정에서 SimBrief ID(Alias 또는 Pilot ID)를 먼저 등록해 주세요."
-            )
+            _uiState.value = _uiState.value.copy(ofpError = missingIdMessage)
             return
         }
         viewModelScope.launch {
@@ -205,5 +148,10 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
                 airline = s.airline
             )
         }
+    }
+
+    private companion object {
+        /** 화면에서 문자열 리소스로 치환합니다. */
+        const val ROLL_FAILED = "ROLL_FAILED"
     }
 }
