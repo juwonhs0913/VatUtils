@@ -145,6 +145,37 @@ class FirBoundaryStoreTest {
         assertTrue("RKSI가 국제공항으로 분류되지 않았습니다", incheon.international)
     }
 
+    /**
+     * 미주 VATSIM 하위 관제는 ICAO가 아니라 IATA를 콜사인에 씁니다
+     * (KBOS가 아니라 BOS_TWR, KLGA가 아니라 LGA_GND).
+     * ICAO로만 조회하면 미주 TWR/GND/DEL/APP이 전부 지도에서 사라집니다.
+     */
+    @Test
+    fun 미주_하위관제_콜사인이_IATA로_해석된다() = runBlocking {
+        val database = AppDatabase.get(context)
+        val dao = database.airportDao()
+        AirportSeeder.seedIfNeeded(context, database)
+
+        val codes = listOf("BOS", "LGA", "MIA", "OAK", "PDX", "MDW")
+        val found = dao.findAllByIata(codes).associateBy { it.iata }
+
+        codes.forEach { assertNotNull("$it 를 IATA로 찾지 못했습니다", found[it]) }
+
+        // ICAO로는 찾히지 않아야 정상입니다 (그래서 폴백이 필요합니다)
+        assertTrue("BOS가 ICAO로 조회됩니다", dao.findAllByIcao(listOf("BOS")).isEmpty())
+
+        assertEquals("KBOS", found["BOS"]!!.icao)
+        assertEquals("KLGA", found["LGA"]!!.icao)
+    }
+
+    @Test
+    fun IATA_조회가_빈_코드를_걸러낸다() = runBlocking {
+        val database = AppDatabase.get(context)
+        AirportSeeder.seedIfNeeded(context, database)
+        // IATA가 없는 공항이 빈 문자열로 매칭되면 안 됩니다.
+        assertTrue(database.airportDao().findAllByIata(listOf("")).isEmpty())
+    }
+
     @Test
     fun 국제공항_분류가_군용_비행장을_제외한다() = runBlocking {
         val database = AppDatabase.get(context)

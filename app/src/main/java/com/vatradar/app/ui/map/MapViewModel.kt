@@ -3,6 +3,7 @@ package com.vatradar.app.ui.map
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.vatradar.app.data.repository.VatsimResult
 import com.vatradar.app.data.repository.VatsimSnapshot
 import com.vatradar.app.data.repository.WeatherReport
@@ -26,7 +27,12 @@ data class MapUiState(
     val weather: WeatherReport? = null,
     val weatherLoading: Boolean = false,
     val showControllers: Boolean = true,
-    val showAircraft: Boolean = true
+    val showAircraft: Boolean = true,
+
+    /** 선택한 항공기의 항로. 지나온 구간과 남은 구간을 나눠 그립니다. */
+    val routeFlown: List<LatLng> = emptyList(),
+    val routeRemaining: List<LatLng> = emptyList(),
+    val routeEndpoints: List<LatLng> = emptyList()
 )
 
 class MapViewModel(app: Application) : AndroidViewModel(app) {
@@ -78,15 +84,46 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     fun selectAircraft(aircraft: Aircraft?) {
         _uiState.value = _uiState.value.copy(
             selectedAircraft = aircraft,
-            selectedControllers = emptyList()
+            selectedControllers = emptyList(),
+            routeFlown = emptyList(),
+            routeRemaining = emptyList(),
+            routeEndpoints = emptyList()
         )
+        if (aircraft != null) loadRoutePath(aircraft)
+    }
+
+    /**
+     * 비행계획의 출발지·도착지를 공항 DB에서 찾아 항로 선을 만듭니다.
+     * 비행계획이 없거나 공항을 못 찾으면 그릴 수 있는 구간만 그립니다.
+     */
+    private fun loadRoutePath(aircraft: Aircraft) {
+        viewModelScope.launch {
+            val departure = aircraft.departure?.let { airportRepo.find(it) }
+            val arrival = aircraft.arrival?.let { airportRepo.find(it) }
+
+            // 선택이 바뀐 뒤에 응답이 오면 버립니다.
+            if (_uiState.value.selectedAircraft?.callsign != aircraft.callsign) return@launch
+
+            val current = LatLng(aircraft.latitude, aircraft.longitude)
+            val from = departure?.let { LatLng(it.latitude, it.longitude) }
+            val to = arrival?.let { LatLng(it.latitude, it.longitude) }
+
+            _uiState.value = _uiState.value.copy(
+                routeFlown = if (from != null) listOf(from, current) else emptyList(),
+                routeRemaining = if (to != null) listOf(current, to) else emptyList(),
+                routeEndpoints = listOfNotNull(from, to)
+            )
+        }
     }
 
     fun selectControllers(controllers: List<Controller>) {
         if (controllers.isEmpty()) return
         _uiState.value = _uiState.value.copy(
             selectedControllers = controllers,
-            selectedAircraft = null
+            selectedAircraft = null,
+            routeFlown = emptyList(),
+            routeRemaining = emptyList(),
+            routeEndpoints = emptyList()
         )
         // 공항 단위 관제석이면 그 공항 기상을 함께 띄웁니다.
         loadWeather(controllers.first().prefix)
@@ -112,7 +149,10 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             selectedAircraft = null,
             selectedControllers = emptyList(),
             weather = null,
-            weatherLoading = false
+            weatherLoading = false,
+            routeFlown = emptyList(),
+            routeRemaining = emptyList(),
+            routeEndpoints = emptyList()
         )
     }
 

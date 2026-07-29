@@ -56,12 +56,21 @@ class VatsimRepository(
             }
 
             // 관제사 좌표는 피드에 없으므로 콜사인 접두사를 공항 DB에서 조회해 채웁니다.
+            //
+            // 지역마다 콜사인 규칙이 달라 두 번 조회합니다.
+            //   유럽/아시아: EDDF_TWR, RKSI_TWR → ICAO 그대로
+            //   미주:        BOS_TWR, LGA_GND  → IATA (ICAO는 KBOS, KLGA)
             val prefixes = activeControllers.map { it.callsign.substringBefore('_') }.distinct()
-            val airports = airportDao.findAllByIcao(prefixes).associateBy { it.icao }
+            val byIcao = airportDao.findAllByIcao(prefixes).associateBy { it.icao }
+
+            val unresolved = prefixes - byIcao.keys
+            val byIata = if (unresolved.isEmpty()) emptyMap()
+            else airportDao.findAllByIata(unresolved).associateBy { it.iata }
 
             val controllerList = activeControllers.map { c ->
                 val facility = FacilityType.fromCode(c.facility)
-                val airport = airports[c.callsign.substringBefore('_')]
+                val prefix = c.callsign.substringBefore('_')
+                val airport = byIcao[prefix] ?: byIata[prefix]
 
                 // 광역 관제(CTR/FSS)만 FIR 폴리곤을 찾습니다.
                 // 공항 관제는 폴리곤이 아니라 공항 좌표 마커가 맞습니다.

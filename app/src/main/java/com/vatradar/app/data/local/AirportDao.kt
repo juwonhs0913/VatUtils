@@ -20,6 +20,13 @@ interface AirportDao {
     @Query("SELECT * FROM airports WHERE icao IN (:icaos)")
     suspend fun findAllByIcao(icaos: List<String>): List<AirportEntity>
 
+    /**
+     * 미주 VATSIM 콜사인은 ICAO가 아니라 IATA를 씁니다 (KBOS가 아니라 BOS_TWR).
+     * 그래서 ICAO로 못 찾은 접두사는 IATA로 한 번 더 조회해야 합니다.
+     */
+    @Query("SELECT * FROM airports WHERE iata != '' AND iata IN (:codes)")
+    suspend fun findAllByIata(codes: List<String>): List<AirportEntity>
+
     @Query(
         """
         SELECT * FROM airports

@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Headset
@@ -32,14 +35,19 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.Dash
+import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
@@ -138,7 +146,36 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 )
             }
 
-            // 3) 항공기와 공항 관제석 배지 — Compose 밖에서 마커를 직접 관리합니다.
+            // 3) 선택한 항공기의 항로 — 대권 경로로 그립니다.
+            if (state.routeFlown.size >= 2) {
+                Polyline(
+                    points = state.routeFlown,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                    width = 6f,
+                    geodesic = true
+                )
+            }
+            if (state.routeRemaining.size >= 2) {
+                Polyline(
+                    points = state.routeRemaining,
+                    color = MaterialTheme.colorScheme.primary,
+                    width = 6f,
+                    geodesic = true,
+                    // 남은 구간은 점선으로 구분합니다.
+                    pattern = listOf(Dash(30f), Gap(20f))
+                )
+            }
+            state.routeEndpoints.forEach { endpoint ->
+                Circle(
+                    center = endpoint,
+                    radius = 12000.0,
+                    strokeColor = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 4f,
+                    fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                )
+            }
+
+            // 4) 항공기와 공항 관제석 배지 — Compose 밖에서 마커를 직접 관리합니다.
             //    클러스터링 없이 전부 표시하므로 마커 재사용이 중요하고,
             //    클릭 리스너를 한 곳에 모아야 배지 클릭이 정상 동작합니다.
             MapEffect(aircraftList, badgeGroups) { map ->
@@ -180,9 +217,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // 기상까지 붙으면 길어질 수 있어, 화면 절반을 넘으면 안에서 스크롤합니다.
+                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.55f)
+                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp)
-                        .padding(bottom = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     if (aircraft != null) {
                         AircraftDetails(aircraft, onAirportClick = viewModel::loadWeather)
@@ -314,47 +354,74 @@ private fun MapOverlay(
     }
 }
 
+/**
+ * 항공기 상세.
+ * 지도를 최대한 가리지 않도록 조밀하게 배치합니다 — 콜사인과 기종을 한 줄에,
+ * 수치 세 개를 한 줄에, 항로 원문은 두 줄로 잘라서 보여줍니다.
+ */
 @Composable
 private fun AircraftDetails(aircraft: Aircraft, onAirportClick: (String) -> Unit) {
-    Text(aircraft.callsign, style = MaterialTheme.typography.headlineSmall)
-    Text(
-        "${aircraft.pilotName} · ${aircraft.aircraftType ?: stringResource(R.string.unknown_type)}",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-
-    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-        DetailStat(stringResource(R.string.altitude), "%,d ft".format(aircraft.altitude))
-        DetailStat(stringResource(R.string.ground_speed), "${aircraft.groundSpeed} kt")
-        DetailStat(stringResource(R.string.heading), "${aircraft.heading.toInt()}°")
-    }
-
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-        aircraft.departure?.let {
-            AssistChip(
-                onClick = { onAirportClick(it) },
-                label = { Text(stringResource(R.string.departure_chip, it)) }
-            )
-        }
-        aircraft.arrival?.let {
-            AssistChip(
-                onClick = { onAirportClick(it) },
-                label = { Text(stringResource(R.string.arrival_chip, it)) }
-            )
-        }
-    }
-
-    if (aircraft.departure != null || aircraft.arrival != null) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(aircraft.callsign, style = MaterialTheme.typography.titleLarge)
         Text(
-            stringResource(R.string.tap_airport_for_weather),
-            style = MaterialTheme.typography.labelSmall,
+            aircraft.aircraftType ?: stringResource(R.string.unknown_type),
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        CompactStat(stringResource(R.string.altitude), "%,d ft".format(aircraft.altitude))
+        CompactStat(stringResource(R.string.ground_speed), "${aircraft.groundSpeed} kt")
+        CompactStat(stringResource(R.string.heading), "${aircraft.heading.toInt()}°")
+    }
+
+    if (aircraft.departure != null || aircraft.arrival != null) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            aircraft.departure?.let {
+                AssistChip(
+                    onClick = { onAirportClick(it) },
+                    label = { Text(stringResource(R.string.departure_chip, it)) }
+                )
+            }
+            aircraft.arrival?.let {
+                AssistChip(
+                    onClick = { onAirportClick(it) },
+                    label = { Text(stringResource(R.string.arrival_chip, it)) }
+                )
+            }
+        }
+    }
+
     aircraft.route?.takeIf { it.isNotBlank() }?.let {
-        Text(stringResource(R.string.route_label), style = MaterialTheme.typography.labelMedium)
-        Text(it, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+        Text(
+            it,
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** 라벨을 값 아래에 작게 두어 세로 높이를 줄인 통계 표시. */
+@Composable
+private fun CompactStat(label: String, value: String) {
+    Column {
+        Text(value, style = MaterialTheme.typography.titleMedium)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
