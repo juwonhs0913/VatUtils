@@ -177,6 +177,24 @@ class AirportRepository(private val dao: AirportDao) {
 
 // ---------------------------------------------------------------- F5 SimBrief
 
+/**
+ * 숫자만으로 이루어져 있으면 Pilot ID로 봅니다.
+ * SimBrief 별칭은 숫자만으로 만들 수도 있지만 드물고, 그런 경우 사용자는
+ * 자기 Pilot ID를 쓰면 되므로 숫자를 ID로 해석하는 쪽이 실패가 적습니다.
+ */
+internal fun isNumericPilotId(value: String): Boolean =
+    value.isNotEmpty() && value.all { it.isDigit() }
+
+/** SimBrief 원문 오류를 사용자가 무엇을 해야 하는지 알 수 있는 문장으로 바꿉니다. */
+internal fun friendlyMessage(status: String?): String? = when {
+    status == null -> null
+    status.contains("Unknown UserID", ignoreCase = true) ->
+        "SimBrief에서 이 ID를 찾지 못했습니다. 설정의 값이 계정의 Alias 또는 숫자 Pilot ID와 일치하는지 확인해 주세요."
+    status.contains("No flight plan on file", ignoreCase = true) ->
+        "이 계정에 저장된 비행 계획이 없습니다. SimBrief에서 Generate를 눌러 OFP를 만든 뒤 다시 시도해 주세요."
+    else -> status
+}
+
 class SimBriefRepository(private val api: SimBriefApiService) {
 
     /**
@@ -192,20 +210,28 @@ class SimBriefRepository(private val api: SimBriefApiService) {
         // 계정 기본값이 채웁니다. 앱에서 강제하지 않습니다.
     }
 
-    suspend fun fetchLatestOfp(username: String): Outcome<OfpSummary> =
+    suspend fun fetchLatestOfp(identifier: String): Outcome<OfpSummary> =
         runCatchingOutcome("OFP를 가져오지 못했습니다") {
-            val response = api.fetchLatestOfp(username.trim())
+            val id = identifier.trim()
+            val numeric = isNumericPilotId(id)
+
+            val response = api.fetchLatestOfp(
+                username = if (numeric) null else id,
+                userId = if (numeric) id else null
+            )
 
             if (!response.isSuccessful) {
                 // 알 수 없는 사용자면 400 + {"fetch":{"status":"Error: Unknown UserID"}}
                 val body = response.errorBody()?.string().orEmpty()
                 val status = Regex("\"status\"\\s*:\\s*\"([^\"]*)\"").find(body)?.groupValues?.get(1)
-                error(status ?: "SimBrief 응답 오류 (HTTP ${response.code()})")
+                error(friendlyMessage(status) ?: "SimBrief 응답 오류 (HTTP ${response.code()})")
             }
 
             val ofp = response.body() ?: error("SimBrief 응답이 비어 있습니다.")
             val status = ofp.fetch?.status
-            if (status != null && status.startsWith("Error", ignoreCase = true)) error(status)
+            if (status != null && status.startsWith("Error", ignoreCase = true)) {
+                error(friendlyMessage(status) ?: status)
+            }
             if (ofp.general == null || ofp.origin == null || ofp.destination == null) {
                 error("아직 생성된 비행 계획이 없습니다. SimBrief에서 먼저 Generate 해주세요.")
             }

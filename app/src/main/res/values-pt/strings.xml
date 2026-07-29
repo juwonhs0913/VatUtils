@@ -10,7 +10,6 @@
     <!-- Map -->
     <string name="aircraft_count">Aeronaves %1$d</string>
     <string name="controller_count">Controladores %1$d</string>
-    <string name="airspace_shown">%1$d espaços aéreos exibidos (limites VATSpy)</string>
     <string name="altitude">Altitude</string>
     <string name="ground_speed">Velocidade de solo</string>
     <string name="departure_time">Partida</string>
@@ -81,7 +80,7 @@
     <string name="language_hint">O app reinicia para aplicar o idioma selecionado.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID (alias ou pilot ID)</string>
-    <string name="simbrief_id_hint">Informe o alias ou o pilot ID numérico das configurações da sua conta SimBrief. Usado ao buscar o OFP.</string>
+    <string name="simbrief_id_hint">Informe o Alias ou o Pilot ID numérico das configurações da sua conta SimBrief — ambos funcionam. O alias é um nome que você define; o pilot ID contém apenas dígitos.</string>
     <string name="enable_alerts">Ativar alertas</string>
     <string name="callsign_or_prefix">Indicativo ou prefixo (ex.: SBGR, SBBS_CTR)</string>
     <string name="add">Adicionar</string>

@@ -10,7 +10,6 @@
     <!-- Map -->
     <string name="aircraft_count">항공기 %1$d</string>
     <string name="controller_count">관제사 %1$d</string>
-    <string name="airspace_shown">관제 구역 %1$d곳 표시 중 (VATSpy 경계)</string>
     <string name="altitude">고도</string>
     <string name="ground_speed">대지속도</string>
     <string name="departure_time">출발</string>
@@ -81,7 +80,7 @@
     <string name="language_hint">선택한 언어를 적용하기 위해 앱이 다시 시작됩니다.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID (Alias 또는 Pilot ID)</string>
-    <string name="simbrief_id_hint">SimBrief 계정 설정의 Alias 또는 숫자 Pilot ID를 입력하세요. OFP를 가져올 때 사용합니다.</string>
+    <string name="simbrief_id_hint">SimBrief 계정 설정에 있는 Alias 또는 숫자 Pilot ID를 입력하세요. 둘 다 됩니다. Alias는 직접 정한 이름이고, Pilot ID는 숫자로만 되어 있습니다.</string>
     <string name="enable_alerts">알림 켜기</string>
     <string name="callsign_or_prefix">콜사인 또는 접두사 (예: RKSI, RKRR_CTR)</string>
     <string name="add">추가</string>

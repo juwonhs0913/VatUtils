@@ -10,7 +10,6 @@
     <!-- Map -->
     <string name="aircraft_count">航空器 %1$d</string>
     <string name="controller_count">管制员 %1$d</string>
-    <string name="airspace_shown">已显示 %1$d 个管制空域（VATSpy 边界）</string>
     <string name="altitude">高度</string>
     <string name="ground_speed">地速</string>
     <string name="departure_time">起飞</string>
@@ -81,7 +80,7 @@
     <string name="language_hint">应用将重启以应用所选语言。</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID（别名或飞行员 ID）</string>
-    <string name="simbrief_id_hint">请输入 SimBrief 账号设置中的别名或数字飞行员 ID，用于获取 OFP。</string>
+    <string name="simbrief_id_hint">请输入 SimBrief 账号设置中的 Alias 或数字 Pilot ID，两者皆可。Alias 是自定义名称，Pilot ID 全为数字。</string>
     <string name="enable_alerts">开启提醒</string>
     <string name="callsign_or_prefix">呼号或前缀（如 ZBAA、ZBPE_CTR）</string>
     <string name="add">添加</string>

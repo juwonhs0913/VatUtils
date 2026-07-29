@@ -10,7 +10,6 @@
     <!-- Map -->
     <string name="aircraft_count">Flugzeuge %1$d</string>
     <string name="controller_count">Lotsen %1$d</string>
-    <string name="airspace_shown">%1$d Lufträume angezeigt (VATSpy-Grenzen)</string>
     <string name="altitude">Höhe</string>
     <string name="ground_speed">Geschwindigkeit</string>
     <string name="departure_time">Abflug</string>
@@ -81,7 +80,7 @@
     <string name="language_hint">Die App startet neu, um die gewählte Sprache anzuwenden.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief-ID (Alias oder Pilot-ID)</string>
-    <string name="simbrief_id_hint">Gib den Alias oder die numerische Pilot-ID aus deinen SimBrief-Kontoeinstellungen ein. Wird zum Abrufen des OFP verwendet.</string>
+    <string name="simbrief_id_hint">Gib den Alias oder die numerische Pilot-ID aus deinen SimBrief-Kontoeinstellungen ein — beides funktioniert. Der Alias ist ein selbst gewählter Name, die Pilot-ID besteht nur aus Ziffern.</string>
     <string name="enable_alerts">Benachrichtigungen aktivieren</string>
     <string name="callsign_or_prefix">Rufzeichen oder Präfix (z. B. EDDF, EDGG_CTR)</string>
     <string name="add">Hinzufügen</string>

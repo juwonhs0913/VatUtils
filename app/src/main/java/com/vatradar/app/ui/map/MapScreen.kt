@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -215,10 +214,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
 
         MapOverlay(
             state = state,
-            airspaceCount = boundaryControllers.size + approachControllers.size,
             onToggleAircraft = viewModel::toggleAircraft,
             onToggleControllers = viewModel::toggleControllers,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier.align(Alignment.TopStart)
         )
 
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
@@ -276,103 +274,60 @@ private fun Controller.approachRadiusMeters(): Double {
     return nm * 1852.0
 }
 
+/** 지도 위 오버레이는 항공기·관제사 표시 토글 두 개만 둡니다. */
 @Composable
 private fun MapOverlay(
     state: MapUiState,
-    airspaceCount: Int,
     onToggleAircraft: () -> Unit,
     onToggleControllers: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .padding(12.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        tonalElevation = 3.dp,
-        shadowElevation = 2.dp
+    Row(
+        modifier = modifier.padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AssistChip(
-                    onClick = onToggleAircraft,
-                    label = {
-                        Text(
-                            stringResource(
-                                R.string.aircraft_count,
-                                state.snapshot?.aircraftList?.size ?: 0
-                            )
-                        )
-                    },
-                    leadingIcon = { Icon(Icons.Default.Flight, null, Modifier.size(16.dp)) },
-                    colors = if (state.showAircraft) AssistChipDefaults.assistChipColors()
-                    else AssistChipDefaults.assistChipColors(labelColor = Color.Gray)
-                )
-                AssistChip(
-                    onClick = onToggleControllers,
-                    label = {
-                        Text(
-                            stringResource(
-                                R.string.controller_count,
-                                state.snapshot?.controllerList?.size ?: 0
-                            )
-                        )
-                    },
-                    leadingIcon = { Icon(Icons.Default.Headset, null, Modifier.size(16.dp)) },
-                    colors = if (state.showControllers) AssistChipDefaults.assistChipColors()
-                    else AssistChipDefaults.assistChipColors(labelColor = Color.Gray)
-                )
-                if (state.isRefreshing) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                }
-            }
-
-            if (state.showControllers) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // 구역으로 그려지는 시설
-                    listOf(FacilityType.CTR, FacilityType.FSS, FacilityType.APP).forEach { facility ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            LegendDot(facilityColor(facility))
-                            Text(facility.label, style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
-                    // 배지로 그려지는 시설
-                    listOf(
-                        FacilityType.TWR to "T",
-                        FacilityType.GND to "G",
-                        FacilityType.DEL to "D"
-                    ).forEach { (facility, letter) ->
-                        LegendBadge(letter, facilityColor(facility))
-                    }
-                }
-
-                if (airspaceCount > 0) {
-                    Text(
-                        stringResource(R.string.airspace_shown, airspaceCount),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            state.error?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        }
+        MapToggleChip(
+            label = stringResource(R.string.aircraft_count, state.snapshot?.aircraftList?.size ?: 0),
+            icon = Icons.Default.Flight,
+            enabled = state.showAircraft,
+            onClick = onToggleAircraft
+        )
+        MapToggleChip(
+            label = stringResource(R.string.controller_count, state.snapshot?.controllerList?.size ?: 0),
+            icon = Icons.Default.Headset,
+            enabled = state.showControllers,
+            onClick = onToggleControllers
+        )
     }
+}
+
+/**
+ * 감싸는 카드 없이 지도 위에 바로 놓이므로, 칩 자체가 불투명한 배경을 가져야
+ * 밝은 지도 타일 위에서도 글자가 읽힙니다.
+ */
+@Composable
+private fun MapToggleChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = { Icon(icon, null, Modifier.size(16.dp)) },
+        shape = RoundedCornerShape(20.dp),
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            labelColor = if (enabled) MaterialTheme.colorScheme.onSurface
+            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            leadingIconContentColor = if (enabled) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        ),
+        border = null,
+        elevation = AssistChipDefaults.assistChipElevation(elevation = 3.dp)
+    )
 }
 
 /**
