@@ -26,34 +26,12 @@ class ControllerWatchWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-    override suspend fun doWork(): Result {
-        val settings = ServiceLocator.settingsRepository(applicationContext)
-        val user = settings.current()
-
-        if (!user.notifyEnabled || user.watchedCallsigns.isEmpty()) return Result.success()
-
-        return try {
-            val online = ServiceLocator
-                .vatsimRepository(applicationContext)
-                .onlineCallsignsMatching(user.watchedCallsigns)
-                .toSet()
-
-            val previouslyNotified = settings.alreadyNotified()
-
-            // 이번에 새로 뜬 것만 알립니다. 접속이 유지되는 동안 15분마다 울리면 안 되니까요.
-            val newlyOnline = online - previouslyNotified
-            if (newlyOnline.isNotEmpty()) {
-                Notifications.showControllerOnline(applicationContext, newlyOnline.sorted())
-            }
-
-            // 접속 종료된 콜사인은 기록에서 지워 다음 접속 때 다시 알림이 가게 합니다.
-            settings.setAlreadyNotified(online)
-
-            Result.success()
-        } catch (e: Exception) {
-            Log.w("VATRadar", "관제소 감시 실패", e)
-            Result.retry()
-        }
+    override suspend fun doWork(): Result = try {
+        ControllerWatcher.checkOnce(applicationContext)
+        Result.success()
+    } catch (e: Exception) {
+        Log.w("VATRadar", "관제소 감시 실패", e)
+        Result.retry()
     }
 
     companion object {

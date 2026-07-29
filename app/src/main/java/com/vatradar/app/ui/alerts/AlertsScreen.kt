@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
@@ -43,9 +44,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.notification.ControllerWatchService
 import com.vatradar.app.notification.ControllerWatchWorker
 import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.notification.Notifications
+import com.vatradar.app.notification.WatchMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -73,8 +76,28 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setNotifyEnabled(enabled: Boolean) = viewModelScope.launch {
         repo.setNotifyEnabled(enabled)
+        applyWatch(enabled, WatchMode.fromTag(repo.current().watchMode))
+    }
+
+    fun setWatchMode(mode: WatchMode) = viewModelScope.launch {
+        repo.setWatchMode(mode.tag)
+        applyWatch(repo.current().notifyEnabled, mode)
+    }
+
+    /**
+     * 두 감시 경로는 동시에 돌 이유가 없으므로, 켤 때 반대쪽은 반드시 끕니다.
+     * 그러지 않으면 모드를 바꿔도 이전 경로가 계속 살아 있어 중복 확인이 일어납니다.
+     */
+    private fun applyWatch(enabled: Boolean, mode: WatchMode) {
         val context = getApplication<Application>()
-        if (enabled) ControllerWatchWorker.enable(context) else ControllerWatchWorker.disable(context)
+        ControllerWatchWorker.disable(context)
+        ControllerWatchService.stop(context)
+
+        if (!enabled) return
+        when (mode) {
+            WatchMode.BATTERY_SAVER -> ControllerWatchWorker.enable(context)
+            WatchMode.REALTIME -> ControllerWatchService.start(context)
+        }
     }
 }
 
@@ -117,6 +140,25 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
                         }
                     )
                 }
+
+                // 감시 방식 — 배터리 절약(15분) vs 실시간(60초)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val current = WatchMode.fromTag(settings.watchMode)
+                    WatchMode.entries.forEach { mode ->
+                        FilterChip(
+                            selected = current == mode,
+                            onClick = { viewModel.setWatchMode(mode) },
+                            label = { Text(stringResource(mode.labelRes)) },
+                            enabled = settings.notifyEnabled,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                Text(
+                    stringResource(WatchMode.fromTag(settings.watchMode).descriptionRes),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(

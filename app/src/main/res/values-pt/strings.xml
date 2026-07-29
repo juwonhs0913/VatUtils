@@ -82,11 +82,23 @@
     <string name="simbrief_id">SimBrief ID (alias ou pilot ID)</string>
     <string name="simbrief_id_hint">Informe o Alias ou o Pilot ID numérico das configurações da sua conta SimBrief — ambos funcionam. O alias é um nome que você define; o pilot ID contém apenas dígitos.</string>
     <string name="enable_alerts">Ativar alertas</string>
+    <string name="watch_mode_battery">Economia de bateria</string>
+    <string name="watch_mode_battery_desc">Verifica a cada 15 minutos. Sem custo extra de bateria, mas o alerta pode chegar até 15 minutos depois — é um limite do Android para trabalho em segundo plano.</string>
+    <string name="watch_mode_realtime">Tempo real</string>
+    <string name="watch_mode_realtime_desc">Verifica a cada 60 segundos. O Android exige uma notificação permanente enquanto isso roda, e o consumo de bateria é um pouco maior. Melhor ativar apenas enquanto você espera uma posição abrir.</string>
+    <string name="channel_controller_online">Controlador online</string>
+    <string name="channel_controller_online_desc">Avisa quando uma posição monitorada fica online.</string>
+    <string name="channel_watching">Monitorando controladores</string>
+    <string name="channel_watching_desc">Exibido enquanto o monitoramento em tempo real está ativo.</string>
+    <string name="watching_title">Monitorando controladores</string>
+    <string name="watching_text">Verificando a VATSIM a cada 60 segundos.</string>
+    <string name="controller_online_one">%1$s está online</string>
+    <string name="controller_online_many">%1$d posições monitoradas estão online</string>
     <string name="callsign_or_prefix">Indicativo ou prefixo (ex.: SBGR, SBBS_CTR)</string>
     <string name="add">Adicionar</string>
     <string name="remove">Remover</string>
     <string name="no_watched_controllers">Nenhuma posição registrada.</string>
-    <string name="alerts_hint">Registrar um prefixo detecta todas as posições abaixo dele (SBGR → SBGR_TWR, SBGR_APP, …).\nA verificação apenas pelo aparelho é limitada a intervalos de 15 minutos pelo Android. Para alertas instantâneos, veja a configuração do servidor FCM no README.</string>
+    <string name="alerts_hint">Registrar um prefixo detecta todas as posições abaixo dele (RKSI → RKSI_TWR, RKSI_APP, …). Para alertas em segundos sem manter o app rodando, veja a configuração do servidor FCM no README.</string>
 
     <!-- Common -->
     <string name="loading">Carregando…</string>

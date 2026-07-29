@@ -82,11 +82,23 @@
     <string name="simbrief_id">SimBrief-ID (Alias oder Pilot-ID)</string>
     <string name="simbrief_id_hint">Gib den Alias oder die numerische Pilot-ID aus deinen SimBrief-Kontoeinstellungen ein — beides funktioniert. Der Alias ist ein selbst gewählter Name, die Pilot-ID besteht nur aus Ziffern.</string>
     <string name="enable_alerts">Benachrichtigungen aktivieren</string>
+    <string name="watch_mode_battery">Energiesparen</string>
+    <string name="watch_mode_battery_desc">Prüft alle 15 Minuten. Kein zusätzlicher Akkuverbrauch, aber ein Hinweis kann bis zu 15 Minuten später eintreffen — eine Android-Beschränkung für Hintergrundarbeit.</string>
+    <string name="watch_mode_realtime">Echtzeit</string>
+    <string name="watch_mode_realtime_desc">Prüft alle 60 Sekunden. Android verlangt währenddessen eine dauerhafte Benachrichtigung, und der Akkuverbrauch steigt leicht. Am besten nur einschalten, während du auf eine Position wartest.</string>
+    <string name="channel_controller_online">Lotse online</string>
+    <string name="channel_controller_online_desc">Meldet, wenn eine beobachtete Position online geht.</string>
+    <string name="channel_watching">Lotsen werden beobachtet</string>
+    <string name="channel_watching_desc">Wird angezeigt, solange die Echtzeit-Beobachtung läuft.</string>
+    <string name="watching_title">Lotsen werden beobachtet</string>
+    <string name="watching_text">VATSIM wird alle 60 Sekunden geprüft.</string>
+    <string name="controller_online_one">%1$s ist online</string>
+    <string name="controller_online_many">%1$d beobachtete Positionen sind online</string>
     <string name="callsign_or_prefix">Rufzeichen oder Präfix (z. B. EDDF, EDGG_CTR)</string>
     <string name="add">Hinzufügen</string>
     <string name="remove">Entfernen</string>
     <string name="no_watched_controllers">Keine Positionen hinterlegt.</string>
-    <string name="alerts_hint">Ein Präfix erfasst alle darunterliegenden Positionen (EDDF → EDDF_TWR, EDDF_APP, …).\nDie Abfrage auf dem Gerät ist durch Android auf 15-Minuten-Intervalle begrenzt. Für sofortige Benachrichtigungen siehe die FCM-Server-Anleitung in der README.</string>
+    <string name="alerts_hint">Ein Präfix erfasst alle darunterliegenden Positionen (RKSI → RKSI_TWR, RKSI_APP, …). Für Hinweise binnen Sekunden, ohne die App laufen zu lassen, siehe die FCM-Server-Anleitung in der README.</string>
 
     <!-- Common -->
     <string name="loading">Wird geladen…</string>

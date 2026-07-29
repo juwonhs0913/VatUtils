@@ -82,11 +82,23 @@
     <string name="simbrief_id">SimBrief ID（别名或飞行员 ID）</string>
     <string name="simbrief_id_hint">请输入 SimBrief 账号设置中的 Alias 或数字 Pilot ID，两者皆可。Alias 是自定义名称，Pilot ID 全为数字。</string>
     <string name="enable_alerts">开启提醒</string>
+    <string name="watch_mode_battery">省电</string>
+    <string name="watch_mode_battery_desc">每 15 分钟检查一次。不额外耗电，但提醒最多可能延迟 15 分钟——这是 Android 对后台任务的限制。</string>
+    <string name="watch_mode_realtime">实时</string>
+    <string name="watch_mode_realtime_desc">每 60 秒检查一次。Android 规定运行期间必须显示一条常驻通知，耗电也略高。建议仅在等待席位上线时开启。</string>
+    <string name="channel_controller_online">管制员上线</string>
+    <string name="channel_controller_online_desc">您关注的管制席位上线时提醒您。</string>
+    <string name="channel_watching">正在监视管制席位</string>
+    <string name="channel_watching_desc">实时监视开启期间显示。</string>
+    <string name="watching_title">正在监视管制席位</string>
+    <string name="watching_text">每 60 秒检查一次 VATSIM。</string>
+    <string name="controller_online_one">%1$s 已上线</string>
+    <string name="controller_online_many">已上线的关注席位 %1$d 个</string>
     <string name="callsign_or_prefix">呼号或前缀（如 ZBAA、ZBPE_CTR）</string>
     <string name="add">添加</string>
     <string name="remove">删除</string>
     <string name="no_watched_controllers">尚未登记任何管制席位。</string>
-    <string name="alerts_hint">按前缀登记会匹配其下所有席位（ZBAA → ZBAA_TWR、ZBAA_APP 等）。\n受 Android 限制，仅靠设备轮询最短间隔为 15 分钟。如需即时提醒，请参考 README 中的 FCM 服务器部署说明。</string>
+    <string name="alerts_hint">按前缀登记会匹配其下所有席位（RKSI → RKSI_TWR、RKSI_APP 等）。若希望无需保持应用运行也能在数秒内收到提醒，请参考 README 中的 FCM 服务器部署说明。</string>
 
     <!-- Common -->
     <string name="loading">加载中…</string>
