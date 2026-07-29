@@ -12,12 +12,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.vatradar.app.domain.model.Aircraft
+import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.Controller
 
 /** 마커에 붙여 클릭 시 어떤 대상인지 구분합니다. */
 sealed interface MarkerTag {
     data class AircraftTag(val callsign: String) : MarkerTag
     data class BadgeTag(val airport: String) : MarkerTag
+    data class AirportTag(val icao: String) : MarkerTag
 }
 
 /** 항공기 아이콘. IFR/VFR 두 장만 만들고 기수 방향은 마커 회전으로 처리합니다. */
@@ -85,12 +87,14 @@ class MapMarkerController {
 
     private val aircraftMarkers = HashMap<String, Marker>()
     private val badgeMarkers = HashMap<String, Marker>()
+    private val airportMarkers = HashMap<String, Marker>()
     private var listenerInstalled = false
 
     fun installClickListener(
         map: GoogleMap,
         onAircraft: (String) -> Unit,
-        onBadge: (String) -> Unit
+        onBadge: (String) -> Unit,
+        onAirport: (String) -> Unit
     ) {
         if (listenerInstalled) return
         map.setOnMarkerClickListener { marker ->
@@ -103,10 +107,41 @@ class MapMarkerController {
                     onBadge(tag.airport)
                     true
                 }
+                is MarkerTag.AirportTag -> {
+                    onAirport(tag.icao)
+                    true
+                }
                 else -> false
             }
         }
         listenerInstalled = true
+    }
+
+    /**
+     * 비행계획 출도착 공항 라벨을 갱신합니다.
+     * 배율이 낮으면 빈 목록이 들어와 전부 제거됩니다.
+     */
+    fun syncAirports(map: GoogleMap, airports: List<Airport>) {
+        val seen = HashSet<String>(airports.size)
+
+        airports.forEach { airport ->
+            seen += airport.icao
+            if (airportMarkers.containsKey(airport.icao)) return@forEach
+
+            val marker = map.addMarker(
+                MarkerOptions()
+                    .position(LatLng(airport.latitude, airport.longitude))
+                    .icon(AirportBadgeIcons.airportLabel(airport.icao))
+                    // 라벨 안의 점이 실제 공항 좌표에 오도록 앵커를 맞춥니다.
+                    .anchor(AirportBadgeIcons.airportLabelAnchorX(airport.icao), 0.5f)
+                    .zIndex(0.5f)   // 항공기 위, 관제 배지 아래
+            ) ?: return@forEach
+            marker.tag = MarkerTag.AirportTag(airport.icao)
+            airportMarkers[airport.icao] = marker
+        }
+
+        val gone = airportMarkers.keys - seen
+        gone.forEach { airportMarkers.remove(it)?.remove() }
     }
 
     /** 항공기 마커를 현재 스냅샷에 맞춥니다. 있는 건 갱신, 없어진 건 제거. */

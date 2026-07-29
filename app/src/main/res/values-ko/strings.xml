@@ -45,8 +45,6 @@
 
     <!-- SimBrief -->
     <string name="simbrief_plan">SimBrief 비행 계획</string>
-    <string name="aircraft_label">기종 %1$s</string>
-    <string name="airline_label">항공사 %1$s</string>
     <string name="generate_on_simbrief">SimBrief에서 생성하기</string>
     <string name="simbrief_hint">SimBrief 페이지가 열리면 Generate를 눌러 OFP를 만든 뒤, 아래 버튼으로 결과를 가져옵니다.</string>
     <string name="fetch_ofp">생성된 OFP 가져오기</string>
@@ -75,13 +73,15 @@
 
     <!-- Settings -->
     <string name="language">언어</string>
+    <string name="alerts">알림</string>
+    <string name="appearance">화면 모드</string>
+    <string name="theme_system">시스템</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
     <string name="language_hint">선택한 언어를 적용하기 위해 앱이 다시 시작됩니다.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID (Alias 또는 Pilot ID)</string>
     <string name="simbrief_id_hint">SimBrief 계정 설정의 Alias 또는 숫자 Pilot ID를 입력하세요. OFP를 가져올 때 사용합니다.</string>
-    <string name="preferred_aircraft">선호 기종 (ICAO, 예: B77W)</string>
-    <string name="airline_code">항공사 코드 (선택, 예: KAL)</string>
-    <string name="controller_alerts">관심 관제소 알림</string>
     <string name="enable_alerts">알림 켜기</string>
     <string name="callsign_or_prefix">콜사인 또는 접두사 (예: RKSI, RKRR_CTR)</string>
     <string name="add">추가</string>

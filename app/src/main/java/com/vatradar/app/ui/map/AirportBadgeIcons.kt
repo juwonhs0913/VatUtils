@@ -89,6 +89,77 @@ object AirportBadgeIcons {
         return BitmapDescriptorFactory.fromBitmap(bitmap).also { cache[key] = it }
     }
 
+    /**
+     * 비행계획 출도착지 표시용 아이콘 — 공항 위치의 점과 ICAO 코드 라벨.
+     * 코드마다 한 장씩 만들지만 화면에 보이는 공항만 만들어지고 캐시됩니다.
+     */
+    private val labelCache = HashMap<String, BitmapDescriptor>()
+
+    fun airportLabel(icao: String): BitmapDescriptor {
+        labelCache[icao]?.let { return it }
+
+        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 34f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        val dotRadius = 9f
+        val gap = 8f
+        val padH = 8f
+        val padV = 5f
+
+        val textWidth = text.measureText(icao)
+        val metrics = text.fontMetrics
+        val textHeight = metrics.descent - metrics.ascent
+
+        val width = (dotRadius * 2 + gap + textWidth + padH * 2).toInt()
+        val height = (maxOf(dotRadius * 2, textHeight) + padV * 2).toInt()
+
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val centerY = height / 2f
+
+        // 라벨 배경 (지도 위에서 글자가 읽히도록)
+        val background = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(215, 255, 255, 255)
+            style = Paint.Style.FILL
+        }
+        val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(90, 0, 0, 0)
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+        val rect = RectF(1f, 1f, width - 1f, height - 1f)
+        canvas.drawRoundRect(rect, 8f, 8f, background)
+        canvas.drawRoundRect(rect, 8f, 8f, border)
+
+        // 공항 위치를 나타내는 점
+        val dot = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(0x0B, 0x1D, 0x2E)
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(padH + dotRadius, centerY, dotRadius, dot)
+
+        text.color = Color.rgb(0x0B, 0x1D, 0x2E)
+        canvas.drawText(
+            icao,
+            padH + dotRadius * 2 + gap,
+            centerY - (metrics.ascent + metrics.descent) / 2,
+            text
+        )
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap).also { labelCache[icao] = it }
+    }
+
+    /** 라벨 안에서 점이 차지하는 가로 비율 — 마커 앵커를 점 위치에 맞추는 데 씁니다. */
+    fun airportLabelAnchorX(icao: String): Float {
+        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 34f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        val width = 9f * 2 + 8f + text.measureText(icao) + 8f * 2
+        return (8f + 9f) / width
+    }
+
     /** MapScreen의 facilityColor와 같은 색을 android.graphics 쪽에서도 씁니다. */
     private fun facilityArgb(facility: FacilityType): Int = when (facility) {
         FacilityType.TWR -> Color.rgb(0x19, 0x76, 0xD2)

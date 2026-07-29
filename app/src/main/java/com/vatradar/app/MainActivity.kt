@@ -6,12 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -20,16 +20,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.vatradar.app.data.prefs.UserSettings
+import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.ui.alerts.AlertsScreen
 import com.vatradar.app.ui.events.EventsScreen
 import com.vatradar.app.ui.map.MapScreen
 import com.vatradar.app.ui.nav.Destination
 import com.vatradar.app.ui.route.RouteScreen
 import com.vatradar.app.ui.settings.SettingsScreen
+import com.vatradar.app.ui.theme.ThemeMode
 import com.vatradar.app.ui.theme.VatRadarTheme
 
 /**
@@ -41,8 +46,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val settingsRepository = ServiceLocator.settingsRepository(this)
+
         setContent {
-            VatRadarTheme {
+            val settings by settingsRepository.settings
+                .collectAsStateWithLifecycle(initialValue = UserSettings())
+
+            VatRadarTheme(themeMode = ThemeMode.fromTag(settings.themeMode)) {
                 VatRadarRoot()
             }
         }
@@ -55,7 +65,10 @@ fun VatRadarRoot() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination
+
     val isSettings = currentRoute?.route == Destination.SETTINGS
+    val isAlerts = currentRoute?.route == Destination.ALERTS
+    val isSubPage = isSettings || isAlerts
 
     Scaffold(
         topBar = {
@@ -67,13 +80,14 @@ fun VatRadarRoot() {
                     Text(
                         when {
                             isSettings -> stringResource(R.string.settings)
+                            isAlerts -> stringResource(R.string.alerts)
                             labelRes != null -> stringResource(labelRes)
                             else -> stringResource(R.string.app_name)
                         }
                     )
                 },
                 navigationIcon = {
-                    if (isSettings) {
+                    if (isSubPage) {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
@@ -83,7 +97,13 @@ fun VatRadarRoot() {
                     }
                 },
                 actions = {
-                    if (!isSettings) {
+                    if (!isSubPage) {
+                        IconButton(onClick = { navController.navigate(Destination.ALERTS) }) {
+                            Icon(
+                                Icons.Default.NotificationsActive,
+                                contentDescription = stringResource(R.string.alerts)
+                            )
+                        }
                         IconButton(onClick = { navController.navigate(Destination.SETTINGS) }) {
                             Icon(
                                 Icons.Default.Settings,
@@ -95,7 +115,7 @@ fun VatRadarRoot() {
             )
         },
         bottomBar = {
-            if (!isSettings) {
+            if (!isSubPage) {
                 NavigationBar {
                     Destination.entries.forEach { destination ->
                         val selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true
@@ -130,6 +150,7 @@ fun VatRadarRoot() {
             composable(Destination.ROUTE.route) { RouteScreen() }
             composable(Destination.EVENTS.route) { EventsScreen() }
             composable(Destination.SETTINGS) { SettingsScreen() }
+            composable(Destination.ALERTS) { AlertsScreen() }
         }
     }
 }

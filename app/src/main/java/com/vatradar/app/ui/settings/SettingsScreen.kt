@@ -1,9 +1,7 @@
 package com.vatradar.app.ui.settings
 
 import android.app.Application
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,18 +13,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
@@ -44,9 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
-import com.vatradar.app.notification.ControllerWatchWorker
-import com.vatradar.app.notification.FcmTopics
-import com.vatradar.app.notification.Notifications
+import com.vatradar.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -59,30 +54,12 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     val settings = _settings.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            repo.settings.collect { _settings.value = it }
-        }
+        viewModelScope.launch { repo.settings.collect { _settings.value = it } }
     }
 
     fun setSimBriefId(v: String) = viewModelScope.launch { repo.setSimBriefId(v) }
-    fun setAircraftType(v: String) = viewModelScope.launch { repo.setAircraftType(v) }
-    fun setAirline(v: String) = viewModelScope.launch { repo.setAirline(v) }
 
-    fun addWatched(v: String) = viewModelScope.launch {
-        repo.addWatched(v)
-        FcmTopics.subscribe(v)
-    }
-
-    fun removeWatched(v: String) = viewModelScope.launch {
-        repo.removeWatched(v)
-        FcmTopics.unsubscribe(v)
-    }
-
-    fun setNotifyEnabled(enabled: Boolean) = viewModelScope.launch {
-        repo.setNotifyEnabled(enabled)
-        val context = getApplication<Application>()
-        if (enabled) ControllerWatchWorker.enable(context) else ControllerWatchWorker.disable(context)
-    }
+    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode.tag) }
 
     fun setLanguage(language: AppLanguage) = viewModelScope.launch {
         repo.setLanguageTag(language.tag)
@@ -95,16 +72,8 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
     var simBriefId by remember(settings.simBriefId) { mutableStateOf(settings.simBriefId) }
-    var aircraftType by remember(settings.aircraftType) { mutableStateOf(settings.aircraftType) }
-    var airline by remember(settings.airline) { mutableStateOf(settings.airline) }
-    var newWatch by remember { mutableStateOf("") }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted -> viewModel.setNotifyEnabled(granted) }
+    var languageExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -113,31 +82,79 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // ---------------- 언어 ----------------
+        // ---------------- 화면 모드 ----------------
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.language), style = MaterialTheme.typography.titleMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Default.DarkMode, null, Modifier.size(20.dp))
+                    Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
+                }
 
-                val selected = AppLanguage.fromTag(settings.languageTag)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AppLanguage.entries.forEach { language ->
+                val currentTheme = ThemeMode.fromTag(settings.themeMode)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ThemeMode.entries.forEach { mode ->
                         FilterChip(
-                            selected = selected == language,
-                            onClick = { viewModel.setLanguage(language) },
-                            label = { Text(language.displayName) }
+                            selected = currentTheme == mode,
+                            onClick = { viewModel.setThemeMode(mode) },
+                            label = { Text(stringResource(mode.labelRes)) },
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
-
-                Text(
-                    stringResource(R.string.language_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
 
-        // ---------------- F5 SimBrief ----------------
+        // ---------------- 언어 (버튼을 누르면 아래에 목록) ----------------
+        Card {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val selected = AppLanguage.fromTag(settings.languageTag)
+
+                TextButton(
+                    onClick = { languageExpanded = !languageExpanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Language, null, Modifier.size(20.dp))
+                    Text(
+                        "  " + stringResource(R.string.language),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(selected.displayName, style = MaterialTheme.typography.bodyMedium)
+                    Icon(
+                        if (languageExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        null,
+                        Modifier.size(20.dp)
+                    )
+                }
+
+                AnimatedVisibility(visible = languageExpanded) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            AppLanguage.entries.forEach { language ->
+                                FilterChip(
+                                    selected = selected == language,
+                                    onClick = {
+                                        viewModel.setLanguage(language)
+                                        languageExpanded = false
+                                    },
+                                    label = { Text(language.displayName) }
+                                )
+                            }
+                        }
+                        Text(
+                            stringResource(R.string.language_hint),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        // ---------------- SimBrief ----------------
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.simbrief), style = MaterialTheme.typography.titleMedium)
@@ -150,96 +167,6 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                 )
                 Text(
                     stringResource(R.string.simbrief_id_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedTextField(
-                    value = aircraftType,
-                    onValueChange = { aircraftType = it; viewModel.setAircraftType(it) },
-                    label = { Text(stringResource(R.string.preferred_aircraft)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = airline,
-                    onValueChange = { airline = it; viewModel.setAirline(it) },
-                    label = { Text(stringResource(R.string.airline_code)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        // ---------------- F4 관심 관제소 ----------------
-        Card {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.controller_alerts), style = MaterialTheme.typography.titleMedium)
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.enable_alerts), style = MaterialTheme.typography.bodyMedium)
-                    Switch(
-                        checked = settings.notifyEnabled,
-                        onCheckedChange = { want ->
-                            if (want && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                                !Notifications.canPost(context)
-                            ) {
-                                permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                viewModel.setNotifyEnabled(want)
-                            }
-                        }
-                    )
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = newWatch,
-                        onValueChange = { newWatch = it },
-                        label = { Text(stringResource(R.string.callsign_or_prefix)) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = {
-                        if (newWatch.isNotBlank()) {
-                            viewModel.addWatched(newWatch)
-                            newWatch = ""
-                        }
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
-                    }
-                }
-
-                if (settings.watchedCallsigns.isEmpty()) {
-                    Text(
-                        stringResource(R.string.no_watched_controllers),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        settings.watchedCallsigns.sorted().forEach { cs ->
-                            InputChip(
-                                selected = false,
-                                onClick = { viewModel.removeWatched(cs) },
-                                label = { Text(cs) },
-                                trailingIcon = {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.remove),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Text(
-                    stringResource(R.string.alerts_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

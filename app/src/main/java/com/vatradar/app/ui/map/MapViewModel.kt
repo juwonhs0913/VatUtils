@@ -9,6 +9,7 @@ import com.vatradar.app.data.repository.VatsimSnapshot
 import com.vatradar.app.data.repository.WeatherReport
 import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.domain.model.Aircraft
+import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.Controller
 import com.vatradar.app.domain.model.greatCircleNm
 import com.vatradar.app.util.plannedArrivalZulu
@@ -32,6 +33,11 @@ data class MapUiState(
     val weatherLoading: Boolean = false,
     val showControllers: Boolean = true,
     val showAircraft: Boolean = true,
+
+    /** 현재 비행계획에 출발지·도착지로 등장하는 공항들. 일정 배율 이상에서 표시합니다. */
+    val flightAirports: List<Airport> = emptyList(),
+    /** 지도에서 공항 라벨을 눌렀을 때 기상만 보여주는 경우. */
+    val selectedAirport: String? = null,
 
     /** 선택한 항공기의 항로. 지나온 구간과 남은 구간을 나눠 그립니다. */
     val routeFlown: List<LatLng> = emptyList(),
@@ -74,12 +80,14 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
             when (val result = vatsimRepo.fetchSnapshot()) {
-                is VatsimResult.Success ->
+                is VatsimResult.Success -> {
                     _uiState.value = _uiState.value.copy(
                         snapshot = result.snapshot,
                         isRefreshing = false,
                         error = null
                     )
+                    loadFlightAirports(result.snapshot)
+                }
                 is VatsimResult.Error ->
                     _uiState.value = _uiState.value.copy(
                         isRefreshing = false,
@@ -87,6 +95,27 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
                         error = result.message
                     )
             }
+        }
+    }
+
+    /**
+     * 비행계획에 등장하는 출발·도착 공항을 모아 좌표를 채웁니다.
+     * 갱신마다 공항 목록이 크게 바뀌지는 않으므로, 코드 집합이 같으면 조회를 건너뜁니다.
+     */
+    private var lastAirportCodes: Set<String> = emptySet()
+
+    private fun loadFlightAirports(snapshot: VatsimSnapshot) {
+        val codes = snapshot.aircraftList
+            .flatMap { listOfNotNull(it.departure, it.arrival) }
+            .filter { it.isNotBlank() }
+            .map { it.uppercase() }
+            .toSet()
+
+        if (codes == lastAirportCodes) return
+        lastAirportCodes = codes
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(flightAirports = airportRepo.findAll(codes))
         }
     }
 
@@ -161,6 +190,21 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         loadWeather(controllers.first().prefix)
     }
 
+    /** 지도의 공항 라벨을 눌렀을 때 — 기상만 담은 시트를 엽니다. */
+    fun selectAirport(icao: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedAirport = icao.uppercase(),
+            selectedAircraft = null,
+            selectedControllers = emptyList(),
+            routeFlown = emptyList(),
+            routeRemaining = emptyList(),
+            routeEndpoints = emptyList(),
+            estimatedArrival = null,
+            etaIsLive = false
+        )
+        loadWeather(icao)
+    }
+
     /** F6: 지도에서 공항/관제소를 탭하면 기상 정보를 띄웁니다. */
     fun loadWeather(icao: String) {
         viewModelScope.launch {
@@ -180,6 +224,7 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         _uiState.value = _uiState.value.copy(
             selectedAircraft = null,
             selectedControllers = emptyList(),
+            selectedAirport = null,
             weather = null,
             weatherLoading = false,
             routeFlown = emptyList(),

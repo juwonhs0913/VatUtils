@@ -106,6 +106,19 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             .mapValues { (_, group) -> group.sortedBy { AirportBadgeIcons.sortKey(it.facility) } }
     }
 
+    // 출도착 공항 라벨은 충분히 확대했을 때만, 그것도 화면에 들어오는 것만 그립니다.
+    // 전 세계 수백 개를 한꺼번에 올리면 축소 화면이 라벨로 뒤덮입니다.
+    val visibleAirports = run {
+        val zoom = cameraPositionState.position.zoom
+        val bounds = cameraPositionState.projection?.visibleRegion?.latLngBounds
+        remember(state.flightAirports, zoom, bounds) {
+            if (zoom < AIRPORT_LABEL_MIN_ZOOM) emptyList()
+            else state.flightAirports.filter {
+                bounds == null || bounds.contains(LatLng(it.latitude, it.longitude))
+            }
+        }
+    }
+
     // 클릭 리스너가 항상 최신 목록을 보도록 합니다 (리스너는 1회만 설치됨).
     val latestAircraft by rememberUpdatedState(aircraftList)
     val latestBadges by rememberUpdatedState(badgeGroups)
@@ -179,7 +192,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             // 4) 항공기와 공항 관제석 배지 — Compose 밖에서 마커를 직접 관리합니다.
             //    클러스터링 없이 전부 표시하므로 마커 재사용이 중요하고,
             //    클릭 리스너를 한 곳에 모아야 배지 클릭이 정상 동작합니다.
-            MapEffect(aircraftList, badgeGroups) { map ->
+            MapEffect(aircraftList, badgeGroups, visibleAirports) { map ->
                 // 리스너는 한 번만 설치되므로 목록을 클로저에 그대로 담으면 안 됩니다.
                 // 15초마다 새 목록이 만들어지면 리스너는 첫 스냅샷만 계속 보게 되어
                 // 그 뒤에 접속한 관제소·항공기를 눌러도 아무 일도 일어나지 않습니다.
@@ -191,10 +204,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     },
                     onBadge = { airport ->
                         latestBadges[airport]?.let { viewModel.selectControllers(it) }
-                    }
+                    },
+                    onAirport = { icao -> viewModel.selectAirport(icao) }
                 )
                 markerController.syncAircraft(map, aircraftList)
                 markerController.syncBadges(map, badgeGroups)
+                markerController.syncAirports(map, visibleAirports)
             }
         }
 
@@ -210,7 +225,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
         val aircraft = state.selectedAircraft
         val controllers = state.selectedControllers
 
-        if (aircraft != null || controllers.isNotEmpty()) {
+        if (aircraft != null || controllers.isNotEmpty() || state.selectedAirport != null) {
             ModalBottomSheet(
                 onDismissRequest = viewModel::dismissSheet,
                 sheetState = sheetState
@@ -516,6 +531,12 @@ fun facilityColor(facility: FacilityType): Color = when (facility) {
     FacilityType.FSS -> Color(0xFF00838F)
     FacilityType.OBS -> Color(0xFF9E9E9E)
 }
+
+/**
+ * 공항 라벨을 표시하기 시작하는 배율.
+ * 이보다 낮으면 국가 단위 화면이라 라벨이 서로 겹쳐 읽을 수 없습니다.
+ */
+private const val AIRPORT_LABEL_MIN_ZOOM = 6f
 
 @Composable
 fun LegendDot(color: Color) {

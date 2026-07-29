@@ -159,6 +159,13 @@ class AirportRepository(private val dao: AirportDao) {
         dao.findByIcao(icao.uppercase())?.toDomain()
     }
 
+    /** 여러 ICAO를 한 번에 조회합니다 (비행계획의 출도착지 표시용). */
+    suspend fun findAll(icaos: Collection<String>): List<Airport> =
+        if (icaos.isEmpty()) emptyList()
+        else withContext(Dispatchers.IO) {
+            dao.findAllByIcao(icaos.map { it.uppercase() }.distinct()).map { it.toDomain() }
+        }
+
     suspend fun search(query: String): List<Airport> = withContext(Dispatchers.IO) {
         dao.search(query.uppercase()).map { it.toDomain() }
     }
@@ -177,21 +184,12 @@ class SimBriefRepository(private val api: SimBriefApiService) {
      * 표준 연동 방식은 디스패치 페이지를 파라미터로 채워 열고, 사용자가 Generate를 누른 뒤
      * xml.fetcher.php로 결과를 가져오는 흐름입니다.
      */
-    fun buildDispatchUrl(
-        origin: String,
-        destination: String,
-        aircraftType: String,
-        airline: String?,
-        flightNumber: String?
-    ): String = buildString {
+    fun buildDispatchUrl(origin: String, destination: String): String = buildString {
         append("https://dispatch.simbrief.com/options/custom")
         append("?orig=${origin.uppercase()}")
         append("&dest=${destination.uppercase()}")
-        append("&type=${aircraftType.uppercase()}")
-        if (!airline.isNullOrBlank()) append("&airline=${airline.uppercase()}")
-        if (!flightNumber.isNullOrBlank()) append("&fltnum=$flightNumber")
-        // 등록부호/항로는 SimBrief가 자동 산출하도록 둡니다.
-        append("&planformat=lido&units=KGS")
+        // 기종·항공사·등록부호·항로는 SimBrief 화면에서 사용자가 고르거나
+        // 계정 기본값이 채웁니다. 앱에서 강제하지 않습니다.
     }
 
     suspend fun fetchLatestOfp(username: String): Outcome<OfpSummary> =

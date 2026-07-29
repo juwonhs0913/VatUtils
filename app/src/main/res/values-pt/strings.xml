@@ -45,8 +45,6 @@
 
     <!-- SimBrief -->
     <string name="simbrief_plan">Plano de voo SimBrief</string>
-    <string name="aircraft_label">Aeronave %1$s</string>
-    <string name="airline_label">Companhia %1$s</string>
     <string name="generate_on_simbrief">Gerar no SimBrief</string>
     <string name="simbrief_hint">Quando o SimBrief abrir, toque em Generate para criar o OFP e depois busque o resultado abaixo.</string>
     <string name="fetch_ofp">Buscar OFP gerado</string>
@@ -75,13 +73,15 @@
 
     <!-- Settings -->
     <string name="language">Idioma</string>
+    <string name="alerts">Alertas</string>
+    <string name="appearance">Aparência</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
     <string name="language_hint">O app reinicia para aplicar o idioma selecionado.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID (alias ou pilot ID)</string>
     <string name="simbrief_id_hint">Informe o alias ou o pilot ID numérico das configurações da sua conta SimBrief. Usado ao buscar o OFP.</string>
-    <string name="preferred_aircraft">Aeronave preferida (ICAO, ex.: B77W)</string>
-    <string name="airline_code">Código da companhia (opcional, ex.: TAM)</string>
-    <string name="controller_alerts">Alertas de controladores</string>
     <string name="enable_alerts">Ativar alertas</string>
     <string name="callsign_or_prefix">Indicativo ou prefixo (ex.: SBGR, SBBS_CTR)</string>
     <string name="add">Adicionar</string>

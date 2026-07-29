@@ -31,9 +31,14 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun VatRadarTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
     val context = LocalContext.current
     val colorScheme = when {
         // Android 12+ 는 사용자 배경화면 기반 다이내믹 컬러를 우선합니다.

@@ -19,5 +19,6 @@ enum class Destination(
 
     companion object {
         const val SETTINGS = "settings"
+        const val ALERTS = "alerts"
     }
 }

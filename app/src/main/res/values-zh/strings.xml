@@ -45,8 +45,6 @@
 
     <!-- SimBrief -->
     <string name="simbrief_plan">SimBrief 飞行计划</string>
-    <string name="aircraft_label">机型 %1$s</string>
-    <string name="airline_label">航空公司 %1$s</string>
     <string name="generate_on_simbrief">在 SimBrief 生成</string>
     <string name="simbrief_hint">SimBrief 页面打开后，点击 Generate 生成 OFP，然后用下方按钮获取结果。</string>
     <string name="fetch_ofp">获取已生成的 OFP</string>
@@ -75,13 +73,15 @@
 
     <!-- Settings -->
     <string name="language">语言</string>
+    <string name="alerts">提醒</string>
+    <string name="appearance">显示模式</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
     <string name="language_hint">应用将重启以应用所选语言。</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID（别名或飞行员 ID）</string>
     <string name="simbrief_id_hint">请输入 SimBrief 账号设置中的别名或数字飞行员 ID，用于获取 OFP。</string>
-    <string name="preferred_aircraft">常用机型（ICAO，如 B77W）</string>
-    <string name="airline_code">航空公司代码（可选，如 CCA）</string>
-    <string name="controller_alerts">关注管制席位提醒</string>
     <string name="enable_alerts">开启提醒</string>
     <string name="callsign_or_prefix">呼号或前缀（如 ZBAA、ZBPE_CTR）</string>
     <string name="add">添加</string>

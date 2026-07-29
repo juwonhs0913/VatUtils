@@ -45,8 +45,6 @@
 
     <!-- SimBrief -->
     <string name="simbrief_plan">SimBrief-Flugplan</string>
-    <string name="aircraft_label">Muster %1$s</string>
-    <string name="airline_label">Airline %1$s</string>
     <string name="generate_on_simbrief">Auf SimBrief erstellen</string>
     <string name="simbrief_hint">Sobald SimBrief geöffnet ist, auf Generate tippen und danach unten das Ergebnis abrufen.</string>
     <string name="fetch_ofp">Erstellten OFP abrufen</string>
@@ -75,13 +73,15 @@
 
     <!-- Settings -->
     <string name="language">Sprache</string>
+    <string name="alerts">Hinweise</string>
+    <string name="appearance">Erscheinungsbild</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
     <string name="language_hint">Die App startet neu, um die gewählte Sprache anzuwenden.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief-ID (Alias oder Pilot-ID)</string>
     <string name="simbrief_id_hint">Gib den Alias oder die numerische Pilot-ID aus deinen SimBrief-Kontoeinstellungen ein. Wird zum Abrufen des OFP verwendet.</string>
-    <string name="preferred_aircraft">Bevorzugtes Muster (ICAO, z. B. B77W)</string>
-    <string name="airline_code">Airline-Code (optional, z. B. DLH)</string>
-    <string name="controller_alerts">Lotsen-Benachrichtigungen</string>
     <string name="enable_alerts">Benachrichtigungen aktivieren</string>
     <string name="callsign_or_prefix">Rufzeichen oder Präfix (z. B. EDDF, EDGG_CTR)</string>
     <string name="add">Hinzufügen</string>

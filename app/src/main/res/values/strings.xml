@@ -48,8 +48,6 @@
 
     <!-- SimBrief -->
     <string name="simbrief_plan">SimBrief flight plan</string>
-    <string name="aircraft_label">Aircraft %1$s</string>
-    <string name="airline_label">Airline %1$s</string>
     <string name="generate_on_simbrief">Generate on SimBrief</string>
     <string name="simbrief_hint">Once SimBrief opens, press Generate to build the OFP, then fetch the result below.</string>
     <string name="fetch_ofp">Fetch generated OFP</string>
@@ -78,13 +76,15 @@
 
     <!-- Settings -->
     <string name="language">Language</string>
+    <string name="alerts">Alerts</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <string name="language_hint">The app restarts to apply the selected language.</string>
     <string name="simbrief">SimBrief</string>
     <string name="simbrief_id">SimBrief ID (alias or pilot ID)</string>
     <string name="simbrief_id_hint">Enter the alias or numeric pilot ID from your SimBrief account settings. Used when fetching an OFP.</string>
-    <string name="preferred_aircraft">Preferred aircraft (ICAO, e.g. B77W)</string>
-    <string name="airline_code">Airline code (optional, e.g. KAL)</string>
-    <string name="controller_alerts">Controller alerts</string>
     <string name="enable_alerts">Enable alerts</string>
     <string name="callsign_or_prefix">Callsign or prefix (e.g. RKSI, RKRR_CTR)</string>
     <string name="add">Add</string>

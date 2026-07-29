@@ -148,13 +148,6 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(stringResource(R.string.simbrief_plan), style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        stringResource(R.string.aircraft_label, state.aircraftType) +
-                            (state.airline.takeIf { it.isNotBlank() }
-                                ?.let { " · " + stringResource(R.string.airline_label, it) } ?: ""),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
 
                     Button(onClick = viewModel::prepareDispatch, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.OpenInNew, null, Modifier.size(18.dp))

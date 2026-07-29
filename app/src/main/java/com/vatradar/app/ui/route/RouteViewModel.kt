@@ -27,8 +27,6 @@ data class RouteUiState(
 
     // F5 — SimBrief
     val simBriefId: String = "",
-    val aircraftType: String = "B77W",
-    val airline: String = "",
     val ofp: OfpSummary? = null,
     val ofpLoading: Boolean = false,
     val ofpError: String? = null,
@@ -50,8 +48,6 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             val s = settingsRepo.current()
             _uiState.value = _uiState.value.copy(
                 simBriefId = s.simBriefId,
-                aircraftType = s.aircraftType,
-                airline = s.airline,
                 airportPoolSize = airportRepo.poolSize(_uiState.value.haul)
             )
         }
@@ -109,10 +105,7 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
         _uiState.value = s.copy(
             dispatchUrl = simBriefRepo.buildDispatchUrl(
                 origin = route.origin.icao,
-                destination = route.destination.icao,
-                aircraftType = s.aircraftType,
-                airline = s.airline.takeIf { it.isNotBlank() },
-                flightNumber = null
+                destination = route.destination.icao
             )
         )
     }
@@ -141,12 +134,7 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
     /** 설정 화면에서 값이 바뀔 수 있으므로 탭 복귀 시 다시 읽습니다. */
     fun reloadSettings() {
         viewModelScope.launch {
-            val s = settingsRepo.current()
-            _uiState.value = _uiState.value.copy(
-                simBriefId = s.simBriefId,
-                aircraftType = s.aircraftType,
-                airline = s.airline
-            )
+            _uiState.value = _uiState.value.copy(simBriefId = settingsRepo.current().simBriefId)
         }
     }
 
