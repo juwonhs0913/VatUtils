@@ -80,16 +80,43 @@ PRD는 FCM + Cloud Functions를 명시하고 있고, 그게 맞습니다. Androi
 - **기본 (설정 불필요)** — `ControllerWatchWorker`가 15분마다 확인합니다. 지금 바로 동작합니다.
 - **즉시 알림 (배포 필요)** — `server/functions/index.js`가 1분마다 확인해 FCM으로 푸시합니다.
 
-즉시 알림을 켜려면:
+### 즉시 알림 켜기
 
-1. Firebase 프로젝트를 만들고 `google-services.json`을 `app/`에 넣습니다.
-2. 루트 `build.gradle.kts`에 `id("com.google.gms.google-services") version "4.4.2" apply false`, `app/build.gradle.kts`에 `id("com.google.gms.google-services")`를 추가합니다.
-3. 서버를 배포합니다.
-   ```bash
-   cd server && npm install && firebase deploy --only functions
-   ```
+Gradle 쪽은 이미 준비돼 있습니다. `app/google-services.json`이 **있을 때만** 플러그인이 적용되므로,
+파일을 넣기 전에도 빌드는 그대로 통과하고 넣는 순간 FCM이 켜집니다.
 
-설정 전에도 빌드와 실행에는 아무 문제가 없습니다. Firebase가 초기화되지 않으면 FCM 코드는 조용히 비활성화되고 폴링 경로만 동작합니다.
+**1. Firebase 콘솔에서 Android 앱 등록**
+
+프로젝트 → 앱 추가 → Android. 패키지 이름은 정확히 이 값이어야 합니다:
+
+```
+com.vatradar.app
+```
+
+SHA-1은 FCM에 필요 없으므로 비워도 됩니다. 생성 후 `google-services.json`을 받아 `app/` 아래에 둡니다
+(`.gitignore`에 있으니 커밋되지 않습니다).
+
+**2. 요금제와 서비스 확인**
+
+- **Blaze(종량제) 전환이 필요합니다.** 예약 함수(Cloud Scheduler)와 외부 네트워크 호출은 무료 Spark 요금제에서 동작하지 않습니다. 1분 주기 함수 하나는 무료 할당량 안에 들어가는 수준이지만, 예산 알림을 걸어두시길 권합니다.
+- **Firestore를 활성화**합니다(아무 위치나 무방). 함수가 "직전에 누가 접속해 있었는지"를 여기 한 문서에 기록해, 접속이 유지되는 동안 매분 알림이 울리는 걸 막습니다.
+
+**3. 서버 배포**
+
+```bash
+cd server && npm install && firebase login && firebase use --add && firebase deploy --only functions,firestore:rules
+```
+
+`firebase use --add`에서 방금 만든 프로젝트를 고르면 `.firebaserc`가 생성됩니다(이 파일도 커밋 대상이 아닙니다).
+
+**4. 앱 재설치 후 확인**
+
+앱을 다시 설치하고 알림 페이지에서 관심 관제소를 등록하면 `cs_<접두사>` 토픽을 구독합니다.
+Firebase 설정 전에 등록해 둔 관제소도 앱 시작 시 다시 구독되므로 따로 지웠다 넣을 필요는 없습니다.
+
+동작 확인은 Firebase 콘솔 → Functions → 로그에서 `새로 접속한 관제소 N곳 알림 전송`을 보면 됩니다.
+
+설정하지 않아도 앱은 정상 동작합니다. Firebase가 초기화되지 않으면 FCM 코드는 조용히 비활성화되고 15분 폴링만 남습니다.
 
 ## 검증
 

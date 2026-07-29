@@ -16,6 +16,17 @@ plugins {
     id("com.google.devtools.ksp") // Room 컴파일러
 }
 
+/*
+ * FCM 즉시 알림(F4)을 쓰려면 Firebase 콘솔에서 받은 google-services.json을
+ * app/ 아래에 두면 됩니다. 파일이 있을 때만 플러그인을 적용하므로,
+ * 없는 상태에서도 빌드가 그대로 통과합니다 — 그 경우 알림은
+ * ControllerWatchWorker의 15분 폴링으로 동작합니다.
+ */
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.vatradar.app"
     compileSdk = 35

@@ -6,6 +6,7 @@ import com.vatradar.app.data.local.AirportSeeder
 import com.vatradar.app.data.local.AppDatabase
 import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.notification.ControllerWatchWorker
+import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.notification.Notifications
 import com.vatradar.app.ui.settings.AppLanguage
 import kotlinx.coroutines.CoroutineScope
@@ -41,9 +42,16 @@ class VatRadarApp : Application() {
 
             // 설정이 켜져 있으면 감시 작업을 복구합니다 (기기 재부팅·앱 업데이트 후 대비).
             runCatching {
-                if (ServiceLocator.settingsRepository(this@VatRadarApp).current().notifyEnabled) {
+                val settings = ServiceLocator.settingsRepository(this@VatRadarApp).current()
+                if (settings.notifyEnabled) {
                     ControllerWatchWorker.enable(this@VatRadarApp)
                 }
+
+                // 토픽 구독을 매번 다시 걸어줍니다.
+                // Firebase를 나중에 설정한 경우, 그 전에 등록해 둔 관제소는
+                // 구독 시도가 조용히 실패한 상태로 남아 있습니다.
+                // 중복 구독은 FCM이 알아서 무시하므로 그냥 다시 호출하면 됩니다.
+                settings.watchedCallsigns.forEach { FcmTopics.subscribe(it) }
             }.onFailure { Log.w("VATRadar", "관제소 감시 복구 실패", it) }
         }
     }

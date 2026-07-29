@@ -12,6 +12,12 @@ build/
 # 로컬 설정 (SDK 경로, MAPS_API_KEY 포함 — 절대 커밋 금지)
 local.properties
 
+# Firebase 프로젝트 설정 (프로젝트 ID·API 키 포함)
+google-services.json
+.firebaserc
+server/node_modules/
+firebase-debug*.log
+
 # Native
 .externalNativeBuild
 .cxx
