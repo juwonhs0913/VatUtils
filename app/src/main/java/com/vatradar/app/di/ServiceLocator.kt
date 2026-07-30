@@ -30,8 +30,10 @@ object ServiceLocator {
 
     fun challengeRepository(context: Context): ChallengeRepository =
         challenges ?: synchronized(this) {
-            challenges ?: ChallengeRepository(AppDatabase.get(context).challengeDao())
-                .also { challenges = it }
+            challenges ?: ChallengeRepository(
+                AppDatabase.get(context).challengeDao(),
+                NetworkModule.challengeWatchApiService
+            ).also { challenges = it }
         }
 
     fun flightProgressRepository(context: Context): FlightProgressRepository =

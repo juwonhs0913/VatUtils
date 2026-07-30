@@ -24,6 +24,19 @@ class VatRadarMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        // 서버가 챌린지 완주를 알려온 경우
+        if (message.data["type"] == "challenge_complete") {
+            val challengeId = message.data["challengeId"]?.toLongOrNull() ?: return
+            runBlocking {
+                runCatching {
+                    withTimeout(PROCESS_TIMEOUT_MS) {
+                        ChallengeCompletionHandler.handle(applicationContext, challengeId)
+                    }
+                }.onFailure { Log.w("VATRadar", "챌린지 완주 처리 실패", it) }
+            }
+            return
+        }
+
         val callsigns = message.data["callsigns"]
             ?.split(",")
             ?.map { it.trim() }

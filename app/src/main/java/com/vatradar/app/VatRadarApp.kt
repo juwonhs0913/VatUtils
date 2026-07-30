@@ -52,6 +52,7 @@ class VatRadarApp : Application() {
                 // 구독 시도가 조용히 실패한 상태로 남아 있습니다.
                 // 중복 구독은 FCM이 알아서 무시하므로 그냥 다시 호출하면 됩니다.
                 settings.watchedCallsigns.forEach { FcmTopics.subscribe(it) }
+                FcmTopics.subscribeCid(settings.vatsimCid)
             }.onFailure { Log.w("VATRadar", "관제소 감시 복구 실패", it) }
         }
     }

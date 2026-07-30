@@ -14,6 +14,22 @@ object FcmTopics {
 
     private const val PREFIX = "cs_"
 
+    /**
+     * 내 CID 토픽. 서버가 챌린지 완주를 알릴 때 씁니다.
+     * 토픽으로 보내면 서버가 FCM 토큰을 저장할 필요가 없습니다.
+     */
+    fun subscribeCid(cid: String) = runGuarded("CID 구독") {
+        if (cid.isNotBlank()) {
+            FirebaseMessaging.getInstance().subscribeToTopic("cid_" + cid.trim())
+        }
+    }
+
+    fun unsubscribeCid(cid: String) = runGuarded("CID 구독 해제") {
+        if (cid.isNotBlank()) {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("cid_" + cid.trim())
+        }
+    }
+
     fun subscribe(callsign: String) = runGuarded("구독") {
         FirebaseMessaging.getInstance().subscribeToTopic(PREFIX + normalize(callsign))
     }

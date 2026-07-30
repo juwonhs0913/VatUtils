@@ -54,6 +54,23 @@ object Notifications {
 
 
 
+    /** 챌린지 완주 축하 알림. */
+    fun showChallengeComplete(context: Context, route: String, points: Int) {
+        if (!canPost(context)) return
+        ensureChannels(context)
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ONLINE)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.challenge_done, points))
+            .setContentText(route)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(openAppIntent(context))
+            .build()
+
+        NotificationManagerCompat.from(context).notify(route.hashCode(), notification)
+    }
+
     fun showControllerOnline(context: Context, callsigns: List<String>) {
         if (callsigns.isEmpty() || !canPost(context)) return
         ensureChannels(context)

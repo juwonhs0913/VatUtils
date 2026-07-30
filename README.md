@@ -24,7 +24,15 @@ VATSIM 올인원 컴패니언 앱 (Android / Kotlin / Jetpack Compose).
 | Kotlin | 2.0.20 |
 | compileSdk / targetSdk | 35 |
 | minSdk | 26 |
-| JDK | 17 |
+| JDK | 17 ~ 21 |
+
+> Gradle 8.9는 **Java 22까지만** 지원합니다. 시스템 기본 JDK가 23 이상이면
+> `./gradlew`가 `IllegalArgumentException: <버전>`만 남기고 죽습니다 (원인이 드러나지 않습니다).
+> Android Studio 번들 JDK를 쓰면 확실합니다:
+> ```
+> JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+> ```
+> Android Studio 안에서 빌드할 때는 이 JDK가 이미 쓰이므로 문제가 없습니다.
 
 > AGP 8.7.2는 Gradle 8.9 기준입니다. Gradle 9로 올리려면 AGP도 8.11 이상으로 함께 올려야 합니다.
 > Kotlin 2.0부터 Compose 사용 시 `org.jetbrains.kotlin.plugin.compose` 플러그인이 필수입니다.

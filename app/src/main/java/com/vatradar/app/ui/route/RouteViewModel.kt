@@ -135,11 +135,21 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             val cid = settingsRepo.current().vatsimCid
             val baselineHours = if (cid.isBlank()) null else flightProgressRepo.fetchPilotHours(cid)
 
-            challengeRepo.create(
+            val challengeId = challengeRepo.create(
                 origin = result.origin,
                 destination = result.destination,
                 distanceNm = result.distanceNm,
                 baselinePilotHours = baselineHours
+            )
+
+            // 서버에 감시를 맡깁니다. 비행 중 앱을 한 번도 켜지 않아도
+            // Worker가 1분마다 확인해 완주를 잡아냅니다.
+            challengeRepo.registerWatch(
+                cid = cid,
+                challengeId = challengeId,
+                origin = result.origin,
+                destination = result.destination,
+                baselineHours = baselineHours
             )
 
             _uiState.value = _uiState.value.copy(

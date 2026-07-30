@@ -2,10 +2,9 @@ name = "vatradar-watcher"
 main = "src/index.js"
 compatibility_date = "2026-07-01"
 
-# 이 Worker는 크론으로만 돕니다. HTTP 주소를 열지 않으므로 workers.dev 서브도메인이
-# 필요 없고, 누구나 호출할 수 있는 공개 엔드포인트도 생기지 않습니다.
-# 수동 실행(/run)이 필요하면 대시보드에서 서브도메인을 등록하고 이 줄을 true로 바꾸세요.
-workers_dev = false
+# 앱이 챌린지 감시를 등록하려면 HTTP 주소가 필요합니다.
+# /watch (등록·해제)와 /run (수동 실행)만 열려 있습니다.
+workers_dev = true
 
 # 1분마다 실행. Cloudflare 무료 플랜도 크론 트리거를 지원합니다.
 [triggers]

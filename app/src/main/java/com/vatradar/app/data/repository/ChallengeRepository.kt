@@ -1,6 +1,10 @@
 package com.vatradar.app.data.repository
 
+import android.util.Log
 import com.vatradar.app.data.local.ChallengeDao
+import com.vatradar.app.data.remote.ChallengeWatchApiService
+import com.vatradar.app.data.remote.UnwatchRequest
+import com.vatradar.app.data.remote.WatchRequest
 import com.vatradar.app.data.local.ChallengeEntity
 import com.vatradar.app.data.local.ChallengeStatus
 import com.vatradar.app.domain.model.Airport
@@ -10,7 +14,45 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
-class ChallengeRepository(private val dao: ChallengeDao) {
+class ChallengeRepository(
+    private val dao: ChallengeDao,
+    private val watchApi: ChallengeWatchApiService
+) {
+
+    /**
+     * 서버에 완주 감시를 맡깁니다.
+     * 실패해도 앱의 기기 판정이 남아 있으므로 조용히 넘어갑니다.
+     */
+    suspend fun registerWatch(
+        cid: String,
+        challengeId: Long,
+        origin: Airport,
+        destination: Airport,
+        baselineHours: Double?
+    ) {
+        if (cid.isBlank()) return
+        runCatching {
+            watchApi.register(
+                WatchRequest(
+                    cid = cid.trim(),
+                    challengeId = challengeId,
+                    origin = origin.icao,
+                    destination = destination.icao,
+                    arrLat = destination.latitude,
+                    arrLon = destination.longitude,
+                    arrElevFt = destination.elevationFt,
+                    baselineHours = baselineHours
+                )
+            )
+        }.onFailure { Log.w("VATRadar", "완주 감시 등록 실패 (기기 판정으로 계속)", it) }
+    }
+
+    suspend fun unregisterWatch(cid: String, challengeId: Long) {
+        if (cid.isBlank()) return
+        runCatching { watchApi.unregister(UnwatchRequest(cid.trim(), challengeId)) }
+            .onFailure { Log.w("VATRadar", "완주 감시 해제 실패", it) }
+    }
+
 
     val totalPoints: Flow<Int> = dao.totalPoints()
     val completedCount: Flow<Int> = dao.completedCount()
@@ -52,6 +94,13 @@ class ChallengeRepository(private val dao: ChallengeDao) {
     suspend fun markSeenEnroute(challenge: ChallengeEntity) {
         if (challenge.seenEnroute) return
         dao.update(challenge.copy(seenEnroute = true))
+    }
+
+    /** 챌린지 ID로 완주 처리 (서버 푸시로 들어오는 경로). */
+    suspend fun completeById(challengeId: Long): ChallengeEntity? {
+        val challenge = dao.activeChallenges().firstOrNull { it.id == challengeId } ?: return null
+        markCompleted(challenge)
+        return challenge
     }
 
     suspend fun markCompleted(challenge: ChallengeEntity) {

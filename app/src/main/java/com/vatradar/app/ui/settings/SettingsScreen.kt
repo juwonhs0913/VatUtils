@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,7 +61,13 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setSimBriefId(v: String) = viewModelScope.launch { repo.setSimBriefId(v) }
-    fun setVatsimCid(v: String) = viewModelScope.launch { repo.setVatsimCid(v) }
+    fun setVatsimCid(v: String) = viewModelScope.launch {
+        // CID가 바뀌면 이전 토픽을 끊고 새 토픽을 구독합니다.
+        val previous = repo.current().vatsimCid
+        if (previous.isNotBlank() && previous != v.trim()) FcmTopics.unsubscribeCid(previous)
+        repo.setVatsimCid(v)
+        FcmTopics.subscribeCid(v)
+    }
 
     fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode.tag) }
 

@@ -14,6 +14,8 @@
  * 모자라지만, D1은 하루 10만 행 쓰기라 여유가 있습니다.
  */
 
+import { registerWatch, unregisterWatch, checkFlightWatches } from './flightWatch.js';
+
 const VATSIM_DATA_URL = 'https://data.vatsim.net/v3/vatsim-data.json';
 const OBS_FACILITY = 0;
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -27,25 +29,41 @@ export default {
     ctx.waitUntil(run(env));
   },
 
-  // 배포 직후 동작을 확인할 수 있게 수동 실행 경로도 둡니다.
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== '/run') {
-      return new Response('VATRadar controller watcher. POST /run to trigger manually.', {
-        status: 200,
-      });
-    }
+
     try {
-      const result = await run(env);
-      return Response.json(result);
+      // 앱이 경로를 뽑을 때 감시를 등록합니다.
+      if (url.pathname === '/watch' && request.method === 'POST') {
+        return Response.json(await registerWatch(env, await request.json()));
+      }
+      if (url.pathname === '/watch' && request.method === 'DELETE') {
+        return Response.json(await unregisterWatch(env, await request.json()));
+      }
+      // 배포 직후 동작 확인용 수동 실행.
+      if (url.pathname === '/run') {
+        return Response.json(await run(env));
+      }
     } catch (error) {
       return Response.json({ error: String(error) }, { status: 500 });
     }
+
+    return new Response('VATRadar watcher', { status: 200 });
   },
 };
 
 async function run(env) {
-  const online = await fetchOnlineControllers();
+  const feed = await fetchFeed();
+  const online = onlineControllers(feed);
+  // 챌린지 완주 감시. 피드를 이미 받았으므로 추가 요청이 없습니다.
+  const accessTokenForWatch = await getAccessToken(env);
+  const projectIdForWatch = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
+  const watchCompleted = await checkFlightWatches(
+    env,
+    feed.pilots || [],
+    (topic, data) => sendToTopic(projectIdForWatch, accessTokenForWatch, topic, data)
+  );
+
   const previous = await loadPreviousState(env);
 
   // 이번 주기에 새로 뜬 것만 알립니다.
@@ -54,12 +72,12 @@ async function run(env) {
   await saveState(env, online);
 
   if (newlyOnline.length === 0) {
-    return { online: online.length, notified: 0 };
+    return { online: online.length, notified: 0, watchCompleted };
   }
 
-  const accessToken = await getAccessToken(env);
+  const accessToken = accessTokenForWatch;
   const topics = topicsFor(newlyOnline);
-  const projectId = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
+  const projectId = projectIdForWatch;
 
   // 한 번에 너무 많은 요청을 띄우면 Workers의 동시 요청 한도에 걸려
   // 오래된 응답이 취소됩니다. 나눠서 보냅니다.
@@ -84,18 +102,26 @@ async function run(env) {
     `새로 접속한 관제소 ${newlyOnline.length}곳 — 토픽 ${topics.size}개 발송 (실패 ${failed})`
   );
 
-  return { online: online.length, notified: newlyOnline.length, topics: topics.size, failed };
+  return {
+    online: online.length,
+    notified: newlyOnline.length,
+    topics: topics.size,
+    failed,
+    watchCompleted,
+  };
 }
 
-async function fetchOnlineControllers() {
+async function fetchFeed() {
   const response = await fetch(VATSIM_DATA_URL, {
     headers: { 'User-Agent': 'VATRadar/1.0 (controller watcher)' },
   });
   if (!response.ok) {
     throw new Error(`VATSIM 피드 응답 오류: ${response.status}`);
   }
-  const data = await response.json();
+  return response.json();
+}
 
+function onlineControllers(data) {
   // OBS(관찰자)는 실제 관제가 아니므로 제외합니다.
   return (data.controllers || [])
     .filter((c) => c.facility !== OBS_FACILITY)
@@ -212,7 +238,11 @@ async function importPrivateKey(pem) {
   );
 }
 
-async function sendToTopic(projectId, accessToken, topic, callsigns) {
+async function sendToTopic(projectId, accessToken, topic, payload) {
+  // 관제사 알림은 콜사인 배열, 챌린지 완주는 객체를 넘깁니다.
+  const data = Array.isArray(payload)
+    ? { callsigns: payload.join(',') }
+    : payload;
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
     {
@@ -225,7 +255,7 @@ async function sendToTopic(projectId, accessToken, topic, callsigns) {
         message: {
           topic,
           // 알림 문구는 앱이 사용자 언어로 만들도록 data 메시지만 보냅니다.
-          data: { callsigns: callsigns.join(',') },
+          data,
           android: { priority: 'high' },
         },
       }),
