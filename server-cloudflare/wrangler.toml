@@ -2,6 +2,11 @@ name = "vatradar-watcher"
 main = "src/index.js"
 compatibility_date = "2026-07-01"
 
+# 이 Worker는 크론으로만 돕니다. HTTP 주소를 열지 않으므로 workers.dev 서브도메인이
+# 필요 없고, 누구나 호출할 수 있는 공개 엔드포인트도 생기지 않습니다.
+# 수동 실행(/run)이 필요하면 대시보드에서 서브도메인을 등록하고 이 줄을 true로 바꾸세요.
+workers_dev = false
+
 # 1분마다 실행. Cloudflare 무료 플랜도 크론 트리거를 지원합니다.
 [triggers]
 crons = ["* * * * *"]
@@ -11,4 +16,4 @@ crons = ["* * * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "vatradar-state"
-database_id = "PUT_YOUR_D1_DATABASE_ID_HERE"
+database_id = "5d15a1be-2f6b-4dba-ac9e-20d39fb31a12"

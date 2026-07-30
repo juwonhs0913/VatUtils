@@ -19,6 +19,9 @@ const OBS_FACILITY = 0;
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
 
+/** 한 번에 띄우는 FCM 요청 수. Workers의 동시 요청 한도를 넘지 않도록 나눠 보냅니다. */
+const SEND_BATCH_SIZE = 6;
+
 export default {
   async scheduled(event, env, ctx) {
     ctx.waitUntil(run(env));
@@ -56,14 +59,27 @@ async function run(env) {
 
   const accessToken = await getAccessToken(env);
   const topics = topicsFor(newlyOnline);
+  const projectId = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
 
-  const results = await Promise.allSettled(
-    [...topics].map(([topic, callsigns]) =>
-      sendToTopic(env, accessToken, topic, callsigns)
-    )
-  );
+  // 한 번에 너무 많은 요청을 띄우면 Workers의 동시 요청 한도에 걸려
+  // 오래된 응답이 취소됩니다. 나눠서 보냅니다.
+  const entries = [...topics];
+  let failed = 0;
+  for (let i = 0; i < entries.length; i += SEND_BATCH_SIZE) {
+    const batch = entries.slice(i, i + SEND_BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map(([topic, callsigns]) =>
+        sendToTopic(projectId, accessToken, topic, callsigns)
+      )
+    );
+    for (const r of results) {
+      if (r.status === 'rejected') {
+        failed++;
+        console.warn(String(r.reason));
+      }
+    }
+  }
 
-  const failed = results.filter((r) => r.status === 'rejected').length;
   console.log(
     `새로 접속한 관제소 ${newlyOnline.length}곳 — 토픽 ${topics.size}개 발송 (실패 ${failed})`
   );
@@ -196,9 +212,7 @@ async function importPrivateKey(pem) {
   );
 }
 
-async function sendToTopic(env, accessToken, topic, callsigns) {
-  const projectId = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
-
+async function sendToTopic(projectId, accessToken, topic, callsigns) {
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
     {
@@ -218,8 +232,12 @@ async function sendToTopic(env, accessToken, topic, callsigns) {
     }
   );
 
+  // 성공이든 실패든 본문을 반드시 소비해야 합니다.
+  // 읽지 않은 응답이 쌓이면 Workers가 동시 요청 한도 때문에 오래된 것을 취소해,
+  // 발송이 조용히 누락됩니다.
+  const text = await response.text();
+
   if (!response.ok) {
-    const text = await response.text();
     // 구독자가 없는 토픽은 정상적인 상황입니다.
     if (response.status === 404 || text.includes('NOT_FOUND')) return;
     throw new Error(`토픽 ${topic} 전송 실패: ${response.status} ${text}`);
