@@ -15,6 +15,13 @@
  */
 
 import { registerWatch, unregisterWatch, checkFlightWatches } from './flightWatch.js';
+import {
+  authStart,
+  authCallback,
+  authRevoke,
+  cidForToken,
+  isAuthConfigured,
+} from './vatsimAuth.js';
 
 const VATSIM_DATA_URL = 'https://data.vatsim.net/v3/vatsim-data.json';
 const OBS_FACILITY = 0;
@@ -33,12 +40,27 @@ export default {
     const url = new URL(request.url);
 
     try {
+      // VATSIM Connect 로그인. 앱이 Custom Tab으로 /auth/start를 엽니다.
+      if (url.pathname === '/auth/start') return authStart(env, url);
+      if (url.pathname === '/auth/callback') return authCallback(env, url);
+      if (url.pathname === '/auth/revoke' && request.method === 'POST') {
+        return Response.json(await authRevoke(env, await request.json()));
+      }
+
       // 앱이 경로를 뽑을 때 감시를 등록합니다.
       if (url.pathname === '/watch' && request.method === 'POST') {
-        return Response.json(await registerWatch(env, await request.json()));
+        const body = await request.json();
+        const cid = await resolveCid(env, body);
+        if (!cid) {
+          return Response.json({ ok: false, error: 'vatsim account not linked' });
+        }
+        return Response.json(await registerWatch(env, body, cid));
       }
       if (url.pathname === '/watch' && request.method === 'DELETE') {
-        return Response.json(await unregisterWatch(env, await request.json()));
+        const body = await request.json();
+        const cid = await resolveCid(env, body);
+        if (!cid) return Response.json({ ok: false });
+        return Response.json(await unregisterWatch(env, cid, body.challengeId));
       }
       // 배포 직후 동작 확인용 수동 실행.
       if (url.pathname === '/run') {
@@ -51,6 +73,29 @@ export default {
     return new Response('VATRadar watcher', { status: 200 });
   },
 };
+
+/**
+ * 감시 요청의 주인이 누구인지 정합니다.
+ *
+ * 토큰이 있으면 서버가 VATSIM 로그인으로 확인한 CID를 씁니다. 앱이 보낸 cid는
+ * 쳐다보지 않습니다 — 이게 남의 CID로 감시를 거는 걸 막는 유일한 지점입니다.
+ *
+ * VATSIM Connect가 아직 설정되지 않은 배포에서는 로그인할 방법 자체가 없으므로
+ * 앱이 보낸 cid를 그대로 받습니다. 클라이언트가 승인되어 설정을 넣는 순간
+ * 이 느슨한 경로는 자동으로 닫힙니다.
+ */
+async function resolveCid(env, body) {
+  // 토큰을 들고 왔는데 통하지 않으면 여기서 끝냅니다.
+  // 앱이 보낸 cid로 물러서면, 아무 문자열이나 토큰이랍시고 보내서
+  // 검증을 건너뛰는 길이 열립니다.
+  if (body.token) {
+    return (await cidForToken(env, body.token)) || null;
+  }
+  if (isAuthConfigured(env)) return null;
+
+  const cid = String(body.cid || '').trim();
+  return /^\d{6,10}$/.test(cid) ? cid : null;
+}
 
 async function run(env) {
   const feed = await fetchFeed();

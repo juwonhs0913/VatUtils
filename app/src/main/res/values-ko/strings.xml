@@ -118,4 +118,9 @@
     <string name="vatsim_cid_hint">숫자로 된 VATSIM ID입니다(예: 1234567). 뽑은 경로를 비행했는지 확인하는 데만 쓰이며, VATSIM 공개 API 외에는 어디로도 전송되지 않습니다.</string>
     <string name="points_to_next_tier">%2$s까지 %1$s점</string>
     <string name="max_tier">최고 등급 달성</string>
+    <string name="vatsim_connect">VATSIM 계정으로 로그인</string>
+    <string name="vatsim_connect_hint">로그인하면 CID가 본인 것임이 확인되어 챌린지 보상이 인정됩니다. 하지 않아도 CID를 직접 입력할 수 있습니다.</string>
+    <string name="vatsim_connected">연결됨 — CID %1$s</string>
+    <string name="vatsim_connected_hint">VATSIM이 확인한 계정</string>
+    <string name="vatsim_disconnect">연결 해제</string>
 </resources>

@@ -132,7 +132,8 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
 
             // 뽑은 시점의 누적 비행시간을 기준으로 잡아둡니다.
             // 나중에 접속이 끊긴 뒤 완주를 판정할 때 이 값과 비교합니다.
-            val cid = settingsRepo.current().vatsimCid
+            val user = settingsRepo.current()
+            val cid = user.vatsimCid
             val baselineHours = if (cid.isBlank()) null else flightProgressRepo.fetchPilotHours(cid)
 
             val challengeId = challengeRepo.create(
@@ -146,6 +147,7 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             // Worker가 1분마다 확인해 완주를 잡아냅니다.
             challengeRepo.registerWatch(
                 cid = cid,
+                linkToken = user.vatsimLinkToken,
                 challengeId = challengeId,
                 origin = result.origin,
                 destination = result.destination,

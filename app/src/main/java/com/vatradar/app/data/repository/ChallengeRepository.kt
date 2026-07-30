@@ -3,6 +3,7 @@ package com.vatradar.app.data.repository
 import android.util.Log
 import com.vatradar.app.data.local.ChallengeDao
 import com.vatradar.app.data.remote.ChallengeWatchApiService
+import com.vatradar.app.data.remote.RevokeRequest
 import com.vatradar.app.data.remote.UnwatchRequest
 import com.vatradar.app.data.remote.WatchRequest
 import com.vatradar.app.data.local.ChallengeEntity
@@ -25,6 +26,7 @@ class ChallengeRepository(
      */
     suspend fun registerWatch(
         cid: String,
+        linkToken: String,
         challengeId: Long,
         origin: Airport,
         destination: Airport,
@@ -35,6 +37,7 @@ class ChallengeRepository(
             watchApi.register(
                 WatchRequest(
                     cid = cid.trim(),
+                    token = linkToken.ifBlank { null },
                     challengeId = challengeId,
                     origin = origin.icao,
                     destination = destination.icao,
@@ -47,10 +50,20 @@ class ChallengeRepository(
         }.onFailure { Log.w("VATRadar", "완주 감시 등록 실패 (기기 판정으로 계속)", it) }
     }
 
-    suspend fun unregisterWatch(cid: String, challengeId: Long) {
+    suspend fun unregisterWatch(cid: String, linkToken: String, challengeId: Long) {
         if (cid.isBlank()) return
-        runCatching { watchApi.unregister(UnwatchRequest(cid.trim(), challengeId)) }
-            .onFailure { Log.w("VATRadar", "완주 감시 해제 실패", it) }
+        runCatching {
+            watchApi.unregister(
+                UnwatchRequest(cid.trim(), linkToken.ifBlank { null }, challengeId)
+            )
+        }.onFailure { Log.w("VATRadar", "완주 감시 해제 실패", it) }
+    }
+
+    /** VATSIM 연결 해제. 서버에 남은 토큰까지 지웁니다. */
+    suspend fun revokeLink(linkToken: String) {
+        if (linkToken.isBlank()) return
+        runCatching { watchApi.revoke(RevokeRequest(linkToken)) }
+            .onFailure { Log.w("VATRadar", "VATSIM 연결 해제 실패", it) }
     }
 
 

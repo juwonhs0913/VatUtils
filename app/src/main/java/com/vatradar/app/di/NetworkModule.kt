@@ -26,7 +26,8 @@ object NetworkModule {
      * 챌린지 완주 감시 서버 (Cloudflare Worker).
      * 주소가 바뀌면 여기만 고치면 됩니다. 서버가 없어도 앱은 기기 판정으로 동작합니다.
      */
-    private const val WATCH_URL = "https://vatradar-watcher.juwonhs2004.workers.dev/"
+    /** VatsimConnect가 /auth/start를 열 때도 씁니다. */
+    const val WATCH_URL = "https://vatradar-watcher.juwonhs2004.workers.dev/"
 
     const val METAR_URL = "https://metar.vatsim.net/"
     const val TAF_URL = "https://aviationweather.gov/api/data/taf"

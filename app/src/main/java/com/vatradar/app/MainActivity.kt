@@ -1,6 +1,8 @@
 package com.vatradar.app
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
@@ -21,13 +23,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.vatradar.app.auth.VatsimConnect
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.ui.alerts.AlertsScreen
 import com.vatradar.app.ui.events.EventsScreen
 import com.vatradar.app.ui.map.MapScreen
@@ -36,6 +41,7 @@ import com.vatradar.app.ui.route.RouteScreen
 import com.vatradar.app.ui.settings.SettingsScreen
 import com.vatradar.app.ui.theme.ThemeMode
 import com.vatradar.app.ui.theme.VatRadarTheme
+import kotlinx.coroutines.launch
 
 /**
  * AppCompatActivity를 쓰는 이유는 앱별 언어 설정 때문입니다.
@@ -47,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val settingsRepository = ServiceLocator.settingsRepository(this)
+        handleAuthCallback(intent)
 
         setContent {
             val settings by settingsRepository.settings
@@ -55,6 +62,32 @@ class MainActivity : AppCompatActivity() {
             VatRadarTheme(themeMode = ThemeMode.fromTag(settings.themeMode)) {
                 VatRadarRoot()
             }
+        }
+    }
+
+    /** 로그인을 마친 브라우저가 vatradar://auth 로 돌아옵니다 (singleTask). */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleAuthCallback(intent)
+    }
+
+    private fun handleAuthCallback(intent: Intent?) {
+        val link = VatsimConnect.parseCallback(intent?.data) ?: return
+
+        // 딥링크는 한 번만 처리해야 합니다. 지우지 않으면 화면 회전 등으로
+        // 액티비티가 다시 만들어질 때 같은 토큰을 또 저장하게 됩니다.
+        intent?.data = null
+
+        lifecycleScope.launch {
+            val repository = ServiceLocator.settingsRepository(this@MainActivity)
+            val previous = repository.current().vatsimCid
+            if (previous.isNotBlank() && previous != link.cid) {
+                FcmTopics.unsubscribeCid(previous)
+            }
+            repository.setVatsimLink(link.cid, link.token)
+            FcmTopics.subscribeCid(link.cid)
+            Log.d("VATRadar", "VATSIM 연결됨: CID ${link.cid}")
         }
     }
 }

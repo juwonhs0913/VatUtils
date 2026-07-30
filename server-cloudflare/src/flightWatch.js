@@ -17,9 +17,13 @@ const ARRIVAL_MAX_GROUND_SPEED_KT = 40;
 const ARRIVAL_MAX_ALTITUDE_AGL_FT = 2000;
 const MIN_HOURS_DELTA = 0.2;
 
-/** 앱이 경로를 뽑을 때 호출합니다. */
-export async function registerWatch(env, body) {
-  const cid = String(body.cid || '').trim();
+/**
+ * 앱이 경로를 뽑을 때 호출합니다.
+ *
+ * cid는 호출부(index.js의 resolveCid)가 정해서 넘깁니다. 여기서 body.cid를
+ * 읽으면 안 됩니다 — 로그인으로 확인한 CID를 덮어쓰는 구멍이 됩니다.
+ */
+export async function registerWatch(env, body, cid) {
   const challengeId = Number(body.challengeId);
   if (!/^\d{6,10}$/.test(cid) || !Number.isInteger(challengeId)) {
     return { ok: false, error: 'invalid cid or challengeId' };
@@ -56,9 +60,8 @@ export async function registerWatch(env, body) {
 }
 
 /** 앱이 이미 완주를 확인했거나 챌린지가 사라졌을 때 정리합니다. */
-export async function unregisterWatch(env, body) {
-  const cid = String(body.cid || '').trim();
-  const challengeId = Number(body.challengeId);
+export async function unregisterWatch(env, cid, rawChallengeId) {
+  const challengeId = Number(rawChallengeId);
   if (!cid || !Number.isInteger(challengeId)) return { ok: false };
 
   await env.DB.prepare(

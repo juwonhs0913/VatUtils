@@ -27,3 +27,25 @@ CREATE TABLE IF NOT EXISTS flight_watch (
 );
 
 CREATE INDEX IF NOT EXISTS index_flight_watch_expires ON flight_watch(expires_at);
+
+-- VATSIM Connect (OAuth2) 로그인 진행 중 상태.
+-- state는 CSRF 방지용이며, 콜백에서 한 번 쓰고 지웁니다.
+CREATE TABLE IF NOT EXISTS auth_state (
+  state      TEXT PRIMARY KEY,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL
+);
+
+-- 로그인으로 확인된 CID와 앱이 들고 다닐 불투명 토큰.
+--
+-- VATSIM 액세스 토큰을 저장하지 않는 이유:
+-- 한 번 CID를 확인하고 나면 다시 쓸 일이 없습니다. 계속 들고 있으면
+-- 유출 시 그 사람의 VATSIM 계정 정보까지 읽을 수 있는 물건이 됩니다.
+CREATE TABLE IF NOT EXISTS auth_link (
+  token      TEXT PRIMARY KEY,
+  cid        TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS index_auth_state_expires ON auth_state(expires_at);
+CREATE INDEX IF NOT EXISTS index_auth_link_cid ON auth_link(cid);

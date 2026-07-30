@@ -20,13 +20,27 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
+        <!--
+          launchMode=singleTask: VATSIM 로그인을 마친 브라우저가 vatradar://auth 로
+          돌아올 때 액티비티를 새로 만들지 않고 onNewIntent로 넘겨받아야 합니다.
+          기본값(standard)이면 화면이 하나 더 쌓여 뒤로 가기가 이상해집니다.
+        -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.VATRadar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- VATSIM Connect 로그인 결과를 받는 딥링크 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vatradar" android:host="auth" />
             </intent-filter>
         </activity>
 

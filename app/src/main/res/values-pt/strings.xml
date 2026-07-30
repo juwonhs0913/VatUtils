@@ -118,4 +118,9 @@
     <string name="vatsim_cid_hint">Seu ID numérico da VATSIM (ex.: 1234567). Usado apenas para verificar se você voou uma rota sorteada — não é enviado a lugar algum além da API pública da VATSIM.</string>
     <string name="points_to_next_tier">%1$s pts para %2$s</string>
     <string name="max_tier">Rank máximo alcançado</string>
+    <string name="vatsim_connect">Entrar com a VATSIM</string>
+    <string name="vatsim_connect_hint">Entrar comprova que o CID é seu, então as recompensas contam. Sem isso, ainda dá para digitar o CID manualmente.</string>
+    <string name="vatsim_connected">Conectado — CID %1$s</string>
+    <string name="vatsim_connected_hint">Verificado pela VATSIM</string>
+    <string name="vatsim_disconnect">Desconectar</string>
 </resources>

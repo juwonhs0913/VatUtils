@@ -118,4 +118,9 @@
     <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Wird nur genutzt, um zu prüfen, ob du eine ausgeloste Route geflogen bist — sie geht nirgendwo hin außer an die öffentliche VATSIM-API.</string>
     <string name="points_to_next_tier">%1$s Pkt. bis %2$s</string>
     <string name="max_tier">Höchster Rang erreicht</string>
+    <string name="vatsim_connect">Mit VATSIM anmelden</string>
+    <string name="vatsim_connect_hint">Die Anmeldung bestätigt, dass die CID dir gehört — nur so zählen Challenge-Punkte. Ohne Anmeldung kannst du die CID manuell eingeben.</string>
+    <string name="vatsim_connected">Verbunden — CID %1$s</string>
+    <string name="vatsim_connected_hint">Von VATSIM bestätigt</string>
+    <string name="vatsim_disconnect">Trennen</string>
 </resources>

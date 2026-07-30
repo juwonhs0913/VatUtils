@@ -118,4 +118,9 @@
     <string name="vatsim_cid_hint">您的数字 VATSIM ID（如 1234567）。仅用于确认您是否飞了抽取的航线，除 VATSIM 公开 API 外不会发送到任何地方。</string>
     <string name="points_to_next_tier">距 %2$s 还差 %1$s 分</string>
     <string name="max_tier">已达最高等级</string>
+    <string name="vatsim_connect">使用 VATSIM 登录</string>
+    <string name="vatsim_connect_hint">登录后可验证 CID 属于您，挑战奖励才会生效。不登录也可手动输入 CID。</string>
+    <string name="vatsim_connected">已连接 — CID %1$s</string>
+    <string name="vatsim_connected_hint">已由 VATSIM 验证</string>
+    <string name="vatsim_disconnect">断开连接</string>
 </resources>

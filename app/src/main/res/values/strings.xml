@@ -121,4 +121,9 @@
     <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used only to check whether you flew a rolled route — it is never sent anywhere except the public VATSIM API.</string>
     <string name="points_to_next_tier">%1$s pts to %2$s</string>
     <string name="max_tier">Highest rank reached</string>
+    <string name="vatsim_connect">Sign in with VATSIM</string>
+    <string name="vatsim_connect_hint">Signing in proves the CID is yours, so challenge rewards count. Without it you can still enter a CID manually.</string>
+    <string name="vatsim_connected">Connected — CID %1$s</string>
+    <string name="vatsim_connected_hint">Verified by VATSIM</string>
+    <string name="vatsim_disconnect">Disconnect</string>
 </resources>

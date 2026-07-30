@@ -29,8 +29,8 @@ object ChallengeCompletionHandler {
             completed.points
         )
 
-        val cid = ServiceLocator.settingsRepository(context).current().vatsimCid
-        challenges.unregisterWatch(cid, challengeId)
+        val user = ServiceLocator.settingsRepository(context).current()
+        challenges.unregisterWatch(user.vatsimCid, user.vatsimLinkToken, challengeId)
 
         Log.d("VATRadar", "챌린지 완주 처리: ${completed.origin}→${completed.destination} +${completed.points}점")
     }

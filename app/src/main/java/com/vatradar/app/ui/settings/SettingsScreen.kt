@@ -17,7 +17,10 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -33,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -41,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vatradar.app.R
+import com.vatradar.app.auth.VatsimConnect
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.notification.FcmTopics
@@ -67,6 +72,13 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         if (previous.isNotBlank() && previous != v.trim()) FcmTopics.unsubscribeCid(previous)
         repo.setVatsimCid(v)
         FcmTopics.subscribeCid(v)
+    }
+
+    /** VATSIM 연결 해제. 서버에 남은 토큰도 함께 지웁니다. */
+    fun disconnectVatsim() = viewModelScope.launch {
+        val token = repo.current().vatsimLinkToken
+        repo.clearVatsimLink()
+        ServiceLocator.challengeRepository(getApplication()).revokeLink(token)
     }
 
     fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode.tag) }
@@ -169,19 +181,64 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("VATSIM", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(
-                    value = vatsimCid,
-                    onValueChange = { vatsimCid = it; viewModel.setVatsimCid(it) },
-                    label = { Text(stringResource(R.string.vatsim_cid)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    stringResource(R.string.vatsim_cid_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+
+                if (settings.vatsimVerified) {
+                    // 연결된 상태에서는 CID를 못 고칩니다. 고칠 수 있으면
+                    // "확인된 CID"라는 말 자체가 성립하지 않습니다.
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Verified,
+                            null,
+                            Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.vatsim_connected, settings.vatsimCid),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                stringResource(R.string.vatsim_connected_hint),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        TextButton(onClick = { viewModel.disconnectVatsim() }) {
+                            Text(stringResource(R.string.vatsim_disconnect))
+                        }
+                    }
+                } else {
+                    val context = LocalContext.current
+                    Button(
+                        onClick = { VatsimConnect.launch(context) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Login, null, Modifier.size(20.dp))
+                        Text("  " + stringResource(R.string.vatsim_connect))
+                    }
+                    Text(
+                        stringResource(R.string.vatsim_connect_hint),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    OutlinedTextField(
+                        value = vatsimCid,
+                        onValueChange = { vatsimCid = it; viewModel.setVatsimCid(it) },
+                        label = { Text(stringResource(R.string.vatsim_cid)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        stringResource(R.string.vatsim_cid_hint),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
 
