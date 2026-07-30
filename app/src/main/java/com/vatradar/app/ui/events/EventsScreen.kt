@@ -62,10 +62,24 @@ class EventsViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(loading = true, error = null)
             _uiState.value = when (val r = repo.fetchEvents()) {
-                is Outcome.Success -> _uiState.value.copy(loading = false, events = r.data)
+                is Outcome.Success -> _uiState.value.copy(
+                    loading = false,
+                    events = r.data,
+                    selectedTab = defaultTabFor(r.data)
+                )
                 is Outcome.Failure -> _uiState.value.copy(loading = false, error = r.message)
             }
         }
+    }
+
+    /**
+     * 진행 중인 이벤트는 대부분 0건입니다(VATSIM 이벤트는 하루 몇 시간만 열립니다).
+     * 빈 탭으로 화면을 열면 아무것도 없는 것처럼 보이므로, 진행 중이 없으면 예정 탭으로 엽니다.
+     */
+    private fun defaultTabFor(events: List<VatsimEvent>): Int {
+        val now = System.currentTimeMillis()
+        val hasOngoing = events.any { it.startEpochMillis <= now && it.endEpochMillis >= now }
+        return if (hasOngoing) 0 else 1
     }
 
     fun selectTab(index: Int) {

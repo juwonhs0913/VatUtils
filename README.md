@@ -153,6 +153,23 @@ Firebase 설정 전에 등록해 둔 관제소도 앱 시작 시 다시 구독�
 
 크론 트리거·D1·FCM 모두 무료 플랜에 포함됩니다. 결제 수단 등록도 필요 없습니다.
 
+## 릴리스 빌드
+
+```bash
+./gradlew bundleRelease
+```
+
+R8(난독화·미사용 코드 제거)과 리소스 축소가 켜져 있습니다. 디버그 21MB → 릴리스 3.3MB.
+
+서명은 `keystore.properties`에서 읽습니다(`keystore.properties.example` 참고).
+이 파일이 없으면 릴리스 빌드가 **디버그 키로 서명**되어 실행·검증은 되지만 Play 업로드는 거부됩니다.
+
+Play Store 배포 절차는 [docs/play-release.md](docs/play-release.md),
+개인정보처리방침 초안은 [docs/privacy-policy.md](docs/privacy-policy.md)에 있습니다.
+
+> R8은 런타임에만 문제가 드러납니다. `proguard-rules.pro`를 수정했다면
+> 릴리스 빌드를 실제로 설치해 지도·경로·이벤트·알림을 모두 눌러보세요.
+
 ## 검증
 
 ```bash

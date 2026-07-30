@@ -27,6 +27,19 @@ if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
 }
 
+/*
+ * 릴리스 서명 설정.
+ *
+ * keystore.properties(.gitignore 대상)에서 읽습니다. 키스토어와 비밀번호는
+ * 저장소에 들어가면 안 되고, 키를 잃어버리면 Play에 올린 앱을 다시는 업데이트할 수
+ * 없으므로 반드시 따로 백업해 두세요. 만드는 방법은 keystore.properties.example 참고.
+ */
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) load(file.inputStream())
+}
+val hasReleaseKeystore = keystoreProperties.getProperty("storeFile") != null
+
 android {
     namespace = "com.vatradar.app"
     compileSdk = 35
@@ -40,6 +53,45 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "")
+    }
+
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            // R8: 미사용 코드 제거 + 난독화. 리소스 축소까지 함께 켭니다.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                // 키스토어가 없어도 R8 결과를 실제로 실행해 볼 수 있도록 디버그 키로 서명합니다.
+                // 이렇게 만든 APK는 Play에 올릴 수 없습니다(디버그 키는 업로드 시 거부됩니다).
+                logger.warn(
+                    "keystore.properties가 없어 릴리스 빌드를 디버그 키로 서명합니다. " +
+                        "배포용이 아니라 검증용입니다."
+                )
+                signingConfigs.getByName("debug")
+            }
+        }
+
+        // debug 빌드에 applicationIdSuffix를 붙이지 않는 이유:
+        // google-services.json이 com.vatradar.app 하나로 등록돼 있어 패키지명이
+        // 달라지면 Firebase 플러그인이 빌드를 거부하고, Maps 키 제한도 어긋납니다.
     }
 
     buildFeatures {
