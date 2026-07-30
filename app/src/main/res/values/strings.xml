@@ -85,16 +85,8 @@
     <string name="simbrief_id">SimBrief ID (alias or pilot ID)</string>
     <string name="simbrief_id_hint">Enter the Alias or the numeric Pilot ID shown in your SimBrief account settings — either works. The alias is a name you set; the pilot ID is digits only.</string>
     <string name="enable_alerts">Enable alerts</string>
-    <string name="watch_mode_battery">Battery saver</string>
-    <string name="watch_mode_battery_desc">Checks every 15 minutes. No extra battery cost, but an alert can arrive up to 15 minutes late — this is an Android limit on background work.</string>
-    <string name="watch_mode_realtime">Real time</string>
-    <string name="watch_mode_realtime_desc">Checks every 60 seconds. Android requires an ongoing notification while this runs, and it uses more battery. Best turned on only while you are waiting for a position to open.</string>
     <string name="channel_controller_online">Controller online</string>
     <string name="channel_controller_online_desc">Alerts you when a controller you watch comes online.</string>
-    <string name="channel_watching">Watching for controllers</string>
-    <string name="channel_watching_desc">Shown while real-time watching is active.</string>
-    <string name="watching_title">Watching controllers</string>
-    <string name="watching_text">Checking VATSIM every 60 seconds.</string>
     <string name="controller_online_one">%1$s is online</string>
     <string name="controller_online_many">%1$d watched positions are online</string>
     <string name="callsign_or_prefix">Callsign or prefix (e.g. RKSI, RKRR_CTR)</string>

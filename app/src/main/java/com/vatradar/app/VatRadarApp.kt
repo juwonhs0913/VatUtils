@@ -5,11 +5,9 @@ import android.util.Log
 import com.vatradar.app.data.local.AirportSeeder
 import com.vatradar.app.data.local.AppDatabase
 import com.vatradar.app.di.ServiceLocator
-import com.vatradar.app.notification.ControllerWatchService
 import com.vatradar.app.notification.ControllerWatchWorker
 import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.notification.Notifications
-import com.vatradar.app.notification.WatchMode
 import com.vatradar.app.ui.settings.AppLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,13 +44,7 @@ class VatRadarApp : Application() {
             runCatching {
                 val settings = ServiceLocator.settingsRepository(this@VatRadarApp).current()
                 if (settings.notifyEnabled) {
-                    // 실시간 모드는 포그라운드 서비스라 재부팅 후 자동 복구되지 않습니다
-                    // (Android 14+ 는 부팅 시점에 dataSync 서비스 시작을 막습니다).
-                    // 앱을 열 때 여기서 되살립니다.
-                    when (WatchMode.fromTag(settings.watchMode)) {
-                        WatchMode.BATTERY_SAVER -> ControllerWatchWorker.enable(this@VatRadarApp)
-                        WatchMode.REALTIME -> ControllerWatchService.start(this@VatRadarApp)
-                    }
+                    ControllerWatchWorker.enable(this@VatRadarApp)
                 }
 
                 // 토픽 구독을 매번 다시 걸어줍니다.

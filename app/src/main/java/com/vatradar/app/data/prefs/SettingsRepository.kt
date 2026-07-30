@@ -19,9 +19,7 @@ data class UserSettings(
     /** 빈 문자열이면 시스템 언어를 따릅니다. */
     val languageTag: String = "",
     /** "system" | "light" | "dark" */
-    val themeMode: String = "system",
-    /** "battery" (15분 폴링) | "realtime" (60초 포그라운드 감시) */
-    val watchMode: String = "battery"
+    val themeMode: String = "system"
 )
 
 class SettingsRepository(private val context: Context) {
@@ -32,7 +30,6 @@ class SettingsRepository(private val context: Context) {
         val NOTIFY = booleanPreferencesKey("notify_enabled")
         val LANGUAGE = stringPreferencesKey("language_tag")
         val THEME = stringPreferencesKey("theme_mode")
-        val WATCH_MODE = stringPreferencesKey("watch_mode")
         /** 이미 알린 콜사인을 기억해 접속이 유지되는 동안 중복 알림을 막습니다. */
         val ALREADY_NOTIFIED = stringSetPreferencesKey("already_notified")
     }
@@ -43,8 +40,7 @@ class SettingsRepository(private val context: Context) {
             watchedCallsigns = p[Keys.WATCHED] ?: emptySet(),
             notifyEnabled = p[Keys.NOTIFY] ?: false,
             languageTag = p[Keys.LANGUAGE] ?: "",
-            themeMode = p[Keys.THEME] ?: "system",
-            watchMode = p[Keys.WATCH_MODE] ?: "battery"
+            themeMode = p[Keys.THEME] ?: "system"
         )
     }
 
@@ -54,7 +50,6 @@ class SettingsRepository(private val context: Context) {
     suspend fun setNotifyEnabled(value: Boolean) = edit { it[Keys.NOTIFY] = value }
     suspend fun setLanguageTag(value: String) = edit { it[Keys.LANGUAGE] = value }
     suspend fun setThemeMode(value: String) = edit { it[Keys.THEME] = value }
-    suspend fun setWatchMode(value: String) = edit { it[Keys.WATCH_MODE] = value }
 
     suspend fun addWatched(callsign: String) = edit { p ->
         val v = callsign.trim().uppercase()

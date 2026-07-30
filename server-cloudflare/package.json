@@ -1,0 +1,13 @@
+{
+  "name": "vatradar-watcher",
+  "description": "VATSIM 관심 관제소 접속 감지 → FCM 푸시 (Cloudflare Workers)",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}

@@ -73,17 +73,18 @@ MVVM + 단방향 데이터 흐름. 모든 화면이 `StateFlow<UiState>`를 노�
 
 ## F4 푸시 알림에 대해
 
-PRD는 FCM + Cloud Functions를 명시하고 있고, 그게 맞습니다. Android의 Doze 제약 때문에 앱 단독 주기 작업은 **최소 15분 간격**이라 "관제소가 방금 떴다"는 알림으로는 늦습니다.
+Android의 Doze 제약 때문에 앱 단독 주기 작업은 **최소 15분 간격**이라, "관제소가 방금 떴다"는 알림으로는 늦습니다.
 
-앱은 두 경로를 모두 지원합니다.
+앱은 두 경로를 지원합니다.
 
 - **기본 (설정 불필요)** — `ControllerWatchWorker`가 15분마다 확인합니다. 지금 바로 동작합니다.
-- **즉시 알림 (배포 필요)** — `server/functions/index.js`가 1분마다 확인해 FCM으로 푸시합니다.
+- **즉시 알림 (배포 필요)** — `server-cloudflare/`의 Worker가 1분마다 확인해 FCM으로 푸시합니다.
+
+> Firebase Cloud Functions를 쓰지 않는 이유: 예약 함수와 외부 네트워크 호출에 **Blaze(종량제)
+> 요금제가 필요**합니다. FCM 자체는 무료이므로, "1분마다 확인하는 부분"만 Cloudflare Workers로
+> 옮기면 전부 무료 플랜 안에서 동작합니다.
 
 ### 즉시 알림 켜기
-
-Gradle 쪽은 이미 준비돼 있습니다. `app/google-services.json`이 **있을 때만** 플러그인이 적용되므로,
-파일을 넣기 전에도 빌드는 그대로 통과하고 넣는 순간 FCM이 켜집니다.
 
 **1. Firebase 콘솔에서 Android 앱 등록**
 
@@ -93,30 +94,56 @@ Gradle 쪽은 이미 준비돼 있습니다. `app/google-services.json`이 **있
 com.vatradar.app
 ```
 
-SHA-1은 FCM에 필요 없으므로 비워도 됩니다. 생성 후 `google-services.json`을 받아 `app/` 아래에 둡니다
-(`.gitignore`에 있으니 커밋되지 않습니다).
+SHA-1은 FCM에 필요 없으므로 비워도 됩니다. 받은 `google-services.json`을 `app/` 아래에 둡니다.
+`.gitignore`에 있으니 커밋되지 않습니다. Gradle 플러그인은 **이 파일이 있을 때만** 적용되므로,
+넣기 전에도 빌드는 그대로 통과하고 넣는 순간 FCM이 켜집니다.
 
-**2. 요금제와 서비스 확인**
+**2. 서비스 계정 키 발급**
 
-- **Blaze(종량제) 전환이 필요합니다.** 예약 함수(Cloud Scheduler)와 외부 네트워크 호출은 무료 Spark 요금제에서 동작하지 않습니다. 1분 주기 함수 하나는 무료 할당량 안에 들어가는 수준이지만, 예산 알림을 걸어두시길 권합니다.
-- **Firestore를 활성화**합니다(아무 위치나 무방). 함수가 "직전에 누가 접속해 있었는지"를 여기 한 문서에 기록해, 접속이 유지되는 동안 매분 알림이 울리는 걸 막습니다.
+Firebase 콘솔 → 프로젝트 설정 → 서비스 계정 → **새 비공개 키 생성**. 받은 JSON을 잘 보관하세요
+(이 키로 누구나 여러분의 프로젝트에 푸시를 보낼 수 있습니다).
 
-**3. 서버 배포**
+**3. Cloudflare Worker 배포**
 
 ```bash
-cd server && npm install && firebase login && firebase use --add && firebase deploy --only functions,firestore:rules
+cd server-cloudflare && npm install && npx wrangler login
 ```
 
-`firebase use --add`에서 방금 만든 프로젝트를 고르면 `.firebaserc`가 생성됩니다(이 파일도 커밋 대상이 아닙니다).
+상태 저장용 D1 데이터베이스를 만들고, 출력된 `database_id`를 `wrangler.toml`에 붙여넣습니다.
 
-**4. 앱 재설치 후 확인**
+```bash
+npx wrangler d1 create vatradar-state
+npx wrangler d1 execute vatradar-state --remote --file=schema.sql
+```
 
-앱을 다시 설치하고 알림 페이지에서 관심 관제소를 등록하면 `cs_<접두사>` 토픽을 구독합니다.
+서비스 계정 JSON을 시크릿으로 등록합니다. 파일 내용 전체를 그대로 붙여넣으면 됩니다.
+
+```bash
+npx wrangler secret put FIREBASE_SERVICE_ACCOUNT
+npx wrangler deploy
+```
+
+**4. 확인**
+
+```bash
+npx wrangler tail
+```
+
+1분마다 실행 로그가 찍힙니다. 즉시 확인하려면 배포된 주소에 `/run`을 붙여 열어보세요 —
+현재 접속자 수와 발송한 토픽 수가 JSON으로 나옵니다.
+
+앱에서는 알림 페이지에 관심 관제소를 등록하면 `cs_<접두사>` 토픽을 구독합니다.
 Firebase 설정 전에 등록해 둔 관제소도 앱 시작 시 다시 구독되므로 따로 지웠다 넣을 필요는 없습니다.
 
-동작 확인은 Firebase 콘솔 → Functions → 로그에서 `새로 접속한 관제소 N곳 알림 전송`을 보면 됩니다.
+### 무료 플랜 한도
 
-설정하지 않아도 앱은 정상 동작합니다. Firebase가 초기화되지 않으면 FCM 코드는 조용히 비활성화되고 15분 폴링만 남습니다.
+| 항목 | 사용량 | 무료 한도 |
+|---|---|---|
+| Worker 실행 | 1,440회/일 | 100,000회/일 |
+| D1 쓰기 | 1,440행/일 | 100,000행/일 |
+| FCM 발송 | 제한 없음 | 무료 |
+
+크론 트리거·D1·FCM 모두 무료 플랜에 포함됩니다. 결제 수단 등록도 필요 없습니다.
 
 ## 검증
 

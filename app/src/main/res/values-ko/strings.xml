@@ -82,16 +82,8 @@
     <string name="simbrief_id">SimBrief ID (Alias 또는 Pilot ID)</string>
     <string name="simbrief_id_hint">SimBrief 계정 설정에 있는 Alias 또는 숫자 Pilot ID를 입력하세요. 둘 다 됩니다. Alias는 직접 정한 이름이고, Pilot ID는 숫자로만 되어 있습니다.</string>
     <string name="enable_alerts">알림 켜기</string>
-    <string name="watch_mode_battery">배터리 절약</string>
-    <string name="watch_mode_battery_desc">15분마다 확인합니다. 배터리 부담이 없는 대신 알림이 최대 15분 늦게 올 수 있습니다. Android의 백그라운드 작업 제약입니다.</string>
-    <string name="watch_mode_realtime">실시간</string>
-    <string name="watch_mode_realtime_desc">60초마다 확인합니다. Android 규정상 동작 중에는 상시 알림이 하나 뜨고 배터리를 조금 더 씁니다. 관제소를 기다리는 동안만 켜는 것을 권합니다.</string>
     <string name="channel_controller_online">관제소 접속</string>
     <string name="channel_controller_online_desc">등록한 관제소가 온라인이 되면 알립니다.</string>
-    <string name="channel_watching">관제소 감시 중</string>
-    <string name="channel_watching_desc">실시간 감시가 켜져 있는 동안 표시됩니다.</string>
-    <string name="watching_title">관제소 감시 중</string>
-    <string name="watching_text">60초마다 VATSIM을 확인하고 있습니다.</string>
     <string name="controller_online_one">%1$s 접속</string>
     <string name="controller_online_many">관심 관제소 %1$d곳 접속</string>
     <string name="callsign_or_prefix">콜사인 또는 접두사 (예: RKSI, RKRR_CTR)</string>

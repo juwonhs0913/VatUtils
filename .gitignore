@@ -15,8 +15,10 @@ local.properties
 # Firebase 프로젝트 설정 (프로젝트 ID·API 키 포함)
 google-services.json
 .firebaserc
-server/node_modules/
+server-cloudflare/node_modules/
+server-cloudflare/.wrangler/
 firebase-debug*.log
+.dev.vars
 
 # Native
 .externalNativeBuild

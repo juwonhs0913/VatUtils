@@ -5,9 +5,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Android 13+ 는 알림 표시에 런타임 권한이 필요합니다 (F4) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- 실시간 감시 모드(60초 간격)에 필요합니다. 배터리 절약 모드에서는 쓰이지 않습니다. -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:name=".VatRadarApp"
@@ -32,12 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- 실시간 감시 모드. 60초 간격 확인을 위해 포그라운드 서비스가 필요합니다. -->
-        <service
-            android:name=".notification.ControllerWatchService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
 
         <!--
           FCM 수신부 (F4).
