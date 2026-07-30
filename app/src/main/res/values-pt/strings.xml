@@ -96,4 +96,26 @@
     <string name="loading">Carregando…</string>
     <string name="refresh">Atualizar</string>
     <string name="error_prefix">Erro: %1$s</string>
+
+    <!-- Challenges / Rank -->
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Prata</string>
+    <string name="tier_gold">Ouro</string>
+    <string name="tier_platinum">Platina</string>
+    <string name="rank_label">Rank</string>
+    <string name="points_value">%1$s pts</string>
+    <string name="flights_completed">%1$d voos concluídos</string>
+    <string name="rolls_remaining">%1$d de %2$d sorteios restantes hoje</string>
+    <string name="rolls_reset_in">Reinicia em %1$s (00:00Z)</string>
+    <string name="no_rolls_left">Você usou os 5 sorteios de hoje. Reinicia às 00:00Z.</string>
+    <string name="active_challenge">Desafio ativo</string>
+    <string name="challenge_reward">+%1$d pts ao concluir</string>
+    <string name="challenge_enroute">Em rota — voo detectado</string>
+    <string name="challenge_waiting">Voe esta rota na VATSIM para concluir</string>
+    <string name="challenge_done">Desafio concluído! +%1$d pts</string>
+    <string name="cid_needed">Cadastre seu VATSIM CID nas Configurações para ganhar pontos pelos voos.</string>
+    <string name="vatsim_cid">VATSIM CID</string>
+    <string name="vatsim_cid_hint">Seu ID numérico da VATSIM (ex.: 1234567). Usado apenas para verificar se você voou uma rota sorteada — não é enviado a lugar algum além da API pública da VATSIM.</string>
+    <string name="points_to_next_tier">%1$s pts para %2$s</string>
+    <string name="max_tier">Rank máximo alcançado</string>
 </resources>

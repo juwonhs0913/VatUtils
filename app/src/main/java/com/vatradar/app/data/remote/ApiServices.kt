@@ -1,10 +1,12 @@
 package com.vatradar.app.data.remote
 
 import com.vatradar.app.data.remote.dto.EventsResponse
+import com.vatradar.app.data.remote.dto.VatsimMemberStatsDto
 import com.vatradar.app.data.remote.dto.SimBriefOfpDto
 import com.vatradar.app.data.remote.dto.VatsimDataResponse
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
@@ -12,6 +14,18 @@ import retrofit2.http.Url
 interface VatsimApiService {
     @GET("v3/vatsim-data.json")
     suspend fun getVatsimData(): VatsimDataResponse
+}
+
+/**
+ * https://api.vatsim.net/v2/members/{cid}/stats
+ *
+ * VATSIM에는 비행 기록(어떤 구간을 언제 날았는지) 조회 API가 없습니다.
+ * 누적 비행시간만 알 수 있어, 챌린지 완주 판정의 보조 근거로 씁니다
+ * (시작 시점 대비 시간이 늘었는가).
+ */
+interface VatsimMemberApiService {
+    @GET("v2/members/{cid}/stats")
+    suspend fun getStats(@Path("cid") cid: String): Response<VatsimMemberStatsDto>
 }
 
 /** https://my.vatsim.net/api/v2/events/latest */

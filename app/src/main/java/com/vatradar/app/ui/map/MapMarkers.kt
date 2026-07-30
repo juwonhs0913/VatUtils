@@ -27,10 +27,27 @@ private object PlaneIcons {
     val ifr: BitmapDescriptor by lazy { draw(Color.rgb(0x15, 0x65, 0xC0)) }
     val vfr: BitmapDescriptor by lazy { draw(Color.rgb(0x2E, 0x7D, 0x32)) }
 
-    private fun draw(color: Int): BitmapDescriptor {
-        val size = 44
+    /**
+     * 내 항공기는 등급 색으로, 더 크게, 발광 테두리를 둘러 눈에 띄게 그립니다.
+     * 수천 대 사이에서 자기 기체를 바로 찾을 수 있어야 하기 때문입니다.
+     */
+    private val ownCache = HashMap<Int, BitmapDescriptor>()
+    fun own(tierColor: Int): BitmapDescriptor =
+        ownCache.getOrPut(tierColor) { draw(tierColor, size = 68, halo = true) }
+
+    private fun draw(color: Int, size: Int = 44, halo: Boolean = false): BitmapDescriptor {
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
+
+        if (halo) {
+            // 등급 색 발광 링. 지도 배경이 밝든 어둡든 기체가 도드라집니다.
+            val glow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color
+                alpha = 70
+                style = Paint.Style.FILL
+            }
+            canvas.drawCircle(size / 2f, size / 2f, size / 2f - 1f, glow)
+        }
 
         val body = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
@@ -39,7 +56,7 @@ private object PlaneIcons {
         val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = Color.WHITE
             style = Paint.Style.STROKE
-            strokeWidth = 2f
+            strokeWidth = if (halo) 3f else 2f
         }
 
         val s = size / 24f
@@ -145,12 +162,22 @@ class MapMarkerController {
     }
 
     /** 항공기 마커를 현재 스냅샷에 맞춥니다. 있는 건 갱신, 없어진 건 제거. */
-    fun syncAircraft(map: GoogleMap, aircraft: List<Aircraft>) {
+    fun syncAircraft(
+        map: GoogleMap,
+        aircraft: List<Aircraft>,
+        ownCid: Int? = null,
+        ownTierColor: Int? = null
+    ) {
         val seen = HashSet<String>(aircraft.size)
 
         aircraft.forEach { a ->
             seen += a.callsign
-            val icon = if (a.flightRules == "V") PlaneIcons.vfr else PlaneIcons.ifr
+            val isMine = ownCid != null && a.cid == ownCid
+            val icon = when {
+                isMine && ownTierColor != null -> PlaneIcons.own(ownTierColor)
+                a.flightRules == "V" -> PlaneIcons.vfr
+                else -> PlaneIcons.ifr
+            }
             val position = LatLng(a.latitude, a.longitude)
 
             val existing = aircraftMarkers[a.callsign]
@@ -162,6 +189,7 @@ class MapMarkerController {
                         .rotation(a.heading)
                         .flat(true)             // 지도를 회전해도 기수 방향 유지
                         .anchor(0.5f, 0.5f)
+                        .zIndex(if (isMine) 0.9f else 0f)   // 내 기체는 다른 기체 위에
                         .title(a.callsign)
                 ) ?: return@forEach
                 marker.tag = MarkerTag.AircraftTag(a.callsign)

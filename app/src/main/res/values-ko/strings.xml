@@ -96,4 +96,26 @@
     <string name="loading">불러오는 중…</string>
     <string name="refresh">새로고침</string>
     <string name="error_prefix">오류: %1$s</string>
+
+    <!-- Challenges / Rank -->
+    <string name="tier_bronze">브론즈</string>
+    <string name="tier_silver">실버</string>
+    <string name="tier_gold">골드</string>
+    <string name="tier_platinum">플래티넘</string>
+    <string name="rank_label">등급</string>
+    <string name="points_value">%1$s 점</string>
+    <string name="flights_completed">완주 %1$d회</string>
+    <string name="rolls_remaining">오늘 남은 뽑기 %1$d / %2$d회</string>
+    <string name="rolls_reset_in">%1$s 뒤 초기화 (00:00Z)</string>
+    <string name="no_rolls_left">오늘 뽑기를 모두 사용했습니다. 00:00Z에 초기화됩니다.</string>
+    <string name="active_challenge">진행 중인 챌린지</string>
+    <string name="challenge_reward">완주 시 +%1$d점</string>
+    <string name="challenge_enroute">비행 중 — 확인됨</string>
+    <string name="challenge_waiting">VATSIM에서 이 경로를 비행하면 인정됩니다</string>
+    <string name="challenge_done">챌린지 완주! +%1$d점</string>
+    <string name="cid_needed">설정에서 VATSIM CID를 등록하면 완주한 비행에 포인트가 지급됩니다.</string>
+    <string name="vatsim_cid">VATSIM CID</string>
+    <string name="vatsim_cid_hint">숫자로 된 VATSIM ID입니다(예: 1234567). 뽑은 경로를 비행했는지 확인하는 데만 쓰이며, VATSIM 공개 API 외에는 어디로도 전송되지 않습니다.</string>
+    <string name="points_to_next_tier">%2$s까지 %1$s점</string>
+    <string name="max_tier">최고 등급 달성</string>
 </resources>

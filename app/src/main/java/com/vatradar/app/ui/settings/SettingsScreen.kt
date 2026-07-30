@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +60,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setSimBriefId(v: String) = viewModelScope.launch { repo.setSimBriefId(v) }
+    fun setVatsimCid(v: String) = viewModelScope.launch { repo.setVatsimCid(v) }
 
     fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode.tag) }
 
@@ -73,6 +76,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var simBriefId by remember(settings.simBriefId) { mutableStateOf(settings.simBriefId) }
+    var vatsimCid by remember(settings.vatsimCid) { mutableStateOf(settings.vatsimCid) }
     var languageExpanded by remember { mutableStateOf(false) }
 
     Column(
@@ -151,6 +155,26 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                         )
                     }
                 }
+            }
+        }
+
+        // ---------------- VATSIM ----------------
+        Card {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("VATSIM", style = MaterialTheme.typography.titleMedium)
+                OutlinedTextField(
+                    value = vatsimCid,
+                    onValueChange = { vatsimCid = it; viewModel.setVatsimCid(it) },
+                    label = { Text(stringResource(R.string.vatsim_cid)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    stringResource(R.string.vatsim_cid_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 

@@ -3,6 +3,8 @@ package com.vatradar.app.ui.route
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.vatradar.app.data.local.ChallengeEntity
+import com.vatradar.app.data.repository.ChallengeRepository
 import com.vatradar.app.data.repository.Outcome
 import com.vatradar.app.data.repository.RandomRoute
 import com.vatradar.app.data.repository.WeatherReport
@@ -19,6 +21,15 @@ data class RouteUiState(
     val route: RandomRoute? = null,
     val rolling: Boolean = false,
     val error: String? = null,
+
+    // 챌린지 / 등급
+    val remainingRolls: Int = ChallengeRepository.DAILY_ROLL_LIMIT,
+    val millisUntilReset: Long = 0,
+    val totalPoints: Int = 0,
+    val completedCount: Int = 0,
+    val activeChallenges: List<ChallengeEntity> = emptyList(),
+    val vatsimCid: String = "",
+    val justCompleted: List<ChallengeEntity> = emptyList(),
 
     // F6 — 뽑힌 공항의 기상
     val originWeather: WeatherReport? = null,
@@ -39,6 +50,8 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
     private val weatherRepo = ServiceLocator.weatherRepository()
     private val simBriefRepo = ServiceLocator.simBriefRepository()
     private val settingsRepo = ServiceLocator.settingsRepository(app)
+    private val challengeRepo = ServiceLocator.challengeRepository(app)
+    private val flightProgressRepo = ServiceLocator.flightProgressRepository(app)
 
     private val _uiState = MutableStateFlow(RouteUiState())
     val uiState = _uiState.asStateFlow()
@@ -48,9 +61,49 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             val s = settingsRepo.current()
             _uiState.value = _uiState.value.copy(
                 simBriefId = s.simBriefId,
+                vatsimCid = s.vatsimCid,
                 airportPoolSize = airportRepo.poolSize(_uiState.value.haul)
             )
+            refreshChallengeState()
+            syncFlightProgress()
         }
+        // 포인트·완주 수는 DB가 바뀌면 자동으로 따라오게 합니다.
+        viewModelScope.launch {
+            challengeRepo.totalPoints.collect {
+                _uiState.value = _uiState.value.copy(totalPoints = it)
+            }
+        }
+        viewModelScope.launch {
+            challengeRepo.completedCount.collect {
+                _uiState.value = _uiState.value.copy(completedCount = it)
+            }
+        }
+    }
+
+    private suspend fun refreshChallengeState() {
+        _uiState.value = _uiState.value.copy(
+            remainingRolls = challengeRepo.remainingRollsToday(),
+            millisUntilReset = challengeRepo.millisUntilReset(),
+            activeChallenges = challengeRepo.activeChallenges()
+        )
+    }
+
+    /** 실시간 피드와 대조해 완주 여부를 갱신합니다. 화면에 들어올 때마다 확인합니다. */
+    fun syncFlightProgress() {
+        viewModelScope.launch {
+            val cid = settingsRepo.current().vatsimCid
+            if (cid.isBlank()) return@launch
+
+            val completed = flightProgressRepo.sync(cid)
+            refreshChallengeState()
+            if (completed.isNotEmpty()) {
+                _uiState.value = _uiState.value.copy(justCompleted = completed)
+            }
+        }
+    }
+
+    fun consumeCompletionNotice() {
+        _uiState.value = _uiState.value.copy(justCompleted = emptyList())
     }
 
     fun setHaul(haul: HaulRange) {
@@ -62,6 +115,11 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun roll() {
         viewModelScope.launch {
+            if (challengeRepo.remainingRollsToday() <= 0) {
+                _uiState.value = _uiState.value.copy(error = NO_ROLLS_LEFT)
+                return@launch
+            }
+
             _uiState.value = _uiState.value.copy(
                 rolling = true, error = null, ofp = null, ofpError = null
             )
@@ -72,12 +130,25 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
                 return@launch
             }
 
+            // 뽑은 시점의 누적 비행시간을 기준으로 잡아둡니다.
+            // 나중에 접속이 끊긴 뒤 완주를 판정할 때 이 값과 비교합니다.
+            val cid = settingsRepo.current().vatsimCid
+            val baselineHours = if (cid.isBlank()) null else flightProgressRepo.fetchPilotHours(cid)
+
+            challengeRepo.create(
+                origin = result.origin,
+                destination = result.destination,
+                distanceNm = result.distanceNm,
+                baselinePilotHours = baselineHours
+            )
+
             _uiState.value = _uiState.value.copy(
                 rolling = false,
                 route = result,
                 originWeather = null,
                 destinationWeather = null
             )
+            refreshChallengeState()
             loadWeather()
         }
     }
@@ -134,12 +205,14 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
     /** 설정 화면에서 값이 바뀔 수 있으므로 탭 복귀 시 다시 읽습니다. */
     fun reloadSettings() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(simBriefId = settingsRepo.current().simBriefId)
+            val s = settingsRepo.current()
+            _uiState.value = _uiState.value.copy(simBriefId = s.simBriefId, vatsimCid = s.vatsimCid)
         }
     }
 
-    private companion object {
+    companion object {
         /** 화면에서 문자열 리소스로 치환합니다. */
         const val ROLL_FAILED = "ROLL_FAILED"
+        const val NO_ROLLS_LEFT = "NO_ROLLS_LEFT"
     }
 }

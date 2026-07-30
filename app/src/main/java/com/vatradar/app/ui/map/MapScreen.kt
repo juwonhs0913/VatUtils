@@ -206,7 +206,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     },
                     onAirport = { icao -> viewModel.selectAirport(icao) }
                 )
-                markerController.syncAircraft(map, aircraftList)
+                markerController.syncAircraft(map, aircraftList, state.ownCid, state.ownTierColor)
                 markerController.syncBadges(map, badgeGroups)
                 markerController.syncAirports(map, visibleAirports)
             }

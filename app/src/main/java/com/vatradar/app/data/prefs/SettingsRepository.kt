@@ -14,6 +14,8 @@ private val Context.dataStore by preferencesDataStore(name = "vatradar_settings"
 
 data class UserSettings(
     val simBriefId: String = "",
+    /** VATSIM CID. 챌린지 완주 확인에 씁니다. */
+    val vatsimCid: String = "",
     val watchedCallsigns: Set<String> = emptySet(),
     val notifyEnabled: Boolean = false,
     /** 빈 문자열이면 시스템 언어를 따릅니다. */
@@ -26,6 +28,7 @@ class SettingsRepository(private val context: Context) {
 
     private object Keys {
         val SIMBRIEF_ID = stringPreferencesKey("simbrief_id")
+        val VATSIM_CID = stringPreferencesKey("vatsim_cid")
         val WATCHED = stringSetPreferencesKey("watched_callsigns")
         val NOTIFY = booleanPreferencesKey("notify_enabled")
         val LANGUAGE = stringPreferencesKey("language_tag")
@@ -37,6 +40,7 @@ class SettingsRepository(private val context: Context) {
     val settings: Flow<UserSettings> = context.dataStore.data.map { p ->
         UserSettings(
             simBriefId = p[Keys.SIMBRIEF_ID] ?: "",
+            vatsimCid = p[Keys.VATSIM_CID] ?: "",
             watchedCallsigns = p[Keys.WATCHED] ?: emptySet(),
             notifyEnabled = p[Keys.NOTIFY] ?: false,
             languageTag = p[Keys.LANGUAGE] ?: "",
@@ -47,6 +51,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun current(): UserSettings = settings.first()
 
     suspend fun setSimBriefId(value: String) = edit { it[Keys.SIMBRIEF_ID] = value.trim() }
+    suspend fun setVatsimCid(value: String) = edit { it[Keys.VATSIM_CID] = value.trim() }
     suspend fun setNotifyEnabled(value: Boolean) = edit { it[Keys.NOTIFY] = value }
     suspend fun setLanguageTag(value: String) = edit { it[Keys.LANGUAGE] = value }
     suspend fun setThemeMode(value: String) = edit { it[Keys.THEME] = value }

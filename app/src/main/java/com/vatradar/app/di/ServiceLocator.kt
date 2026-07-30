@@ -5,6 +5,8 @@ import com.vatradar.app.data.local.AppDatabase
 import com.vatradar.app.data.local.FirBoundaryStore
 import com.vatradar.app.data.prefs.SettingsRepository
 import com.vatradar.app.data.repository.AirportRepository
+import com.vatradar.app.data.repository.ChallengeRepository
+import com.vatradar.app.data.repository.FlightProgressRepository
 import com.vatradar.app.data.repository.EventsRepository
 import com.vatradar.app.data.repository.SimBriefRepository
 import com.vatradar.app.data.repository.VatsimRepository
@@ -23,6 +25,24 @@ object ServiceLocator {
     @Volatile private var airports: AirportRepository? = null
     @Volatile private var simBrief: SimBriefRepository? = null
     @Volatile private var firBoundaries: FirBoundaryStore? = null
+    @Volatile private var challenges: ChallengeRepository? = null
+    @Volatile private var flightProgress: FlightProgressRepository? = null
+
+    fun challengeRepository(context: Context): ChallengeRepository =
+        challenges ?: synchronized(this) {
+            challenges ?: ChallengeRepository(AppDatabase.get(context).challengeDao())
+                .also { challenges = it }
+        }
+
+    fun flightProgressRepository(context: Context): FlightProgressRepository =
+        flightProgress ?: synchronized(this) {
+            flightProgress ?: FlightProgressRepository(
+                NetworkModule.vatsimApiService,
+                NetworkModule.memberApiService,
+                challengeRepository(context),
+                airportRepository(context)
+            ).also { flightProgress = it }
+        }
 
     /** VATSpy FIR 경계 — assets 파싱 결과를 캐시하므로 앱 전체에서 하나만 둡니다. */
     fun firBoundaryStore(context: Context): FirBoundaryStore =

@@ -99,4 +99,26 @@
     <string name="loading">Loading…</string>
     <string name="refresh">Refresh</string>
     <string name="error_prefix">Error: %1$s</string>
+
+    <!-- Challenges / Rank -->
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Silver</string>
+    <string name="tier_gold">Gold</string>
+    <string name="tier_platinum">Platinum</string>
+    <string name="rank_label">Rank</string>
+    <string name="points_value">%1$s pts</string>
+    <string name="flights_completed">%1$d flights completed</string>
+    <string name="rolls_remaining">%1$d of %2$d rolls left today</string>
+    <string name="rolls_reset_in">Resets in %1$s (00:00Z)</string>
+    <string name="no_rolls_left">You have used all 5 rolls for today. They reset at 00:00Z.</string>
+    <string name="active_challenge">Active challenge</string>
+    <string name="challenge_reward">+%1$d pts on completion</string>
+    <string name="challenge_enroute">Enroute — flight detected</string>
+    <string name="challenge_waiting">Waiting for you to fly this route on VATSIM</string>
+    <string name="challenge_done">Challenge complete! +%1$d pts</string>
+    <string name="cid_needed">Add your VATSIM CID in Settings to earn points for completed flights.</string>
+    <string name="vatsim_cid">VATSIM CID</string>
+    <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used only to check whether you flew a rolled route — it is never sent anywhere except the public VATSIM API.</string>
+    <string name="points_to_next_tier">%1$s pts to %2$s</string>
+    <string name="max_tier">Highest rank reached</string>
 </resources>

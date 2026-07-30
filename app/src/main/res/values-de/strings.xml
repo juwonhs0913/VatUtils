@@ -96,4 +96,26 @@
     <string name="loading">Wird geladen…</string>
     <string name="refresh">Aktualisieren</string>
     <string name="error_prefix">Fehler: %1$s</string>
+
+    <!-- Challenges / Rank -->
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Silber</string>
+    <string name="tier_gold">Gold</string>
+    <string name="tier_platinum">Platin</string>
+    <string name="rank_label">Rang</string>
+    <string name="points_value">%1$s Pkt.</string>
+    <string name="flights_completed">%1$d Flüge abgeschlossen</string>
+    <string name="rolls_remaining">Noch %1$d von %2$d Auslosungen heute</string>
+    <string name="rolls_reset_in">Zurücksetzung in %1$s (00:00Z)</string>
+    <string name="no_rolls_left">Alle 5 Auslosungen für heute verbraucht. Zurücksetzung um 00:00Z.</string>
+    <string name="active_challenge">Aktive Challenge</string>
+    <string name="challenge_reward">+%1$d Pkt. bei Abschluss</string>
+    <string name="challenge_enroute">Unterwegs — Flug erkannt</string>
+    <string name="challenge_waiting">Fliege diese Route auf VATSIM, um sie abzuschließen</string>
+    <string name="challenge_done">Challenge abgeschlossen! +%1$d Pkt.</string>
+    <string name="cid_needed">Hinterlege deine VATSIM-CID in den Einstellungen, um Punkte für Flüge zu erhalten.</string>
+    <string name="vatsim_cid">VATSIM-CID</string>
+    <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Wird nur genutzt, um zu prüfen, ob du eine ausgeloste Route geflogen bist — sie geht nirgendwo hin außer an die öffentliche VATSIM-API.</string>
+    <string name="points_to_next_tier">%1$s Pkt. bis %2$s</string>
+    <string name="max_tier">Höchster Rang erreicht</string>
 </resources>

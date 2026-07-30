@@ -3,6 +3,7 @@ package com.vatradar.app.di
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
+import com.vatradar.app.data.remote.VatsimMemberApiService
 import com.vatradar.app.data.remote.WeatherApiService
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,6 +18,7 @@ object NetworkModule {
 
     private const val VATSIM_DATA_URL = "https://data.vatsim.net/"
     private const val VATSIM_MY_URL = "https://my.vatsim.net/"
+    private const val VATSIM_API_URL = "https://api.vatsim.net/"
     private const val SIMBRIEF_URL = "https://www.simbrief.com/"
 
     const val METAR_URL = "https://metar.vatsim.net/"
@@ -51,6 +53,10 @@ object NetworkModule {
 
     val vatsimApiService: VatsimApiService by lazy {
         retrofit(VATSIM_DATA_URL).create(VatsimApiService::class.java)
+    }
+
+    val memberApiService: VatsimMemberApiService by lazy {
+        retrofit(VATSIM_API_URL).create(VatsimMemberApiService::class.java)
     }
 
     val eventsApiService: VatsimEventsApiService by lazy {

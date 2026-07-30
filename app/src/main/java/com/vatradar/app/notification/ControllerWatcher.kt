@@ -17,6 +17,14 @@ object ControllerWatcher {
         val settings = ServiceLocator.settingsRepository(context)
         val user = settings.current()
 
+        // 알림과 무관하게, 15분마다 도는 이 기회에 챌린지 완주도 확인합니다.
+        // 비행 중 앱이 한 번도 열리지 않아도 완주가 잡히도록 하기 위함입니다.
+        if (user.vatsimCid.isNotBlank()) {
+            runCatching {
+                ServiceLocator.flightProgressRepository(context).sync(user.vatsimCid)
+            }.onFailure { Log.w("VATRadar", "챌린지 확인 실패", it) }
+        }
+
         if (!user.notifyEnabled || user.watchedCallsigns.isEmpty()) return emptyList()
 
         val online = ServiceLocator

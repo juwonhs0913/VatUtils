@@ -11,6 +11,7 @@ import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.Controller
+import com.vatradar.app.domain.model.PilotTier
 import com.vatradar.app.domain.model.greatCircleNm
 import com.vatradar.app.util.plannedArrivalZulu
 import com.vatradar.app.util.zuluAfterMinutes
@@ -38,6 +39,9 @@ data class MapUiState(
     val flightAirports: List<Airport> = emptyList(),
     /** 지도에서 공항 라벨을 눌렀을 때 기상만 보여주는 경우. */
     val selectedAirport: String? = null,
+    /** 내 항공기를 등급 색으로 구분하기 위한 값. */
+    val ownCid: Int? = null,
+    val ownTierColor: Int? = null,
 
     /** 선택한 항공기의 항로. 지나온 구간과 남은 구간을 나눠 그립니다. */
     val routeFlown: List<LatLng> = emptyList(),
@@ -63,6 +67,16 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         startPolling()
+        // 내 CID와 등급을 읽어 지도에서 내 기체를 구분합니다.
+        viewModelScope.launch {
+            val cid = ServiceLocator.settingsRepository(app).current().vatsimCid.toIntOrNull()
+            ServiceLocator.challengeRepository(app).totalPoints.collect { points ->
+                _uiState.value = _uiState.value.copy(
+                    ownCid = cid,
+                    ownTierColor = PilotTier.forPoints(points).colorArgb
+                )
+            }
+        }
     }
 
     /** PRD 요구: 15초 주기 갱신. */
