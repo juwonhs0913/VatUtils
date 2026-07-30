@@ -3,6 +3,8 @@ package com.vatradar.app.notification
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 /**
  * FCM 수신부 (F4의 즉시 알림 경로).
@@ -26,9 +28,20 @@ class VatRadarMessagingService : FirebaseMessagingService() {
             ?.split(",")
             ?.map { it.trim() }
             ?.filter { it.isNotEmpty() }
-            ?: message.notification?.body?.let { listOf(it) }
             ?: return
 
-        Notifications.showControllerOnline(applicationContext, callsigns)
+        // 이 콜백은 이미 백그라운드 스레드에서 돌고, 시스템이 주는 실행 시간은 짧습니다.
+        // DataStore 조회가 걸리는 상황을 대비해 시간 제한을 둡니다.
+        runBlocking {
+            runCatching {
+                withTimeout(PROCESS_TIMEOUT_MS) {
+                    ControllerWatcher.notifyFromPush(applicationContext, callsigns)
+                }
+            }.onFailure { Log.w("VATRadar", "푸시 처리 실패", it) }
+        }
+    }
+
+    private companion object {
+        const val PROCESS_TIMEOUT_MS = 8_000L
     }
 }

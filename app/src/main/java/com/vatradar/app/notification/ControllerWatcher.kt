@@ -39,4 +39,52 @@ object ControllerWatcher {
 
         return newlyOnline
     }
+
+    /**
+     * FCM 푸시로 받은 "새로 접속" 목록을 알립니다.
+     *
+     * 15분 폴링과 **같은 기록(alreadyNotified)을 공유**하는 게 핵심입니다.
+     * 두 경로를 모두 살려두는 이유는 서버가 죽어도 알림이 끊기지 않게 하기 위함이고,
+     * 그 대가로 같은 관제소를 두 번 알릴 위험이 생깁니다. 여기서 그걸 막습니다.
+     *
+     * 폴링은 현재 접속자 전체를 알기 때문에 기록을 통째로 덮어쓰지만,
+     * 푸시는 새로 뜬 것만 알기 때문에 기록에 **더하기**만 합니다.
+     */
+    suspend fun notifyFromPush(context: Context, incoming: List<String>) {
+        val settings = ServiceLocator.settingsRepository(context)
+        val user = settings.current()
+        if (!user.notifyEnabled) return
+
+        val already = settings.alreadyNotified()
+        val fresh = selectNewCallsigns(incoming, user.watchedCallsigns, already)
+        if (fresh.isEmpty()) return
+
+        Notifications.showControllerOnline(context, fresh)
+        settings.setAlreadyNotified(already + fresh)
+        Log.d("VATRadar", "푸시 알림: ${fresh.joinToString(", ")}")
+    }
+
+    /**
+     * 푸시로 들어온 콜사인 중 실제로 알려야 할 것만 고릅니다.
+     *
+     * 두 가지를 걸러냅니다.
+     *  - 이미 알린 것 (폴링이 먼저 알렸을 수 있음)
+     *  - 사용자가 등록하지 않은 것 (관제소를 지웠는데 토픽 구독 해제가 실패했을 수 있음)
+     */
+    fun selectNewCallsigns(
+        incoming: List<String>,
+        watched: Set<String>,
+        alreadyNotified: Set<String>
+    ): List<String> {
+        val prefixes = watched.map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+        if (prefixes.isEmpty()) return emptyList()
+
+        return incoming
+            .map { it.trim().uppercase() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .filter { callsign -> prefixes.any { callsign.startsWith(it) } }
+            .filterNot { it in alreadyNotified }
+            .sorted()
+    }
 }
