@@ -41,6 +41,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.util.Log
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.Button
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.data.remote.LogbookRegisterRequest
@@ -55,23 +64,69 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = ServiceLocator.settingsRepository(app)
 
+    /** 저장된 값. */
     private val _settings = MutableStateFlow(UserSettings())
     val settings = _settings.asStateFlow()
 
+    /**
+     * 화면에서 편집 중인 값.
+     *
+     * 예전에는 손대는 즉시 저장됐습니다. CID를 고치는 중간 상태(예: "18")로도
+     * 서버에 등록이 나가서, 저장 버튼을 두고 확정된 값만 반영하도록 바꿨습니다.
+     */
+    private val _draft = MutableStateFlow(UserSettings())
+    val draft = _draft.asStateFlow()
+
+    val dirty: StateFlow<Boolean> = combine(_settings, _draft) { saved, draft -> saved != draft }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val _savedNotice = MutableStateFlow(false)
+    val savedNotice = _savedNotice.asStateFlow()
+
     init {
-        viewModelScope.launch { repo.settings.collect { _settings.value = it } }
+        viewModelScope.launch {
+            repo.settings.collect { stored ->
+                val hadEdits = _settings.value != _draft.value
+                _settings.value = stored
+                // 사용자가 편집 중이면 덮어쓰지 않습니다.
+                if (!hadEdits) _draft.value = stored
+            }
+        }
     }
 
-    fun setSimBriefId(v: String) = viewModelScope.launch { repo.setSimBriefId(v) }
-    fun setVatsimCid(v: String) = viewModelScope.launch {
-        // CID가 바뀌면 이전 토픽을 끊고 새 토픽을 구독합니다.
-        val previous = repo.current().vatsimCid
-        if (previous.isNotBlank() && previous != v.trim()) FcmTopics.unsubscribeCid(previous)
-        repo.setVatsimCid(v)
-        FcmTopics.subscribeCid(v)
-        // 기록은 등록한 시점부터만 쌓입니다 (VATSIM이 과거 비행의 공항을 공개하지 않음).
-        registerLogbook(v)
+    fun editSimBriefId(v: String) { _draft.value = _draft.value.copy(simBriefId = v) }
+    fun editVatsimCid(v: String) { _draft.value = _draft.value.copy(vatsimCid = v) }
+    fun editThemeMode(mode: ThemeMode) { _draft.value = _draft.value.copy(themeMode = mode.tag) }
+    fun editLanguage(language: AppLanguage) { _draft.value = _draft.value.copy(languageTag = language.tag) }
+
+    fun discard() { _draft.value = _settings.value }
+
+    fun save() = viewModelScope.launch {
+        val saved = _settings.value
+        val draft = _draft.value
+
+        if (draft.simBriefId != saved.simBriefId) repo.setSimBriefId(draft.simBriefId)
+
+        if (draft.vatsimCid.trim() != saved.vatsimCid) {
+            if (saved.vatsimCid.isNotBlank()) FcmTopics.unsubscribeCid(saved.vatsimCid)
+            repo.setVatsimCid(draft.vatsimCid)
+            FcmTopics.subscribeCid(draft.vatsimCid)
+            // 기록은 등록한 시점부터만 쌓입니다 (VATSIM이 과거 비행의 공항을 공개하지 않음).
+            registerLogbook(draft.vatsimCid)
+        }
+
+        if (draft.themeMode != saved.themeMode) repo.setThemeMode(draft.themeMode)
+
+        if (draft.languageTag != saved.languageTag) {
+            repo.setLanguageTag(draft.languageTag)
+            // 로케일 적용은 마지막에 합니다 — 액티비티가 다시 만들어지기 때문입니다.
+            AppLanguage.apply(AppLanguage.fromTag(draft.languageTag))
+        }
+
+        _savedNotice.value = true
     }
+
+    fun consumeSavedNotice() { _savedNotice.value = false }
 
     private suspend fun registerLogbook(cid: String) {
         val trimmed = cid.trim()
@@ -79,24 +134,24 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         runCatching { ServiceLocator.logbookApiService().register(LogbookRegisterRequest(trimmed)) }
             .onFailure { Log.w("VATRadar", "비행 기록 등록 실패", it) }
     }
-
-
-    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode.tag) }
-
-    fun setLanguage(language: AppLanguage) = viewModelScope.launch {
-        repo.setLanguageTag(language.tag)
-        // 저장 후 적용합니다. AppCompat이 액티비티를 새 로케일로 다시 만듭니다.
-        AppLanguage.apply(language)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
-    val settings by viewModel.settings.collectAsStateWithLifecycle()
-    var simBriefId by remember(settings.simBriefId) { mutableStateOf(settings.simBriefId) }
-    var vatsimCid by remember(settings.vatsimCid) { mutableStateOf(settings.vatsimCid) }
+    val settings by viewModel.draft.collectAsStateWithLifecycle()
+    val dirty by viewModel.dirty.collectAsStateWithLifecycle()
+    val savedNotice by viewModel.savedNotice.collectAsStateWithLifecycle()
     var languageExpanded by remember { mutableStateOf(false) }
+    val snackbarHost = remember { SnackbarHostState() }
+    val savedText = stringResource(R.string.saved)
+
+    LaunchedEffect(savedNotice) {
+        if (savedNotice) {
+            snackbarHost.showSnackbar(savedText)
+            viewModel.consumeSavedNotice()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -121,7 +176,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                     ThemeMode.entries.forEach { mode ->
                         FilterChip(
                             selected = currentTheme == mode,
-                            onClick = { viewModel.setThemeMode(mode) },
+                            onClick = { viewModel.editThemeMode(mode) },
                             label = { Text(stringResource(mode.labelRes)) },
                             modifier = Modifier.weight(1f)
                         )
@@ -160,7 +215,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                                 FilterChip(
                                     selected = selected == language,
                                     onClick = {
-                                        viewModel.setLanguage(language)
+                                        viewModel.editLanguage(language)
                                         languageExpanded = false
                                     },
                                     label = { Text(language.displayName) }
@@ -182,8 +237,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("VATSIM", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
-                    value = vatsimCid,
-                    onValueChange = { vatsimCid = it; viewModel.setVatsimCid(it) },
+                    value = settings.vatsimCid,
+                    onValueChange = viewModel::editVatsimCid,
                     label = { Text(stringResource(R.string.vatsim_cid)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -202,8 +257,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.simbrief), style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
-                    value = simBriefId,
-                    onValueChange = { simBriefId = it; viewModel.setSimBriefId(it) },
+                    value = settings.simBriefId,
+                    onValueChange = viewModel::editSimBriefId,
                     label = { Text(stringResource(R.string.simbrief_id)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -215,5 +270,35 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                 )
             }
         }
+        // ---------------- 저장 ----------------
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (dirty) {
+                TextButton(onClick = viewModel::discard) {
+                    Text(stringResource(R.string.discard))
+                }
+            }
+            Button(
+                onClick = { viewModel.save() },
+                enabled = dirty,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Save, null, Modifier.size(18.dp))
+                Text("  " + stringResource(R.string.save))
+            }
+        }
+
+        if (dirty) {
+            Text(
+                stringResource(R.string.unsaved_changes),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+
+        SnackbarHost(snackbarHost)
     }
 }

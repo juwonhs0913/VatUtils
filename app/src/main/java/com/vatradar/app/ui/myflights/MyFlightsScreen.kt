@@ -35,12 +35,17 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
+import android.view.MotionEvent
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalView
 import com.vatradar.app.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MyFlightsScreen(viewModel: MyFlightsViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -114,8 +119,22 @@ fun MyFlightsScreen(viewModel: MyFlightsViewModel = viewModel()) {
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(LatLng(20.0, 10.0), 0.6f)
                 }
+                val mapTouchOwner = LocalView.current.parent
                 GoogleMap(
-                    modifier = Modifier.fillMaxWidth(),
+                    // 세로 스크롤 안에 지도가 있으면 끌었을 때 페이지가 먼저 움직여
+                    // 지도를 조작할 수 없습니다. 지도 위에서 시작한 터치는
+                    // 지도가 가져가도록 부모의 가로채기를 막습니다.
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInteropFilter { event ->
+                            when (event.action) {
+                                MotionEvent.ACTION_DOWN ->
+                                    mapTouchOwner.requestDisallowInterceptTouchEvent(true)
+                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                                    mapTouchOwner.requestDisallowInterceptTouchEvent(false)
+                            }
+                            false   // 이벤트는 지도에게 그대로 넘깁니다
+                        },
                     cameraPositionState = cameraPositionState,
                     properties = MapProperties(mapType = MapType.NORMAL),
                     uiSettings = MapUiSettings(zoomControlsEnabled = false, scrollGesturesEnabled = true)

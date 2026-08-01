@@ -97,7 +97,7 @@
     <string name="challenge_done">挑战完成</string>
     <string name="cid_needed">在设置中填写 VATSIM CID 后即可记录您的飞行。</string>
     <string name="vatsim_cid">VATSIM CID</string>
-    <string name="vatsim_cid_hint">您的数字 VATSIM ID（如 1234567）。仅用于确认您是否飞了抽取的航线，除 VATSIM 公开 API 外不会发送到任何地方。</string>
+    <string name="vatsim_cid_hint">您的 VATSIM 数字 ID（例如 1234567）。用于确认抽取的航线并记录您的飞行。仅发送至公开的 VATSIM API 和本应用的服务器。</string>
     <string name="tab_my_flights">我的飞行</string>
     <string name="pick_region">想从哪里出发？</string>
     <string name="worldwide">全球</string>
@@ -120,4 +120,17 @@
     <string name="airports_heading">机场</string>
     <string name="airports_heading_hint">添加机场即涵盖其进近、塔台、地面和放行席位。</string>
     <string name="pick_region_for_airports">请先选择地区以查看机场。</string>
+    <string name="search_events">搜索活动</string>
+    <string name="no_matching_events">没有匹配的活动。</string>
+    <string name="clear">清除</string>
+    <string name="search_traffic">搜索飞行员和管制员</string>
+    <string name="no_results">无结果</string>
+    <string name="north_up">正北朝上</string>
+    <string name="flights_at">%1$s 的进出港航班</string>
+    <string name="departing">出发</string>
+    <string name="arriving">到达</string>
+    <string name="save">保存</string>
+    <string name="unsaved_changes">有未保存的更改。</string>
+    <string name="saved">已保存</string>
+    <string name="discard">放弃</string>
 </resources>

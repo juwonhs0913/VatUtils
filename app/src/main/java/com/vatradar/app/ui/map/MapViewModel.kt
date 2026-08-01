@@ -22,6 +22,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/** 공항 시트에 띄우는 한 줄. */
+data class AirportFlight(
+    val departing: Boolean,
+    val callsign: String,
+    val aircraftType: String?,
+    val origin: String,
+    val destination: String
+)
+
+/** 지도 검색 결과 한 줄. */
+data class SearchHit(
+    val title: String,
+    val subtitle: String,
+    val latitude: Double,
+    val longitude: Double,
+    val callsign: String,
+    val isAircraft: Boolean
+)
+
 data class MapUiState(
     val snapshot: VatsimSnapshot? = null,
     val isRefreshing: Boolean = false,
@@ -38,6 +57,10 @@ data class MapUiState(
     val flightAirports: List<Airport> = emptyList(),
     /** 지도에서 공항 라벨을 눌렀을 때 기상만 보여주는 경우. */
     val selectedAirport: String? = null,
+    /** 선택한 공항을 출발지/도착지로 둔 항공편. 출발이 먼저 옵니다. */
+    val airportFlights: List<AirportFlight> = emptyList(),
+    val searchQuery: String = "",
+    val searchHits: List<SearchHit> = emptyList(),
     /** 내 항공기를 등급 색으로 구분하기 위한 값. */
     val ownCid: Int? = null,
 
@@ -197,10 +220,27 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         loadWeather(controllers.first().prefix)
     }
 
-    /** 지도의 공항 라벨을 눌렀을 때 — 기상만 담은 시트를 엽니다. */
+    /** 지도의 공항 라벨을 눌렀을 때 — 기상과 그 공항 출도착 항공편을 띄웁니다. */
     fun selectAirport(icao: String) {
+        val code = icao.uppercase()
+        val flights = _uiState.value.snapshot?.aircraftList.orEmpty()
+            .filter { it.departure == code || it.arrival == code }
+            .map {
+                AirportFlight(
+                    departing = it.departure == code,
+                    callsign = it.callsign,
+                    aircraftType = it.aircraftType,
+                    origin = it.departure.orEmpty(),
+                    destination = it.arrival.orEmpty()
+                )
+            }
+            // 출발을 먼저, 그 안에서는 콜사인 순. 같은 공항에 수십 편이 붙을 수 있어
+            // 순서가 일정해야 읽힙니다.
+            .sortedWith(compareByDescending<AirportFlight> { it.departing }.thenBy { it.callsign })
+
         _uiState.value = _uiState.value.copy(
-            selectedAirport = icao.uppercase(),
+            airportFlights = flights,
+            selectedAirport = code,
             selectedAircraft = null,
             selectedControllers = emptyList(),
             routeFlown = emptyList(),
@@ -210,6 +250,83 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             etaIsLive = false
         )
         loadWeather(icao)
+    }
+
+    /**
+     * 콜사인·조종사 이름·출도착지로 찾습니다.
+     *
+     * 접속자가 2천 명이 넘어 결과를 그대로 다 내리면 목록이 지도를 덮습니다.
+     * 앞에서부터 20개만 보여줍니다.
+     */
+    fun setSearchQuery(value: String) {
+        val query = value.trim()
+        if (query.length < 2) {
+            _uiState.value = _uiState.value.copy(searchQuery = value, searchHits = emptyList())
+            return
+        }
+
+        val snapshot = _uiState.value.snapshot
+        val aircraftHits = snapshot?.aircraftList.orEmpty()
+            .filter { a ->
+                a.callsign.contains(query, true) ||
+                    a.pilotName.contains(query, true) ||
+                    a.departure?.contains(query, true) == true ||
+                    a.arrival?.contains(query, true) == true
+            }
+            .map { a ->
+                SearchHit(
+                    title = a.callsign,
+                    subtitle = listOfNotNull(
+                        a.pilotName.takeIf { it.isNotBlank() },
+                        a.aircraftType,
+                        listOfNotNull(a.departure, a.arrival).takeIf { it.size == 2 }
+                            ?.joinToString(" → ")
+                    ).joinToString(" · "),
+                    latitude = a.latitude,
+                    longitude = a.longitude,
+                    callsign = a.callsign,
+                    isAircraft = true
+                )
+            }
+
+        // 관제사는 좌표가 없으면 지도로 데려갈 수 없어 제외합니다.
+        val controllerHits = snapshot?.controllerList.orEmpty()
+            .filter { c ->
+                c.latitude != null && c.longitude != null &&
+                    (c.callsign.contains(query, true) || c.name.contains(query, true))
+            }
+            .map { c ->
+                SearchHit(
+                    title = c.callsign,
+                    subtitle = listOfNotNull(
+                        c.facility.label,
+                        c.frequency.takeIf { it.isNotBlank() },
+                        c.airportName
+                    ).joinToString(" · "),
+                    latitude = c.latitude!!,
+                    longitude = c.longitude!!,
+                    callsign = c.callsign,
+                    isAircraft = false
+                )
+            }
+
+        _uiState.value = _uiState.value.copy(
+            searchQuery = value,
+            searchHits = (controllerHits + aircraftHits).take(20)
+        )
+    }
+
+    /** 검색 결과를 고르면 그 대상의 시트를 엽니다. 카메라 이동은 화면이 합니다. */
+    fun selectSearchResult(hit: SearchHit) {
+        val snapshot = _uiState.value.snapshot
+        if (hit.isAircraft) {
+            snapshot?.aircraftList?.firstOrNull { it.callsign == hit.callsign }?.let { selectAircraft(it) }
+        } else {
+            snapshot?.controllerList?.filter { it.callsign == hit.callsign }
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { selectControllers(it) }
+        }
+        _uiState.value = _uiState.value.copy(searchQuery = "", searchHits = emptyList())
     }
 
     /** F6: 지도에서 공항/관제소를 탭하면 기상 정보를 띄웁니다. */
@@ -232,6 +349,7 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             selectedAircraft = null,
             selectedControllers = emptyList(),
             selectedAirport = null,
+            airportFlights = emptyList(),
             weather = null,
             weatherLoading = false,
             routeFlown = emptyList(),

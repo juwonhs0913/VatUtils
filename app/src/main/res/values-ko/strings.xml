@@ -97,7 +97,7 @@
     <string name="challenge_done">챌린지 완주</string>
     <string name="cid_needed">설정에서 VATSIM CID를 등록하면 비행이 기록됩니다.</string>
     <string name="vatsim_cid">VATSIM CID</string>
-    <string name="vatsim_cid_hint">숫자로 된 VATSIM ID입니다(예: 1234567). 뽑은 경로를 비행했는지 확인하는 데만 쓰이며, VATSIM 공개 API 외에는 어디로도 전송되지 않습니다.</string>
+    <string name="vatsim_cid_hint">숫자로 된 VATSIM ID (예: 1234567). 뽑은 경로 확인과 비행 기록에 씁니다. 공개 VATSIM API와 이 앱의 서버 외에는 보내지 않습니다.</string>
     <string name="tab_my_flights">나의 비행</string>
     <string name="pick_region">어디에서 출발할까요?</string>
     <string name="worldwide">전 세계</string>
@@ -120,4 +120,17 @@
     <string name="airports_heading">공항</string>
     <string name="airports_heading_hint">공항을 담으면 어프로치·타워·그라운드·딜리버리가 모두 포함됩니다.</string>
     <string name="pick_region_for_airports">지역을 고르면 공항이 나옵니다.</string>
+    <string name="search_events">이벤트 검색</string>
+    <string name="no_matching_events">검색과 맞는 이벤트가 없습니다.</string>
+    <string name="clear">지우기</string>
+    <string name="search_traffic">파일럿·관제사 검색</string>
+    <string name="no_results">결과 없음</string>
+    <string name="north_up">북쪽 정렬</string>
+    <string name="flights_at">%1$s 출도착 항공편</string>
+    <string name="departing">출발</string>
+    <string name="arriving">도착</string>
+    <string name="save">저장</string>
+    <string name="unsaved_changes">저장하지 않은 변경이 있습니다.</string>
+    <string name="saved">저장했습니다</string>
+    <string name="discard">되돌리기</string>
 </resources>

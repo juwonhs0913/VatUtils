@@ -97,7 +97,7 @@
     <string name="challenge_done">Challenge geschafft</string>
     <string name="cid_needed">Hinterlege deine VATSIM-CID in den Einstellungen, damit deine Flüge erfasst werden.</string>
     <string name="vatsim_cid">VATSIM-CID</string>
-    <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Wird nur genutzt, um zu prüfen, ob du eine ausgeloste Route geflogen bist — sie geht nirgendwo hin außer an die öffentliche VATSIM-API.</string>
+    <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Für die Prüfung gewürfelter Strecken und zum Aufzeichnen deiner Flüge. Geht nur an die öffentliche VATSIM-API und den Server dieser App.</string>
     <string name="tab_my_flights">Meine Flüge</string>
     <string name="pick_region">Wo soll es losgehen?</string>
     <string name="worldwide">Weltweit</string>
@@ -120,4 +120,17 @@
     <string name="airports_heading">Flughäfen</string>
     <string name="airports_heading_hint">Ein Flughafen deckt Approach, Tower, Ground und Delivery ab.</string>
     <string name="pick_region_for_airports">Region wählen, um Flughäfen zu sehen.</string>
+    <string name="search_events">Events suchen</string>
+    <string name="no_matching_events">Keine passenden Events.</string>
+    <string name="clear">Löschen</string>
+    <string name="search_traffic">Piloten und Lotsen suchen</string>
+    <string name="no_results">Keine Treffer</string>
+    <string name="north_up">Nach Norden ausrichten</string>
+    <string name="flights_at">Flüge an %1$s</string>
+    <string name="departing">Abflug</string>
+    <string name="arriving">Ankunft</string>
+    <string name="save">Speichern</string>
+    <string name="unsaved_changes">Es gibt ungespeicherte Änderungen.</string>
+    <string name="saved">Gespeichert</string>
+    <string name="discard">Verwerfen</string>
 </resources>

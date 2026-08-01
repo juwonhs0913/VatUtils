@@ -37,9 +37,9 @@ private object PlaneIcons {
      */
     private val ownCache = HashMap<Int, BitmapDescriptor>()
     fun own(color: Int): BitmapDescriptor =
-        ownCache.getOrPut(color) { draw(color, size = 68, halo = true) }
+        ownCache.getOrPut(color) { draw(color, size = 84, halo = true) }
 
-    private fun draw(color: Int, size: Int = 44, halo: Boolean = false): BitmapDescriptor {
+    private fun draw(color: Int, size: Int = 58, halo: Boolean = false): BitmapDescriptor {
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 

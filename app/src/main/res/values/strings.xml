@@ -100,7 +100,7 @@
     <string name="challenge_done">Challenge complete</string>
     <string name="cid_needed">Add your VATSIM CID in Settings so your flights are tracked.</string>
     <string name="vatsim_cid">VATSIM CID</string>
-    <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used only to check whether you flew a rolled route — it is never sent anywhere except the public VATSIM API.</string>
+    <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used to check rolled routes and to record your flights. Only ever sent to the public VATSIM API and to this app server.</string>
     <string name="tab_my_flights">My flights</string>
     <string name="pick_region">Where do you want to depart from?</string>
     <string name="worldwide">Worldwide</string>
@@ -123,4 +123,17 @@
     <string name="airports_heading">Airports</string>
     <string name="airports_heading_hint">Adding an airport covers its approach, tower, ground and delivery positions.</string>
     <string name="pick_region_for_airports">Choose a region to see airports.</string>
+    <string name="search_events">Search events</string>
+    <string name="no_matching_events">No events match your search.</string>
+    <string name="clear">Clear</string>
+    <string name="search_traffic">Search pilots and controllers</string>
+    <string name="no_results">No matches</string>
+    <string name="north_up">Face north</string>
+    <string name="flights_at">Flights at %1$s</string>
+    <string name="departing">Departing</string>
+    <string name="arriving">Arriving</string>
+    <string name="save">Save</string>
+    <string name="unsaved_changes">You have unsaved changes.</string>
+    <string name="saved">Saved</string>
+    <string name="discard">Discard</string>
 </resources>

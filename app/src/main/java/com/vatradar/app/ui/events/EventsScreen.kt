@@ -27,6 +27,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.remember
 import com.vatradar.app.R
 import androidx.core.net.toUri
 import androidx.browser.customtabs.CustomTabsIntent
@@ -47,7 +54,8 @@ data class EventsUiState(
     val loading: Boolean = true,
     val events: List<VatsimEvent> = emptyList(),
     val error: String? = null,
-    val selectedTab: Int = 0
+    val selectedTab: Int = 0,
+    val query: String = ""
 )
 
 class EventsViewModel(app: Application) : AndroidViewModel(app) {
@@ -82,6 +90,10 @@ class EventsViewModel(app: Application) : AndroidViewModel(app) {
         return if (hasOngoing) 0 else 1
     }
 
+    fun setQuery(value: String) {
+        _uiState.value = _uiState.value.copy(query = value)
+    }
+
     fun selectTab(index: Int) {
         _uiState.value = _uiState.value.copy(selectedTab = index)
     }
@@ -92,12 +104,43 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val now = System.currentTimeMillis()
 
+    // 이름·공항·주최자 어디에 걸려도 찾히게 합니다.
+    // 사용자는 "RKSI"로도, "Cross the Pond"로도 찾으려 하기 때문입니다.
+    val matching = remember(state.events, state.query) {
+        val q = state.query.trim()
+        if (q.isEmpty()) state.events
+        else state.events.filter { event ->
+            event.name.contains(q, ignoreCase = true) ||
+                event.shortDescription.contains(q, ignoreCase = true) ||
+                event.airports.any { it.contains(q, ignoreCase = true) } ||
+                event.organisers.any { it.contains(q, ignoreCase = true) }
+        }
+    }
+
     // PRD 요구: 진행 중 / 예정 탭 분리
-    val ongoing = state.events.filter { it.startEpochMillis <= now && it.endEpochMillis >= now }
-    val upcoming = state.events.filter { it.startEpochMillis > now }
+    val ongoing = matching.filter { it.startEpochMillis <= now && it.endEpochMillis >= now }
+    val upcoming = matching.filter { it.startEpochMillis > now }
     val shown = if (state.selectedTab == 0) ongoing else upcoming
 
     Column(modifier = Modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = state.query,
+            onValueChange = viewModel::setQuery,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            placeholder = { Text(stringResource(R.string.search_events)) },
+            leadingIcon = { Icon(Icons.Default.Search, null) },
+            trailingIcon = {
+                if (state.query.isNotEmpty()) {
+                    IconButton(onClick = { viewModel.setQuery("") }) {
+                        Icon(Icons.Default.Close, stringResource(R.string.clear))
+                    }
+                }
+            },
+            singleLine = true
+        )
+
         TabRow(selectedTabIndex = state.selectedTab) {
             Tab(
                 selected = state.selectedTab == 0,
@@ -121,8 +164,11 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
             shown.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                 Text(
                     stringResource(
-                        if (state.selectedTab == 0) R.string.no_ongoing_events
-                        else R.string.no_upcoming_events
+                        when {
+                            state.query.isNotBlank() -> R.string.no_matching_events
+                            state.selectedTab == 0 -> R.string.no_ongoing_events
+                            else -> R.string.no_upcoming_events
+                        }
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

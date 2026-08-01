@@ -97,7 +97,7 @@
     <string name="challenge_done">Desafio concluído</string>
     <string name="cid_needed">Adicione seu CID da VATSIM nas Configurações para que seus voos sejam registrados.</string>
     <string name="vatsim_cid">VATSIM CID</string>
-    <string name="vatsim_cid_hint">Seu ID numérico da VATSIM (ex.: 1234567). Usado apenas para verificar se você voou uma rota sorteada — não é enviado a lugar algum além da API pública da VATSIM.</string>
+    <string name="vatsim_cid_hint">Seu ID numérico da VATSIM (ex.: 1234567). Usado para conferir rotas sorteadas e registrar seus voos. Enviado apenas à API pública da VATSIM e ao servidor deste app.</string>
     <string name="tab_my_flights">Meus voos</string>
     <string name="pick_region">De onde você quer partir?</string>
     <string name="worldwide">Mundo todo</string>
@@ -120,4 +120,17 @@
     <string name="airports_heading">Aeroportos</string>
     <string name="airports_heading_hint">Adicionar um aeroporto cobre approach, torre, solo e autorização.</string>
     <string name="pick_region_for_airports">Escolha uma região para ver aeroportos.</string>
+    <string name="search_events">Buscar eventos</string>
+    <string name="no_matching_events">Nenhum evento corresponde.</string>
+    <string name="clear">Limpar</string>
+    <string name="search_traffic">Buscar pilotos e controladores</string>
+    <string name="no_results">Sem resultados</string>
+    <string name="north_up">Apontar para o norte</string>
+    <string name="flights_at">Voos em %1$s</string>
+    <string name="departing">Partindo</string>
+    <string name="arriving">Chegando</string>
+    <string name="save">Salvar</string>
+    <string name="unsaved_changes">Há alterações não salvas.</string>
+    <string name="saved">Salvo</string>
+    <string name="discard">Descartar</string>
 </resources>

@@ -55,6 +55,22 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.filled.ConnectingAirports
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.maps.android.compose.CameraPositionState
+import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.FlightLand
+import androidx.compose.material.icons.filled.FlightTakeoff
 import com.vatradar.app.R
 import kotlin.math.pow
 import com.vatradar.app.domain.model.Aircraft
@@ -140,9 +156,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 argb = AirportBadgeIcons.facilityArgb(controller.facility)
             )
         } + approachControllers.map { controller ->
+            // 원 한가운데 두면 공항 마커·배지와 겹칩니다. 반경만큼 북쪽으로 올려
+            // 원 위쪽 테두리 바깥에 태그가 붙게 합니다.
+            val offsetDeg = controller.approachRadiusMeters() / 111_320.0
             BoundaryLabel(
                 callsign = controller.callsign,
-                position = LatLng(controller.latitude!!, controller.longitude!!),
+                position = LatLng(
+                    (controller.latitude!! + offsetDeg).coerceAtMost(85.0),
+                    controller.longitude!!
+                ),
                 argb = AirportBadgeIcons.facilityArgb(FacilityType.APP)
             )
         }
@@ -150,6 +172,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val latestBoundaryOwners by rememberUpdatedState(
         (boundaryControllers + approachControllers).associateBy { it.callsign }
     )
+
+    val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
@@ -263,6 +287,26 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             modifier = Modifier.align(Alignment.TopStart)
         )
 
+        MapTools(
+            state = state,
+            cameraPositionState = cameraPositionState,
+            onQuery = viewModel::setSearchQuery,
+            onPick = { hit ->
+                viewModel.selectSearchResult(hit)
+                scope.launch {
+                    runCatching {
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(hit.latitude, hit.longitude),
+                                if (hit.isAircraft) 7f else 5f
+                            )
+                        )
+                    }
+                }
+            },
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
+
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
         val aircraft = state.selectedAircraft
         val controllers = state.selectedControllers
@@ -294,6 +338,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                         if (index > 0) HorizontalDivider()
                         ControllerDetails(controller)
                     }
+                    if (state.selectedAirport != null) {
+                        AirportFlightList(state.selectedAirport!!, state.airportFlights)
+                    }
                     WeatherSectionHost(state)
                 }
             }
@@ -319,8 +366,8 @@ private const val MIN_LABEL_WIDTH_PX = 90.0
 private fun Controller.approachRadiusMeters(): Double {
     // 관제사가 넉넉히 잡아 두는 값이라 그대로 그리면 원이 지도를 덮습니다.
     // 실제 접근 관제 담당 범위에 가깝도록 줄여서 그립니다.
-    val nm = visualRangeNm.coerceIn(15, 80)
-    return nm * 0.6 * 1852.0
+    val nm = visualRangeNm.coerceIn(12, 60)
+    return nm * 0.45 * 1852.0
 }
 
 /** 지도 위 오버레이는 항공기·관제사 표시 토글 두 개만 둡니다. */
@@ -338,13 +385,13 @@ private fun MapOverlay(
     ) {
         MapToggleChip(
             label = stringResource(R.string.aircraft_count, state.snapshot?.aircraftList?.size ?: 0),
-            icon = Icons.Default.Flight,
+            icon = Icons.Default.ConnectingAirports,
             enabled = state.showAircraft,
             onClick = onToggleAircraft
         )
         MapToggleChip(
             label = stringResource(R.string.controller_count, state.snapshot?.controllerList?.size ?: 0),
-            icon = Icons.Default.Headset,
+            icon = Icons.Default.SupportAgent,
             enabled = state.showControllers,
             onClick = onToggleControllers
         )
@@ -557,5 +604,173 @@ fun LegendBadge(letter: String, color: Color) {
             style = MaterialTheme.typography.labelSmall,
             color = Color.White
         )
+    }
+}
+
+/**
+ * 우상단 도구 — 검색과 북쪽 정렬.
+ *
+ * 지도를 두 손가락으로 돌리면 북쪽이 어디인지 헷갈리는데, Google 지도의
+ * 나침반 버튼은 회전했을 때만 잠깐 나타나 놓치기 쉽습니다. 항상 눌러 되돌릴 수
+ * 있게 따로 둡니다.
+ */
+@Composable
+private fun MapTools(
+    state: MapUiState,
+    cameraPositionState: CameraPositionState,
+    onQuery: (String) -> Unit,
+    onPick: (SearchHit) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var open by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    Column(
+        modifier = modifier.padding(12.dp),
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            MapToolButton(Icons.Default.Explore, stringResource(R.string.north_up)) {
+                scope.launch {
+                    runCatching {
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newCameraPosition(
+                                CameraPosition.Builder(cameraPositionState.position)
+                                    .bearing(0f).tilt(0f).build()
+                            )
+                        )
+                    }
+                }
+            }
+            MapToolButton(
+                if (open) Icons.Default.Close else Icons.Default.Search,
+                stringResource(R.string.search_traffic)
+            ) {
+                open = !open
+                if (!open) onQuery("")
+            }
+        }
+
+        if (open) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                tonalElevation = 3.dp,
+                shadowElevation = 4.dp,
+                modifier = Modifier.widthIn(max = 280.dp)
+            ) {
+                Column(Modifier.padding(8.dp)) {
+                    OutlinedTextField(
+                        value = state.searchQuery,
+                        onValueChange = onQuery,
+                        placeholder = { Text(stringResource(R.string.search_traffic)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (state.searchQuery.isNotBlank()) {
+                        if (state.searchHits.isEmpty()) {
+                            Text(
+                                stringResource(R.string.no_results),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        } else {
+                            // 목록이 길어지면 지도를 다 덮으므로 높이를 묶습니다.
+                            Column(Modifier.heightIn(max = 240.dp).verticalScroll(rememberScrollState())) {
+                                state.searchHits.forEach { hit ->
+                                    Column(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onPick(hit)
+                                                open = false
+                                            }
+                                            .padding(horizontal = 8.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(hit.title, style = MaterialTheme.typography.bodyMedium)
+                                        Text(
+                                            hit.subtitle,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MapToolButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp,
+        shadowElevation = 3.dp
+    ) {
+        Icon(icon, description, Modifier.padding(10.dp).size(22.dp))
+    }
+}
+
+/**
+ * 공항 라벨을 눌렀을 때의 출도착 목록.
+ *
+ * 접속 중인 기체만 나옵니다 — VATSIM에는 시간표가 없어서, 지금 그 공항을
+ * 출발지나 목적지로 적어 둔 비행계획이 전부입니다.
+ */
+@Composable
+private fun AirportFlightList(icao: String, flights: List<AirportFlight>) {
+    Text(
+        stringResource(R.string.flights_at, icao),
+        style = MaterialTheme.typography.titleSmall
+    )
+
+    if (flights.isEmpty()) {
+        Text(
+            stringResource(R.string.no_results),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    flights.forEach { flight ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                if (flight.departing) Icons.Default.FlightTakeoff
+                else Icons.Default.FlightLand,
+                contentDescription = stringResource(
+                    if (flight.departing) R.string.departing else R.string.arriving
+                ),
+                modifier = Modifier.size(18.dp),
+                tint = if (flight.departing) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.tertiary
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    flight.callsign + (flight.aircraftType?.let { " · $it" } ?: ""),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    "${flight.origin.ifBlank { "?" }} → ${flight.destination.ifBlank { "?" }}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
