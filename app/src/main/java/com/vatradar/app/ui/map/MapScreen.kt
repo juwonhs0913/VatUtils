@@ -289,7 +289,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
 
         MapTools(
             state = state,
-            cameraPositionState = cameraPositionState,
             onQuery = viewModel::setSearchQuery,
             onPick = { hit ->
                 viewModel.selectSearchResult(hit)
@@ -306,6 +305,27 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             },
             modifier = Modifier.align(Alignment.TopEnd)
         )
+
+        // 나침반은 좌하단. Google 로고가 그 자리에 있어 로고 위로 띄웁니다
+        // (로고를 가리는 건 지도 이용약관 위반입니다).
+        MapToolButton(
+            icon = Icons.Default.Explore,
+            description = stringResource(R.string.north_up),
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 12.dp, bottom = 40.dp)
+        ) {
+            scope.launch {
+                runCatching {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.Builder(cameraPositionState.position)
+                                .bearing(0f).tilt(0f).build()
+                        )
+                    )
+                }
+            }
+        }
 
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
         val aircraft = state.selectedAircraft
@@ -617,39 +637,23 @@ fun LegendBadge(letter: String, color: Color) {
 @Composable
 private fun MapTools(
     state: MapUiState,
-    cameraPositionState: CameraPositionState,
     onQuery: (String) -> Unit,
     onPick: (SearchHit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     Column(
         modifier = modifier.padding(12.dp),
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            MapToolButton(Icons.Default.Explore, stringResource(R.string.north_up)) {
-                scope.launch {
-                    runCatching {
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newCameraPosition(
-                                CameraPosition.Builder(cameraPositionState.position)
-                                    .bearing(0f).tilt(0f).build()
-                            )
-                        )
-                    }
-                }
-            }
-            MapToolButton(
-                if (open) Icons.Default.Close else Icons.Default.Search,
-                stringResource(R.string.search_traffic)
-            ) {
-                open = !open
-                if (!open) onQuery("")
-            }
+        MapToolButton(
+            icon = if (open) Icons.Default.Close else Icons.Default.Search,
+            description = stringResource(R.string.search_traffic)
+        ) {
+            open = !open
+            if (!open) onQuery("")
         }
 
         if (open) {
@@ -709,9 +713,11 @@ private fun MapTools(
 private fun MapToolButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     description: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
+        modifier = modifier,
         onClick = onClick,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface,
