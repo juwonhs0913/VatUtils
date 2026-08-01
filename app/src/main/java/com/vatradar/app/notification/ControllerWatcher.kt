@@ -3,6 +3,7 @@ package com.vatradar.app.notification
 import android.content.Context
 import android.util.Log
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.domain.CallsignMatcher
 
 /**
  * "관심 관제소가 새로 떴는지" 한 번 확인하고 알리는 로직.
@@ -84,14 +85,14 @@ object ControllerWatcher {
         watched: Set<String>,
         alreadyNotified: Set<String>
     ): List<String> {
-        val prefixes = watched.map { it.trim().uppercase() }.filter { it.isNotEmpty() }
-        if (prefixes.isEmpty()) return emptyList()
+        val targets = watched.map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+        if (targets.isEmpty()) return emptyList()
 
         return incoming
             .map { it.trim().uppercase() }
             .filter { it.isNotEmpty() }
             .distinct()
-            .filter { callsign -> prefixes.any { callsign.startsWith(it) } }
+            .filter { callsign -> CallsignMatcher.matchesAny(callsign, targets) }
             .filterNot { it in alreadyNotified }
             .sorted()
     }

@@ -122,6 +122,31 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val latestAircraft by rememberUpdatedState(aircraftList)
     val latestBadges by rememberUpdatedState(badgeGroups)
 
+    // 구역 라벨: 폴리곤이 있는 관제소 + APP 원. 링 좌표 평균을 라벨 위치로 씁니다.
+    val boundaryLabels = remember(boundaryControllers, approachControllers) {
+        boundaryControllers.mapNotNull { controller ->
+            val points = controller.boundary.flatten()
+            if (points.isEmpty()) return@mapNotNull null
+            BoundaryLabel(
+                callsign = controller.callsign,
+                position = LatLng(
+                    points.sumOf { it.latitude } / points.size,
+                    points.sumOf { it.longitude } / points.size
+                ),
+                argb = AirportBadgeIcons.facilityArgb(controller.facility)
+            )
+        } + approachControllers.map { controller ->
+            BoundaryLabel(
+                callsign = controller.callsign,
+                position = LatLng(controller.latitude!!, controller.longitude!!),
+                argb = AirportBadgeIcons.facilityArgb(FacilityType.APP)
+            )
+        }
+    }
+    val latestBoundaryOwners by rememberUpdatedState(
+        (boundaryControllers + approachControllers).associateBy { it.callsign }
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -191,7 +216,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             // 4) 항공기와 공항 관제석 배지 — Compose 밖에서 마커를 직접 관리합니다.
             //    클러스터링 없이 전부 표시하므로 마커 재사용이 중요하고,
             //    클릭 리스너를 한 곳에 모아야 배지 클릭이 정상 동작합니다.
-            MapEffect(aircraftList, badgeGroups, visibleAirports) { map ->
+            MapEffect(aircraftList, badgeGroups, visibleAirports, boundaryLabels) { map ->
                 // 리스너는 한 번만 설치되므로 목록을 클로저에 그대로 담으면 안 됩니다.
                 // 15초마다 새 목록이 만들어지면 리스너는 첫 스냅샷만 계속 보게 되어
                 // 그 뒤에 접속한 관제소·항공기를 눌러도 아무 일도 일어나지 않습니다.
@@ -204,10 +229,14 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     onBadge = { airport ->
                         latestBadges[airport]?.let { viewModel.selectControllers(it) }
                     },
-                    onAirport = { icao -> viewModel.selectAirport(icao) }
+                    onAirport = { icao -> viewModel.selectAirport(icao) },
+                    onBoundary = { callsign ->
+                        latestBoundaryOwners[callsign]?.let { viewModel.selectControllers(listOf(it)) }
+                    }
                 )
-                markerController.syncAircraft(map, aircraftList, state.ownCid, state.ownTierColor)
+                markerController.syncAircraft(map, aircraftList, state.ownCid)
                 markerController.syncBadges(map, badgeGroups)
+                markerController.syncBoundaryLabels(map, boundaryLabels)
                 markerController.syncAirports(map, visibleAirports)
             }
         }
@@ -270,8 +299,10 @@ private fun WeatherSectionHost(state: MapUiState) {
  * visual_range는 관제사가 설정하는 값이라 0이거나 비현실적으로 큰 경우가 있어 범위를 제한합니다.
  */
 private fun Controller.approachRadiusMeters(): Double {
-    val nm = visualRangeNm.coerceIn(20, 150)
-    return nm * 1852.0
+    // 관제사가 넉넉히 잡아 두는 값이라 그대로 그리면 원이 지도를 덮습니다.
+    // 실제 접근 관제 담당 범위에 가깝도록 줄여서 그립니다.
+    val nm = visualRangeNm.coerceIn(15, 80)
+    return nm * 0.6 * 1852.0
 }
 
 /** 지도 위 오버레이는 항공기·관제사 표시 토글 두 개만 둡니다. */

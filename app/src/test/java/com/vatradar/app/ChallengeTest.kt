@@ -2,11 +2,10 @@ package com.vatradar.app
 
 import com.vatradar.app.data.local.ChallengeEntity
 import com.vatradar.app.data.local.ChallengeStatus
+import com.vatradar.app.domain.CallsignMatcher
 import com.vatradar.app.domain.FlightVerifier
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Airport
-import com.vatradar.app.domain.model.PilotTier
-import com.vatradar.app.domain.model.pointsForDistance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -14,49 +13,52 @@ import org.junit.Test
 
 class ChallengeTest {
 
-    // ---------------- 포인트 / 등급 ----------------
+    // ---------------- 콜사인 매칭 ----------------
 
+    /** 사용자가 겪은 문제: RKRR_CTR로 등록했는데 RKRR_A_CTR로 접속해 알림이 안 왔습니다. */
     @Test
-    fun `포인트는 거리에 비례한다`() {
-        assertEquals(100, pointsForDistance(1_000))
-        assertEquals(250, pointsForDistance(2_500))
-        assertEquals(600, pointsForDistance(6_000))
+    fun `섹터로 나뉜 콜사인도 같은 관제소로 인정한다`() {
+        assertTrue(CallsignMatcher.matches("RKRR_A_CTR", "RKRR_CTR"))
+        assertTrue(CallsignMatcher.matches("RKRR_N_CTR", "RKRR_CTR"))
+        assertTrue(CallsignMatcher.matches("LON_S_CTR", "LON_CTR"))
+        assertTrue(CallsignMatcher.matches("ZLA_37_CTR", "ZLA_CTR"))
     }
 
     @Test
-    fun `아주 짧은 거리도 최소 1점은 준다`() {
-        assertEquals(1, pointsForDistance(5))
-        assertEquals(1, pointsForDistance(0))
+    fun `정확히 같은 콜사인은 당연히 인정한다`() {
+        assertTrue(CallsignMatcher.matches("RKSI_TWR", "RKSI_TWR"))
+        assertTrue(CallsignMatcher.matches("rksi_twr", "RKSI_TWR"))
+    }
+
+    /** 공항 코드만 등록하면 그 공항의 모든 관제석이 잡혀야 합니다. */
+    @Test
+    fun `공항 코드는 하위 관제석을 모두 포함한다`() {
+        listOf("RKSI_TWR", "RKSI_GND", "RKSI_DEL", "RKSI_A_APP").forEach {
+            assertTrue(it, CallsignMatcher.matches(it, "RKSI"))
+        }
     }
 
     @Test
-    fun `포인트 구간마다 등급이 올라간다`() {
-        assertEquals(PilotTier.BRONZE, PilotTier.forPoints(0))
-        assertEquals(PilotTier.BRONZE, PilotTier.forPoints(999))
-        assertEquals(PilotTier.SILVER, PilotTier.forPoints(1_000))
-        assertEquals(PilotTier.GOLD, PilotTier.forPoints(10_000))
-        assertEquals(PilotTier.PLATINUM, PilotTier.forPoints(100_000))
-        assertEquals(PilotTier.PLATINUM, PilotTier.forPoints(999_999))
-    }
-
-    /** 상위로 갈수록 인원이 적어지도록 문턱이 10배씩 벌어져야 합니다. */
-    @Test
-    fun `등급 간격이 10배씩 벌어진다`() {
-        assertEquals(10, PilotTier.GOLD.minPoints / PilotTier.SILVER.minPoints)
-        assertEquals(10, PilotTier.PLATINUM.minPoints / PilotTier.GOLD.minPoints)
+    fun `다른 관제소는 잡히지 않는다`() {
+        assertFalse(CallsignMatcher.matches("RKSS_TWR", "RKSI"))
+        assertFalse(CallsignMatcher.matches("RKRR_A_CTR", "RKSI_CTR"))
+        // 접두사가 겹쳐도 자리가 다르면 아닙니다
+        assertFalse(CallsignMatcher.matches("RKSI_TWR", "RKSI_GND"))
     }
 
     @Test
-    fun `다음 등급까지의 진행률을 계산한다`() {
-        // 실버(1,000) ~ 골드(10,000) 구간의 중간
-        assertEquals(0.5f, PilotTier.progressToNext(5_500), 0.01f)
-        assertEquals(0f, PilotTier.progressToNext(1_000), 0.01f)
+    fun `빈 등록값은 아무것도 잡지 않는다`() {
+        assertFalse(CallsignMatcher.matches("RKSI_TWR", ""))
+        assertFalse(CallsignMatcher.matches("RKSI_TWR", "   "))
     }
 
     @Test
-    fun `최고 등급에서는 진행률이 가득 찬다`() {
-        assertEquals(1f, PilotTier.progressToNext(100_000), 0.001f)
-        assertEquals(null, PilotTier.PLATINUM.next)
+    fun `별칭은 원본과 접두사와 축약형을 포함한다`() {
+        assertEquals(
+            setOf("RKRR_A_CTR", "RKRR", "RKRR_CTR"),
+            CallsignMatcher.aliasesFor("RKRR_A_CTR")
+        )
+        assertEquals(setOf("RKSI_TWR", "RKSI"), CallsignMatcher.aliasesFor("RKSI_TWR"))
     }
 
     // ---------------- 완주 판정 ----------------
@@ -68,7 +70,7 @@ class ChallengeTest {
         baseline: Double? = 100.0
     ) = ChallengeEntity(
         id = 1, origin = origin, destination = destination,
-        distanceNm = 600, points = 60,
+        distanceNm = 600,
         status = ChallengeStatus.ACTIVE, createdAt = 0L,
         seenEnroute = seenEnroute, baselinePilotHours = baseline
     )
@@ -120,7 +122,6 @@ class ChallengeTest {
 
     @Test
     fun `도착지에서 멀면 도착이 아니다`() {
-        // 인천 상공에 낮게 있어도 도착지는 하네다입니다
         val elsewhere = aircraft(lat = 37.46, lon = 126.44)
         assertFalse(FlightVerifier.hasArrived(elsewhere, haneda))
     }
@@ -143,7 +144,6 @@ class ChallengeTest {
 
     @Test
     fun `비행 중인 걸 본 적 없으면 시간이 늘어도 인정하지 않는다`() {
-        // 다른 비행으로 시간이 늘었을 뿐일 수 있습니다
         assertFalse(
             FlightVerifier.completedAfterDisconnect(
                 challenge(seenEnroute = false, baseline = 100.0),
@@ -154,7 +154,6 @@ class ChallengeTest {
 
     @Test
     fun `시간 증가가 미미하면 인정하지 않는다`() {
-        // 접속만 했다 끊은 경우
         assertFalse(
             FlightVerifier.completedAfterDisconnect(
                 challenge(seenEnroute = true, baseline = 100.0),

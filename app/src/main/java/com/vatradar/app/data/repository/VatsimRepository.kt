@@ -5,6 +5,7 @@ import com.vatradar.app.data.local.FirBoundaryStore
 import com.vatradar.app.data.remote.VatsimApiService
 import com.vatradar.app.domain.model.Aircraft
 import com.vatradar.app.domain.model.Controller
+import com.vatradar.app.domain.CallsignMatcher
 import com.vatradar.app.domain.model.FacilityType
 import kotlinx.coroutines.CancellationException
 
@@ -127,7 +128,7 @@ class VatsimRepository(
         return response.controllers
             .filter { it.facility != FacilityType.OBS.code }
             .map { it.callsign.uppercase() }
-            .filter { callsign -> keywords.any { callsign.startsWith(it.uppercase()) } }
+            .filter { callsign -> CallsignMatcher.matchesAny(callsign, keywords) }
             .distinct()
     }
 }

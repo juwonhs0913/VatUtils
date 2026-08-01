@@ -4,6 +4,7 @@ import android.content.Context
 import com.vatradar.app.data.local.AppDatabase
 import com.vatradar.app.data.local.FirBoundaryStore
 import com.vatradar.app.data.prefs.SettingsRepository
+import com.vatradar.app.data.remote.LogbookApiService
 import com.vatradar.app.data.repository.AirportRepository
 import com.vatradar.app.data.repository.ChallengeRepository
 import com.vatradar.app.data.repository.FlightProgressRepository
@@ -78,8 +79,13 @@ object ServiceLocator {
 
     fun airportRepository(context: Context): AirportRepository =
         airports ?: synchronized(this) {
-            airports ?: AirportRepository(AppDatabase.get(context).airportDao()).also { airports = it }
+            airports ?: AirportRepository(
+                AppDatabase.get(context).airportDao(),
+                context.applicationContext
+            ).also { airports = it }
         }
+
+    fun logbookApiService(): LogbookApiService = NetworkModule.logbookApiService
 
     fun simBriefRepository(): SimBriefRepository =
         simBrief ?: synchronized(this) {

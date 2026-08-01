@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 /**
  * 앱에서 뽑은 경로 하나 = 챌린지 하나.
  *
- * 하루 5회 제한을 위한 카운터를 따로 두지 않습니다. `createdAt`으로 세면
- * 00:00Z 초기화가 저절로 되고, 기기 시각을 바꿔도 기록이 어긋나지 않습니다.
+ * 뽑기 횟수 제한이 없으므로 카운터를 두지 않습니다.
  */
 @Entity(
     tableName = "challenges",
@@ -19,8 +18,6 @@ data class ChallengeEntity(
     val origin: String,
     val destination: String,
     val distanceNm: Int,
-    /** 완주 시 받을 포인트. 뽑는 시점에 확정해 나중에 규칙이 바뀌어도 소급되지 않게 합니다. */
-    val points: Int,
     /** ACTIVE / COMPLETED / EXPIRED */
     val status: String,
     val createdAt: Long,

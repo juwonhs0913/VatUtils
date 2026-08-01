@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.vatradar.app.data.local.AirportSeeder
 import com.vatradar.app.data.local.AppDatabase
+import com.vatradar.app.data.remote.LogbookRegisterRequest
 import com.vatradar.app.di.ServiceLocator
 import com.vatradar.app.notification.ControllerWatchWorker
 import com.vatradar.app.notification.FcmTopics
@@ -53,6 +54,12 @@ class VatRadarApp : Application() {
                 // 중복 구독은 FCM이 알아서 무시하므로 그냥 다시 호출하면 됩니다.
                 settings.watchedCallsigns.forEach { FcmTopics.subscribe(it) }
                 FcmTopics.subscribeCid(settings.vatsimCid)
+
+                // 비행 기록 등록은 멱등이라 매 실행 다시 걸어도 안전합니다.
+                if (settings.vatsimCid.length >= 6) {
+                    ServiceLocator.logbookApiService()
+                        .register(LogbookRegisterRequest(settings.vatsimCid))
+                }
             }.onFailure { Log.w("VATRadar", "관제소 감시 복구 실패", it) }
         }
     }

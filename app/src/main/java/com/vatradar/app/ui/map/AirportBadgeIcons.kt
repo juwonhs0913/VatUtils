@@ -160,11 +160,63 @@ object AirportBadgeIcons {
         return (8f + 9f) / width
     }
 
+    /**
+     * 관제 구역(CTR/FSS/APP) 한가운데에 얹는 콜사인 라벨.
+     *
+     * 폴리곤만으로는 어느 구역이 누구 담당인지 눌러 봐야 알 수 있습니다.
+     * 색을 옅게 깔고 테두리를 줘서 지도 위 지명과 섞이지 않게 합니다.
+     */
+    private val boundaryLabelCache = HashMap<String, BitmapDescriptor>()
+
+    fun boundaryLabel(callsign: String, argb: Int): BitmapDescriptor {
+        val key = callsign + '#' + argb
+        boundaryLabelCache[key]?.let { return it }
+
+        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 30f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        val padH = 10f
+        val padV = 6f
+        val metrics = text.fontMetrics
+        val width = (text.measureText(callsign) + padH * 2).toInt()
+        val height = (metrics.descent - metrics.ascent + padV * 2).toInt()
+
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val background = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(225, 255, 255, 255)
+            style = Paint.Style.FILL
+        }
+        val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = argb
+            style = Paint.Style.STROKE
+            strokeWidth = 3f
+        }
+        val rect = RectF(1.5f, 1.5f, width - 1.5f, height - 1.5f)
+        canvas.drawRoundRect(rect, 7f, 7f, background)
+        canvas.drawRoundRect(rect, 7f, 7f, border)
+
+        text.color = argb
+        canvas.drawText(
+            callsign,
+            padH,
+            height / 2f - (metrics.ascent + metrics.descent) / 2,
+            text
+        )
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap).also { boundaryLabelCache[key] = it }
+    }
+
     /** MapScreen의 facilityColor와 같은 색을 android.graphics 쪽에서도 씁니다. */
-    private fun facilityArgb(facility: FacilityType): Int = when (facility) {
+    fun facilityArgb(facility: FacilityType): Int = when (facility) {
         FacilityType.TWR -> Color.rgb(0x19, 0x76, 0xD2)
         FacilityType.GND -> Color.rgb(0x38, 0x8E, 0x3C)
         FacilityType.DEL -> Color.rgb(0x7B, 0x1F, 0xA2)
+        FacilityType.APP -> Color.rgb(0xF5, 0x7C, 0x00)
+        FacilityType.CTR -> Color.rgb(0xC6, 0x28, 0x28)
+        FacilityType.FSS -> Color.rgb(0x00, 0x69, 0x5C)
         else -> Color.GRAY
     }
 }

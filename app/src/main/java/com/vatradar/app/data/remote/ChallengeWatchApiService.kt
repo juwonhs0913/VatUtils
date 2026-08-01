@@ -22,20 +22,11 @@ interface ChallengeWatchApiService {
     /** Retrofit은 본문 있는 DELETE를 @HTTP로 명시해야 허용합니다. */
     @HTTP(method = "DELETE", path = "watch", hasBody = true)
     suspend fun unregister(@Body request: UnwatchRequest): Response<WatchResponse>
-
-    /** VATSIM 연결 해제. 서버에 남은 토큰을 지웁니다. */
-    @POST("auth/revoke")
-    suspend fun revoke(@Body request: RevokeRequest): Response<WatchResponse>
 }
 
 @Serializable
 data class WatchRequest(
     @SerialName("cid") val cid: String,
-    /**
-     * VATSIM Connect 로그인 토큰. 있으면 서버가 이걸로 CID를 정하고
-     * 위의 cid는 무시합니다. 남의 CID로 감시를 거는 걸 막는 지점입니다.
-     */
-    @SerialName("token") val token: String? = null,
     @SerialName("challengeId") val challengeId: Long,
     @SerialName("origin") val origin: String,
     @SerialName("destination") val destination: String,
@@ -49,13 +40,7 @@ data class WatchRequest(
 @Serializable
 data class UnwatchRequest(
     @SerialName("cid") val cid: String,
-    @SerialName("token") val token: String? = null,
     @SerialName("challengeId") val challengeId: Long
-)
-
-@Serializable
-data class RevokeRequest(
-    @SerialName("token") val token: String
 )
 
 @Serializable

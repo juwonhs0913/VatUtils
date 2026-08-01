@@ -19,21 +19,25 @@ import com.vatradar.app.domain.model.Controller
 sealed interface MarkerTag {
     data class AircraftTag(val callsign: String) : MarkerTag
     data class BadgeTag(val airport: String) : MarkerTag
+    data class BoundaryTag(val callsign: String) : MarkerTag
     data class AirportTag(val icao: String) : MarkerTag
 }
 
 /** 항공기 아이콘. IFR/VFR 두 장만 만들고 기수 방향은 마커 회전으로 처리합니다. */
+/** 내 항공기 색. 등급 제도를 없애면서 고정색이 되었습니다. */
+private const val OWN_AIRCRAFT_ARGB = 0xFF3F6FB5.toInt()
+
 private object PlaneIcons {
     val ifr: BitmapDescriptor by lazy { draw(Color.rgb(0x15, 0x65, 0xC0)) }
     val vfr: BitmapDescriptor by lazy { draw(Color.rgb(0x2E, 0x7D, 0x32)) }
 
     /**
-     * 내 항공기는 등급 색으로, 더 크게, 발광 테두리를 둘러 눈에 띄게 그립니다.
+     * 내 항공기는 더 크게, 발광 테두리를 둘러 눈에 띄게 그립니다.
      * 수천 대 사이에서 자기 기체를 바로 찾을 수 있어야 하기 때문입니다.
      */
     private val ownCache = HashMap<Int, BitmapDescriptor>()
-    fun own(tierColor: Int): BitmapDescriptor =
-        ownCache.getOrPut(tierColor) { draw(tierColor, size = 68, halo = true) }
+    fun own(color: Int): BitmapDescriptor =
+        ownCache.getOrPut(color) { draw(color, size = 68, halo = true) }
 
     private fun draw(color: Int, size: Int = 44, halo: Boolean = false): BitmapDescriptor {
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -100,10 +104,13 @@ private object PlaneIcons {
  *    onClick이 전혀 호출되지 않고 기본 정보창(제목 문자열)만 뜹니다.
  *    T/G/D 배지를 눌렀을 때 관제사 정보 대신 공항 코드만 보이던 게 이 문제였습니다.
  */
+data class BoundaryLabel(val callsign: String, val position: LatLng, val argb: Int)
+
 class MapMarkerController {
 
     private val aircraftMarkers = HashMap<String, Marker>()
     private val badgeMarkers = HashMap<String, Marker>()
+    private val boundaryLabelMarkers = HashMap<String, Marker>()
     private val airportMarkers = HashMap<String, Marker>()
     private var listenerInstalled = false
 
@@ -111,6 +118,7 @@ class MapMarkerController {
         map: GoogleMap,
         onAircraft: (String) -> Unit,
         onBadge: (String) -> Unit,
+        onBoundary: (String) -> Unit,
         onAirport: (String) -> Unit
     ) {
         if (listenerInstalled) return
@@ -119,6 +127,10 @@ class MapMarkerController {
                 is MarkerTag.AircraftTag -> {
                     onAircraft(tag.callsign)
                     true    // true를 돌려 기본 정보창이 뜨지 않게 합니다
+                }
+                is MarkerTag.BoundaryTag -> {
+                    onBoundary(tag.callsign)
+                    true
                 }
                 is MarkerTag.BadgeTag -> {
                     onBadge(tag.airport)
@@ -150,7 +162,8 @@ class MapMarkerController {
                     .position(LatLng(airport.latitude, airport.longitude))
                     .icon(AirportBadgeIcons.airportLabel(airport.icao))
                     // 라벨 안의 점이 실제 공항 좌표에 오도록 앵커를 맞춥니다.
-                    .anchor(AirportBadgeIcons.airportLabelAnchorX(airport.icao), 0.5f)
+                    // 라벨을 점 위쪽에 둡니다. 아래는 T/G/D 배지 자리입니다.
+                    .anchor(AirportBadgeIcons.airportLabelAnchorX(airport.icao), 1.15f)
                     .zIndex(0.5f)   // 항공기 위, 관제 배지 아래
             ) ?: return@forEach
             marker.tag = MarkerTag.AirportTag(airport.icao)
@@ -166,7 +179,6 @@ class MapMarkerController {
         map: GoogleMap,
         aircraft: List<Aircraft>,
         ownCid: Int? = null,
-        ownTierColor: Int? = null
     ) {
         val seen = HashSet<String>(aircraft.size)
 
@@ -174,7 +186,7 @@ class MapMarkerController {
             seen += a.callsign
             val isMine = ownCid != null && a.cid == ownCid
             val icon = when {
-                isMine && ownTierColor != null -> PlaneIcons.own(ownTierColor)
+                isMine -> PlaneIcons.own(OWN_AIRCRAFT_ARGB)
                 a.flightRules == "V" -> PlaneIcons.vfr
                 else -> PlaneIcons.ifr
             }
@@ -226,7 +238,8 @@ class MapMarkerController {
                     MarkerOptions()
                         .position(position)
                         .icon(icon)
-                        .anchor(0f, 0.5f)       // 공항 점 오른쪽에 붙도록
+                        // 공항 라벨 바로 아래. 예전에는 오른쪽에 붙여 라벨과 겹쳤습니다.
+                        .anchor(0.5f, -0.15f)
                         .zIndex(1f)             // 항공기보다 위에
                 ) ?: return@forEach
                 marker.tag = MarkerTag.BadgeTag(airport)
@@ -239,6 +252,41 @@ class MapMarkerController {
 
         val gone = badgeMarkers.keys - seen
         gone.forEach { badgeMarkers.remove(it)?.remove() }
+    }
+
+    /**
+     * 관제 구역 한가운데에 콜사인을 얹습니다.
+     *
+     * 폴리곤은 Compose가 그리지만 라벨은 마커라서 여기서 직접 관리합니다.
+     * 위치는 링 좌표의 평균입니다 — 오목한 FIR에서는 경계 밖으로 나갈 수 있지만,
+     * 구역이 크고 라벨이 작아 실제로는 문제가 되지 않습니다.
+     */
+    fun syncBoundaryLabels(map: GoogleMap, labels: List<BoundaryLabel>) {
+        val seen = HashSet<String>()
+        labels.forEach { label ->
+            seen += label.callsign
+            val existing = boundaryLabelMarkers[label.callsign]
+            if (existing != null) {
+                existing.position = label.position
+            } else {
+                val marker = map.addMarker(
+                    MarkerOptions()
+                        .position(label.position)
+                        .icon(AirportBadgeIcons.boundaryLabel(label.callsign, label.argb))
+                        .anchor(0.5f, 0.5f)
+                        .zIndex(0.5f)
+                ) ?: return@forEach
+                marker.tag = MarkerTag.BoundaryTag(label.callsign)
+                boundaryLabelMarkers[label.callsign] = marker
+            }
+        }
+        val gone = boundaryLabelMarkers.keys - seen
+        gone.forEach { boundaryLabelMarkers.remove(it)?.remove() }
+    }
+
+    fun clearBoundaryLabels() {
+        boundaryLabelMarkers.values.forEach { it.remove() }
+        boundaryLabelMarkers.clear()
     }
 
     fun clearAircraft() {

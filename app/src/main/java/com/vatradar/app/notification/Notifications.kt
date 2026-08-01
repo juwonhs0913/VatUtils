@@ -55,13 +55,13 @@ object Notifications {
 
 
     /** 챌린지 완주 축하 알림. */
-    fun showChallengeComplete(context: Context, route: String, points: Int) {
+    fun showChallengeComplete(context: Context, route: String) {
         if (!canPost(context)) return
         ensureChannels(context)
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ONLINE)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.challenge_done, points))
+            .setContentTitle(context.getString(R.string.challenge_done))
             .setContentText(route)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

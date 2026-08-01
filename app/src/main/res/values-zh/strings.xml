@@ -27,13 +27,6 @@
 
     <!-- Route -->
     <string name="random_route">随机航线生成</string>
-    <string name="haul_short">短途</string>
-    <string name="haul_medium">中途</string>
-    <string name="haul_long">长途</string>
-    <string name="haul_short_desc">1,500 海里以内 · 窄体机</string>
-    <string name="haul_medium_desc">1,500–3,500 海里 · 宽体机</string>
-    <string name="haul_long_desc">3,500 海里以上 · 远程宽体机</string>
-    <string name="intl_airport_pool">从全球 %1$s 个国际机场中推荐。</string>
     <string name="roll_route">抽取航线</string>
     <string name="roll_failed">未能找到符合该距离区间的组合，请重试。</string>
     <string name="departure">起飞地</string>
@@ -98,29 +91,35 @@
     <string name="error_prefix">错误：%1$s</string>
 
     <!-- Challenges / Rank -->
-    <string name="tier_bronze">青铜</string>
-    <string name="tier_silver">白银</string>
-    <string name="tier_gold">黄金</string>
-    <string name="tier_platinum">铂金</string>
     <string name="rank_label">等级</string>
-    <string name="points_value">%1$s 分</string>
-    <string name="flights_completed">已完成 %1$d 次</string>
-    <string name="rolls_remaining">今日剩余抽取 %1$d / %2$d 次</string>
-    <string name="rolls_reset_in">%1$s 后重置（00:00Z）</string>
-    <string name="no_rolls_left">今日抽取次数已用完，将于 00:00Z 重置。</string>
     <string name="active_challenge">进行中的挑战</string>
-    <string name="challenge_reward">完成可得 +%1$d 分</string>
     <string name="challenge_enroute">飞行中 — 已确认</string>
     <string name="challenge_waiting">在 VATSIM 上飞完该航线即可完成</string>
-    <string name="challenge_done">挑战完成！+%1$d 分</string>
+    <string name="challenge_done">挑战完成</string>
     <string name="cid_needed">在设置中登记 VATSIM CID 后，完成的航班将获得积分。</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">您的数字 VATSIM ID（如 1234567）。仅用于确认您是否飞了抽取的航线，除 VATSIM 公开 API 外不会发送到任何地方。</string>
-    <string name="points_to_next_tier">距 %2$s 还差 %1$s 分</string>
-    <string name="max_tier">已达最高等级</string>
-    <string name="vatsim_connect">使用 VATSIM 登录</string>
-    <string name="vatsim_connect_hint">登录后可验证 CID 属于您，挑战奖励才会生效。不登录也可手动输入 CID。</string>
-    <string name="vatsim_connected">已连接 — CID %1$s</string>
-    <string name="vatsim_connected_hint">已由 VATSIM 验证</string>
-    <string name="vatsim_disconnect">断开连接</string>
+    <string name="tab_my_flights">我的飞行</string>
+    <string name="pick_region">想从哪里出发？</string>
+    <string name="worldwide">全球</string>
+    <string name="all_countries">所有国家</string>
+    <string name="real_route_pool">符合条件的真实航线 %1$s 条</string>
+    <string name="operated_by">由 %1$s 运营</string>
+    <string name="tap_to_see_map">点按在地图上查看</string>
+    <string name="delete">删除</string>
+    <string name="stat_hours">飞行时间</string>
+    <string name="stat_distance">距离 (nm)</string>
+    <string name="stat_countries">国家</string>
+    <string name="stat_airports">机场</string>
+    <string name="stat_flights">航班</string>
+    <string name="countries_progress">%2$d 个国家中的 %1$d 个</string>
+    <string name="countries_goal">试着降落在地图上的每个国家。</string>
+    <string name="logbook_since">自 %1$s 起记录</string>
+    <string name="no_flights_yet">尚无飞行记录。填入 CID 后在 VATSIM 飞行，记录会出现在这里。</string>
+    <string name="recent_flights">最近的飞行</string>
+    <string name="pick_from_list">从列表中选择</string>
+    <string name="centers_heading">区域管制 (%1$d)</string>
+    <string name="airports_heading">机场</string>
+    <string name="airports_heading_hint">添加机场即涵盖其进近、塔台、地面和放行席位。</string>
+    <string name="pick_region_for_airports">请先选择地区以查看机场。</string>
 </resources>

@@ -30,13 +30,6 @@
 
     <!-- Route -->
     <string name="random_route">Random route</string>
-    <string name="haul_short">Short haul</string>
-    <string name="haul_medium">Medium haul</string>
-    <string name="haul_long">Long haul</string>
-    <string name="haul_short_desc">Under 1,500 nm · narrow-body</string>
-    <string name="haul_medium_desc">1,500–3,500 nm · wide-body</string>
-    <string name="haul_long_desc">Over 3,500 nm · long-range wide-body</string>
-    <string name="intl_airport_pool">Picking from %1$s international airports worldwide.</string>
     <string name="roll_route">Roll a route</string>
     <string name="roll_failed">Could not find a pair for this range. Please try again.</string>
     <string name="departure">Departure</string>
@@ -101,29 +94,35 @@
     <string name="error_prefix">Error: %1$s</string>
 
     <!-- Challenges / Rank -->
-    <string name="tier_bronze">Bronze</string>
-    <string name="tier_silver">Silver</string>
-    <string name="tier_gold">Gold</string>
-    <string name="tier_platinum">Platinum</string>
     <string name="rank_label">Rank</string>
-    <string name="points_value">%1$s pts</string>
-    <string name="flights_completed">%1$d flights completed</string>
-    <string name="rolls_remaining">%1$d of %2$d rolls left today</string>
-    <string name="rolls_reset_in">Resets in %1$s (00:00Z)</string>
-    <string name="no_rolls_left">You have used all 5 rolls for today. They reset at 00:00Z.</string>
     <string name="active_challenge">Active challenge</string>
-    <string name="challenge_reward">+%1$d pts on completion</string>
     <string name="challenge_enroute">Enroute — flight detected</string>
     <string name="challenge_waiting">Waiting for you to fly this route on VATSIM</string>
-    <string name="challenge_done">Challenge complete! +%1$d pts</string>
+    <string name="challenge_done">Challenge complete</string>
     <string name="cid_needed">Add your VATSIM CID in Settings to earn points for completed flights.</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used only to check whether you flew a rolled route — it is never sent anywhere except the public VATSIM API.</string>
-    <string name="points_to_next_tier">%1$s pts to %2$s</string>
-    <string name="max_tier">Highest rank reached</string>
-    <string name="vatsim_connect">Sign in with VATSIM</string>
-    <string name="vatsim_connect_hint">Signing in proves the CID is yours, so challenge rewards count. Without it you can still enter a CID manually.</string>
-    <string name="vatsim_connected">Connected — CID %1$s</string>
-    <string name="vatsim_connected_hint">Verified by VATSIM</string>
-    <string name="vatsim_disconnect">Disconnect</string>
+    <string name="tab_my_flights">My flights</string>
+    <string name="pick_region">Where do you want to depart from?</string>
+    <string name="worldwide">Worldwide</string>
+    <string name="all_countries">All countries</string>
+    <string name="real_route_pool">%1$s real airline routes match.</string>
+    <string name="operated_by">Flown by %1$s</string>
+    <string name="tap_to_see_map">Tap to see it on the map</string>
+    <string name="delete">Delete</string>
+    <string name="stat_hours">Hours</string>
+    <string name="stat_distance">Distance (nm)</string>
+    <string name="stat_countries">Countries</string>
+    <string name="stat_airports">Airports</string>
+    <string name="stat_flights">Flights</string>
+    <string name="countries_progress">%1$d of %2$d countries</string>
+    <string name="countries_goal">Land in every country on the map.</string>
+    <string name="logbook_since">Recording since %1$s</string>
+    <string name="no_flights_yet">No flights recorded yet. Fly on VATSIM with your CID set and they will show up here.</string>
+    <string name="recent_flights">Recent flights</string>
+    <string name="pick_from_list">Pick from a list</string>
+    <string name="centers_heading">Centers (%1$d)</string>
+    <string name="airports_heading">Airports</string>
+    <string name="airports_heading_hint">Adding an airport covers its approach, tower, ground and delivery positions.</string>
+    <string name="pick_region_for_airports">Choose a region to see airports.</string>
 </resources>

@@ -9,23 +9,22 @@ import com.vatradar.app.data.repository.Outcome
 import com.vatradar.app.data.repository.RandomRoute
 import com.vatradar.app.data.repository.WeatherReport
 import com.vatradar.app.di.ServiceLocator
-import com.vatradar.app.domain.model.HaulRange
+import com.vatradar.app.domain.model.RouteFilter
 import com.vatradar.app.domain.model.OfpSummary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class RouteUiState(
-    val haul: HaulRange = HaulRange.MEDIUM,
-    val airportPoolSize: Int = 0,
+    val filter: RouteFilter = RouteFilter(),
+    val routePoolSize: Int = 0,
+    /** 현재 대륙에서 고를 수 있는 나라 (코드 to 표시 이름). */
+    val countries: List<Pair<String, String>> = emptyList(),
     val route: RandomRoute? = null,
     val rolling: Boolean = false,
     val error: String? = null,
 
-    // 챌린지 / 등급
-    val remainingRolls: Int = ChallengeRepository.DAILY_ROLL_LIMIT,
-    val millisUntilReset: Long = 0,
-    val totalPoints: Int = 0,
+    // 챌린지
     val completedCount: Int = 0,
     val activeChallenges: List<ChallengeEntity> = emptyList(),
     val vatsimCid: String = "",
@@ -61,17 +60,11 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             val s = settingsRepo.current()
             _uiState.value = _uiState.value.copy(
                 simBriefId = s.simBriefId,
-                vatsimCid = s.vatsimCid,
-                airportPoolSize = airportRepo.poolSize(_uiState.value.haul)
+                vatsimCid = s.vatsimCid
             )
+            refreshFilterInfo()
             refreshChallengeState()
             syncFlightProgress()
-        }
-        // 포인트·완주 수는 DB가 바뀌면 자동으로 따라오게 합니다.
-        viewModelScope.launch {
-            challengeRepo.totalPoints.collect {
-                _uiState.value = _uiState.value.copy(totalPoints = it)
-            }
         }
         viewModelScope.launch {
             challengeRepo.completedCount.collect {
@@ -81,11 +74,37 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun refreshChallengeState() {
+        _uiState.value = _uiState.value.copy(activeChallenges = challengeRepo.activeChallenges())
+    }
+
+    /** 선택한 범위의 후보 노선 수와 나라 목록을 갱신합니다. */
+    private suspend fun refreshFilterInfo() {
+        val filter = _uiState.value.filter
         _uiState.value = _uiState.value.copy(
-            remainingRolls = challengeRepo.remainingRollsToday(),
-            millisUntilReset = challengeRepo.millisUntilReset(),
-            activeChallenges = challengeRepo.activeChallenges()
+            routePoolSize = airportRepo.routeCount(filter),
+            countries = airportRepo.countries(filter.continent)
         )
+    }
+
+    fun setContinent(code: String?) {
+        // 대륙이 바뀌면 이전에 고른 나라는 그 대륙에 없을 수 있으므로 함께 비웁니다.
+        _uiState.value = _uiState.value.copy(filter = RouteFilter(continent = code))
+        viewModelScope.launch { refreshFilterInfo() }
+    }
+
+    fun setCountry(code: String?) {
+        _uiState.value = _uiState.value.copy(
+            filter = _uiState.value.filter.copy(country = code)
+        )
+        viewModelScope.launch { refreshFilterInfo() }
+    }
+
+    /** 진행 중인 챌린지를 X로 지웁니다. */
+    fun deleteChallenge(challengeId: Long) {
+        viewModelScope.launch {
+            challengeRepo.delete(settingsRepo.current().vatsimCid, challengeId)
+            refreshChallengeState()
+        }
     }
 
     /** 실시간 피드와 대조해 완주 여부를 갱신합니다. 화면에 들어올 때마다 확인합니다. */
@@ -106,25 +125,13 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
         _uiState.value = _uiState.value.copy(justCompleted = emptyList())
     }
 
-    fun setHaul(haul: HaulRange) {
-        _uiState.value = _uiState.value.copy(haul = haul)
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(airportPoolSize = airportRepo.poolSize(haul))
-        }
-    }
-
     fun roll() {
         viewModelScope.launch {
-            if (challengeRepo.remainingRollsToday() <= 0) {
-                _uiState.value = _uiState.value.copy(error = NO_ROLLS_LEFT)
-                return@launch
-            }
-
             _uiState.value = _uiState.value.copy(
                 rolling = true, error = null, ofp = null, ofpError = null
             )
 
-            val result = airportRepo.randomRoute(_uiState.value.haul)
+            val result = airportRepo.randomRoute(_uiState.value.filter)
             if (result == null) {
                 _uiState.value = _uiState.value.copy(rolling = false, error = ROLL_FAILED)
                 return@launch
@@ -132,8 +139,7 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
 
             // 뽑은 시점의 누적 비행시간을 기준으로 잡아둡니다.
             // 나중에 접속이 끊긴 뒤 완주를 판정할 때 이 값과 비교합니다.
-            val user = settingsRepo.current()
-            val cid = user.vatsimCid
+            val cid = settingsRepo.current().vatsimCid
             val baselineHours = if (cid.isBlank()) null else flightProgressRepo.fetchPilotHours(cid)
 
             val challengeId = challengeRepo.create(
@@ -147,7 +153,6 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
             // Worker가 1분마다 확인해 완주를 잡아냅니다.
             challengeRepo.registerWatch(
                 cid = cid,
-                linkToken = user.vatsimLinkToken,
                 challengeId = challengeId,
                 origin = result.origin,
                 destination = result.destination,
@@ -225,6 +230,5 @@ class RouteViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         /** 화면에서 문자열 리소스로 치환합니다. */
         const val ROLL_FAILED = "ROLL_FAILED"
-        const val NO_ROLLS_LEFT = "NO_ROLLS_LEFT"
     }
 }

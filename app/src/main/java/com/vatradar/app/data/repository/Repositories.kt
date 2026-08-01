@@ -1,5 +1,7 @@
 package com.vatradar.app.data.repository
 
+import android.content.Context
+import com.vatradar.app.data.local.AirlineRouteStore
 import com.vatradar.app.data.local.AirportDao
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
@@ -8,7 +10,7 @@ import com.vatradar.app.di.NetworkModule
 import com.vatradar.app.domain.metar.DecodedMetar
 import com.vatradar.app.domain.metar.MetarDecoder
 import com.vatradar.app.domain.model.Airport
-import com.vatradar.app.domain.model.HaulRange
+import com.vatradar.app.domain.model.RouteFilter
 import com.vatradar.app.domain.model.OfpSummary
 import com.vatradar.app.domain.model.VatsimEvent
 import com.vatradar.app.domain.model.distanceNmTo
@@ -111,10 +113,15 @@ class WeatherRepository(private val api: WeatherApiService) {
 data class RandomRoute(
     val origin: Airport,
     val destination: Airport,
-    val distanceNm: Int
+    val distanceNm: Int,
+    /** 이 구간을 실제로 운항하는 항공사. 실재 노선에서 뽑히지 않았으면 null입니다. */
+    val airline: String? = null
 )
 
-class AirportRepository(private val dao: AirportDao) {
+class AirportRepository(
+    private val dao: AirportDao,
+    private val context: Context
+) {
 
     /** 국제공항급 목록은 2천여 곳뿐이라 한 번 읽어 캐시합니다. */
     private var internationalCache: List<Airport>? = null
@@ -125,23 +132,43 @@ class AirportRepository(private val dao: AirportDao) {
         }
 
     /**
-     * 거리 구간에 맞는 출발/도착 공항을 무작위로 뽑습니다.
+     * 실제로 운항되는 국제선 중에서 무작위로 하나 고릅니다.
      *
-     * 출발지를 먼저 정하고 그 기준으로 후보를 좁히기 때문에, 출발지가 외딴 곳이면
-     * 해당 구간 후보가 없을 수 있습니다. 그럴 때는 다른 출발지로 몇 번 다시 시도합니다.
+     * [filter]는 **출발지**에만 겁니다. 도착지까지 같은 범위로 묶으면 국내선만 나와서
+     * 나라를 고르는 의미가 없어집니다.
+     *
+     * 조건에 맞는 실재 노선이 없으면 (예: 정기 국제선이 거의 없는 나라) 그 범위의
+     * 공항끼리 임의로 잇는 방식으로 물러섭니다. 빈손으로 돌려주는 것보다 낫습니다.
      */
-    suspend fun randomRoute(haul: HaulRange): RandomRoute? = withContext(Dispatchers.Default) {
-        // 거리 구간에 맞는 기재가 실제로 뜨고 내릴 수 있는 공항만 후보로 둡니다.
-        val airports = international().filter { haul.admits(it) }
-        if (airports.size < 2) return@withContext null
+    suspend fun randomRoute(filter: RouteFilter): RandomRoute? = withContext(Dispatchers.Default) {
+        val byIcao = international().associateBy { it.icao }
+
+        val real = AirlineRouteStore.routes(context).filter { route ->
+            val origin = byIcao[route.origin] ?: return@filter false
+            byIcao.containsKey(route.destination) && filter.matches(origin)
+        }
+
+        if (real.isNotEmpty()) {
+            val picked = real.random()
+            val origin = byIcao.getValue(picked.origin)
+            val destination = byIcao.getValue(picked.destination)
+            return@withContext RandomRoute(
+                origin = origin,
+                destination = destination,
+                distanceNm = origin.distanceNmTo(destination).roundToInt(),
+                airline = picked.airline.takeIf { it.isNotBlank() }
+            )
+        }
+
+        // 실재 노선이 없는 범위 — 그 범위의 공항에서 아무 곳으로나 잇습니다.
+        val origins = international().filter { filter.matches(it) }
+        val all = internationalCache ?: return@withContext null
+        if (origins.isEmpty() || all.size < 2) return@withContext null
 
         repeat(MAX_ATTEMPTS) {
-            val origin = airports.random()
-            val candidates = airports.filter {
-                it.icao != origin.icao && haul.contains(origin.distanceNmTo(it))
-            }
-            if (candidates.isNotEmpty()) {
-                val destination = candidates.random()
+            val origin = origins.random()
+            val destination = all.random()
+            if (destination.icao != origin.icao) {
                 return@withContext RandomRoute(
                     origin = origin,
                     destination = destination,
@@ -152,8 +179,49 @@ class AirportRepository(private val dao: AirportDao) {
         null
     }
 
-    /** 해당 거리 구간에서 실제 후보가 되는 공항 수. */
-    suspend fun poolSize(haul: HaulRange): Int = international().count { haul.admits(it) }
+    /** 해당 범위에서 실제로 뽑힐 수 있는 노선 수. 화면에 후보 규모를 보여줍니다. */
+    suspend fun routeCount(filter: RouteFilter): Int = withContext(Dispatchers.Default) {
+        val byIcao = international().associateBy { it.icao }
+        AirlineRouteStore.routes(context).count { route ->
+            val origin = byIcao[route.origin]
+            origin != null && byIcao.containsKey(route.destination) && filter.matches(origin)
+        }
+    }
+
+    /**
+     * ICAO 접두사 → 국가 코드.
+     *
+     * FIR 코드(RKRR, EGTT)에는 나라 정보가 없어서, 같은 접두사를 쓰는 공항에서
+     * 되짚습니다. 2글자로 먼저 보고(RK → KR), 없으면 1글자로 봅니다(K → US).
+     * 접두사 하나가 여러 나라에 걸리는 경우가 있어 가장 흔한 나라를 택합니다.
+     */
+    suspend fun icaoPrefixToCountry(): Map<String, String> = withContext(Dispatchers.Default) {
+        val all = international()
+        fun mostCommon(width: Int): Map<String, String> =
+            all.groupBy { it.icao.take(width) }
+                .mapValues { (_, group) ->
+                    group.groupingBy { it.country }.eachCount().maxByOrNull { it.value }!!.key
+                }
+        mostCommon(1) + mostCommon(2)   // 2글자가 1글자를 덮어씁니다
+    }
+
+    /** 나라 코드 → 표시 이름 (국제공항이 있는 나라만). */
+    suspend fun countryNames(): Map<String, String> =
+        international().associate { it.country to it.countryName }
+
+    /** 알림 등록용 공항 목록. */
+    suspend fun airportsIn(continent: String?, country: String?): List<Airport> =
+        international()
+            .filter { country != null && it.country == country || country == null && (continent == null || it.continent == continent) }
+            .sortedBy { it.name }
+
+    /** 국제공항이 있는 나라만 목록에 올립니다 (코드 -> 표시 이름). */
+    suspend fun countries(continent: String?): List<Pair<String, String>> =
+        international()
+            .filter { continent == null || it.continent == continent }
+            .distinctBy { it.country }
+            .map { it.country to it.countryName }
+            .sortedBy { it.second }
 
     suspend fun find(icao: String): Airport? = withContext(Dispatchers.IO) {
         dao.findByIcao(icao.uppercase())?.toDomain()

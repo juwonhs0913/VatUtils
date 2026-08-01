@@ -40,6 +40,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import com.vatradar.app.data.local.ControllerCatalog
+import com.vatradar.app.domain.model.Airport
+import com.vatradar.app.domain.model.Continent
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
@@ -49,6 +56,16 @@ import com.vatradar.app.notification.Notifications
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+data class CatalogState(
+    val continent: String? = null,
+    val country: String? = null,
+    val countries: List<Pair<String, String>> = emptyList(),
+    val countryNames: Map<String, String> = emptyMap(),
+    val allCenters: List<ControllerCatalog.CenterEntry> = emptyList(),
+    val centers: List<ControllerCatalog.CenterEntry> = emptyList(),
+    val airports: List<Airport> = emptyList()
+)
 
 class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -69,6 +86,57 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
     fun removeWatched(v: String) = viewModelScope.launch {
         repo.removeWatched(v)
         FcmTopics.unsubscribe(v)
+    }
+
+    // ---------------- 관제소 고르기 ----------------
+
+    private val airportRepo = ServiceLocator.airportRepository(app)
+
+    private val _catalog = MutableStateFlow(CatalogState())
+    val catalog = _catalog.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val prefixes = airportRepo.icaoPrefixToCountry()
+            val centers = ControllerCatalog.centers(getApplication(), prefixes)
+            _catalog.value = _catalog.value.copy(
+                allCenters = centers,
+                countryNames = airportRepo.countryNames()
+            )
+            applyFilter()
+        }
+    }
+
+    fun setContinent(code: String?) {
+        _catalog.value = _catalog.value.copy(continent = code, country = null)
+        viewModelScope.launch { applyFilter() }
+    }
+
+    fun setCountry(code: String?) {
+        _catalog.value = _catalog.value.copy(country = code)
+        viewModelScope.launch { applyFilter() }
+    }
+
+    private suspend fun applyFilter() {
+        val state = _catalog.value
+        val countriesInScope = airportRepo.countries(state.continent).toMap()
+
+        // FIR은 나라 정보가 원본에 없어 공항 접두사로 추정한 값을 씁니다.
+        // 추정에 실패한 항목은 대륙/국가를 좁혔을 때 조용히 빠집니다.
+        val centers = state.allCenters.filter { entry ->
+            when {
+                state.country != null -> entry.country == state.country
+                state.continent != null -> entry.country != null && entry.country in countriesInScope
+                else -> true
+            }
+        }
+
+        _catalog.value = _catalog.value.copy(
+            countries = airportRepo.countries(state.continent),
+            centers = centers,
+            airports = if (state.continent == null && state.country == null) emptyList()
+                       else airportRepo.airportsIn(state.continent, state.country)
+        )
     }
 
     fun setNotifyEnabled(enabled: Boolean) = viewModelScope.launch {
@@ -96,6 +164,8 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val catalog by viewModel.catalog.collectAsStateWithLifecycle()
+
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
@@ -168,5 +238,146 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
                 )
             }
         }
+        ControllerPicker(
+            catalog = catalog,
+            watched = settings.watchedCallsigns,
+            onContinent = viewModel::setContinent,
+            onCountry = viewModel::setCountry,
+            onToggle = { callsign ->
+                if (callsign in settings.watchedCallsigns) viewModel.removeWatched(callsign)
+                else viewModel.addWatched(callsign)
+            }
+        )
+    }
+}
+
+/**
+ * 대륙 → 국가로 좁혀 가며 관제소를 고릅니다.
+ *
+ * CTR/FSS는 목록에서 바로 고르고, 나머지 관제석은 공항을 고르면 그 공항의
+ * APP/TWR/GND/DEL이 한 번에 등록됩니다 (등록값이 ICAO 하나면 하위 관제석을 모두 잡습니다).
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ControllerPicker(
+    catalog: CatalogState,
+    watched: Set<String>,
+    onContinent: (String?) -> Unit,
+    onCountry: (String?) -> Unit,
+    onToggle: (String) -> Unit
+) {
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                stringResource(R.string.pick_from_list),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = catalog.continent == null,
+                    onClick = { onContinent(null) },
+                    label = { Text(stringResource(R.string.worldwide)) }
+                )
+                Continent.entries.forEach { continent ->
+                    FilterChip(
+                        selected = catalog.continent == continent.code,
+                        onClick = { onContinent(continent.code) },
+                        label = { Text(continent.displayName) }
+                    )
+                }
+            }
+
+            if (catalog.continent != null && catalog.countries.isNotEmpty()) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = catalog.country == null,
+                        onClick = { onCountry(null) },
+                        label = { Text(stringResource(R.string.all_countries)) }
+                    )
+                    catalog.countries.forEach { (code, name) ->
+                        FilterChip(
+                            selected = catalog.country == code,
+                            onClick = { onCountry(code) },
+                            label = { Text(name) }
+                        )
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
+            Text(
+                stringResource(R.string.centers_heading, catalog.centers.size),
+                style = MaterialTheme.typography.labelLarge
+            )
+            catalog.centers.take(80).forEach { entry ->
+                PickerRow(
+                    title = entry.callsign,
+                    subtitle = entry.name,
+                    selected = entry.callsign in watched,
+                    onClick = { onToggle(entry.callsign) }
+                )
+            }
+
+            if (catalog.airports.isNotEmpty()) {
+                HorizontalDivider()
+                Text(
+                    stringResource(R.string.airports_heading),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Text(
+                    stringResource(R.string.airports_heading_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                catalog.airports.take(80).forEach { airport ->
+                    PickerRow(
+                        title = airport.icao,
+                        subtitle = airport.name,
+                        selected = airport.icao in watched,
+                        onClick = { onToggle(airport.icao) }
+                    )
+                }
+            } else if (catalog.continent == null) {
+                Text(
+                    stringResource(R.string.pick_region_for_airports),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PickerRow(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(
+            if (selected) Icons.Default.Check else Icons.Default.Add,
+            contentDescription = null,
+            tint = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

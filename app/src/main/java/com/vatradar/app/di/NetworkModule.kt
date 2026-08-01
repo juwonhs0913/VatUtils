@@ -1,6 +1,7 @@
 package com.vatradar.app.di
 
 import com.vatradar.app.data.remote.ChallengeWatchApiService
+import com.vatradar.app.data.remote.LogbookApiService
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
@@ -26,8 +27,7 @@ object NetworkModule {
      * 챌린지 완주 감시 서버 (Cloudflare Worker).
      * 주소가 바뀌면 여기만 고치면 됩니다. 서버가 없어도 앱은 기기 판정으로 동작합니다.
      */
-    /** VatsimConnect가 /auth/start를 열 때도 씁니다. */
-    const val WATCH_URL = "https://vatradar-watcher.juwonhs2004.workers.dev/"
+    private const val WATCH_URL = "https://vatradar-watcher.juwonhs2004.workers.dev/"
 
     const val METAR_URL = "https://metar.vatsim.net/"
     const val TAF_URL = "https://aviationweather.gov/api/data/taf"
@@ -61,6 +61,10 @@ object NetworkModule {
 
     val vatsimApiService: VatsimApiService by lazy {
         retrofit(VATSIM_DATA_URL).create(VatsimApiService::class.java)
+    }
+
+    val logbookApiService: LogbookApiService by lazy {
+        retrofit(WATCH_URL).create(LogbookApiService::class.java)
     }
 
     val challengeWatchApiService: ChallengeWatchApiService by lazy {

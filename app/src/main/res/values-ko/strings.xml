@@ -27,13 +27,6 @@
 
     <!-- Route -->
     <string name="random_route">무작위 경로 생성</string>
-    <string name="haul_short">단거리</string>
-    <string name="haul_medium">중거리</string>
-    <string name="haul_long">장거리</string>
-    <string name="haul_short_desc">1,500해리 미만 · 협동체</string>
-    <string name="haul_medium_desc">1,500~3,500해리 · 광동체</string>
-    <string name="haul_long_desc">3,500해리 초과 · 장거리 광동체</string>
-    <string name="intl_airport_pool">전 세계 국제공항 %1$s곳에서 추천합니다.</string>
     <string name="roll_route">경로 뽑기</string>
     <string name="roll_failed">이 거리 구간에 맞는 조합을 찾지 못했습니다. 다시 시도해 주세요.</string>
     <string name="departure">출발</string>
@@ -98,29 +91,35 @@
     <string name="error_prefix">오류: %1$s</string>
 
     <!-- Challenges / Rank -->
-    <string name="tier_bronze">브론즈</string>
-    <string name="tier_silver">실버</string>
-    <string name="tier_gold">골드</string>
-    <string name="tier_platinum">플래티넘</string>
     <string name="rank_label">등급</string>
-    <string name="points_value">%1$s 점</string>
-    <string name="flights_completed">완주 %1$d회</string>
-    <string name="rolls_remaining">오늘 남은 뽑기 %1$d / %2$d회</string>
-    <string name="rolls_reset_in">%1$s 뒤 초기화 (00:00Z)</string>
-    <string name="no_rolls_left">오늘 뽑기를 모두 사용했습니다. 00:00Z에 초기화됩니다.</string>
     <string name="active_challenge">진행 중인 챌린지</string>
-    <string name="challenge_reward">완주 시 +%1$d점</string>
     <string name="challenge_enroute">비행 중 — 확인됨</string>
     <string name="challenge_waiting">VATSIM에서 이 경로를 비행하면 인정됩니다</string>
-    <string name="challenge_done">챌린지 완주! +%1$d점</string>
+    <string name="challenge_done">챌린지 완주</string>
     <string name="cid_needed">설정에서 VATSIM CID를 등록하면 완주한 비행에 포인트가 지급됩니다.</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">숫자로 된 VATSIM ID입니다(예: 1234567). 뽑은 경로를 비행했는지 확인하는 데만 쓰이며, VATSIM 공개 API 외에는 어디로도 전송되지 않습니다.</string>
-    <string name="points_to_next_tier">%2$s까지 %1$s점</string>
-    <string name="max_tier">최고 등급 달성</string>
-    <string name="vatsim_connect">VATSIM 계정으로 로그인</string>
-    <string name="vatsim_connect_hint">로그인하면 CID가 본인 것임이 확인되어 챌린지 보상이 인정됩니다. 하지 않아도 CID를 직접 입력할 수 있습니다.</string>
-    <string name="vatsim_connected">연결됨 — CID %1$s</string>
-    <string name="vatsim_connected_hint">VATSIM이 확인한 계정</string>
-    <string name="vatsim_disconnect">연결 해제</string>
+    <string name="tab_my_flights">나의 비행</string>
+    <string name="pick_region">어디에서 출발할까요?</string>
+    <string name="worldwide">전 세계</string>
+    <string name="all_countries">전체 국가</string>
+    <string name="real_route_pool">조건에 맞는 실제 노선 %1$s개</string>
+    <string name="operated_by">%1$s 운항 노선</string>
+    <string name="tap_to_see_map">눌러서 지도로 보기</string>
+    <string name="delete">삭제</string>
+    <string name="stat_hours">비행시간</string>
+    <string name="stat_distance">거리 (nm)</string>
+    <string name="stat_countries">국가</string>
+    <string name="stat_airports">공항</string>
+    <string name="stat_flights">비행</string>
+    <string name="countries_progress">%2$d개국 중 %1$d개국</string>
+    <string name="countries_goal">지도 위 모든 나라에 착륙해 보세요.</string>
+    <string name="logbook_since">%1$s부터 기록 중</string>
+    <string name="no_flights_yet">아직 기록된 비행이 없습니다. CID를 저장해 두고 VATSIM에서 비행하면 여기에 쌓입니다.</string>
+    <string name="recent_flights">최근 비행</string>
+    <string name="pick_from_list">목록에서 고르기</string>
+    <string name="centers_heading">관제소 (%1$d곳)</string>
+    <string name="airports_heading">공항</string>
+    <string name="airports_heading_hint">공항을 담으면 어프로치·타워·그라운드·딜리버리가 모두 포함됩니다.</string>
+    <string name="pick_region_for_airports">지역을 고르면 공항이 나옵니다.</string>
 </resources>

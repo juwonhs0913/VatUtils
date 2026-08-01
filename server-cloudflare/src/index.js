@@ -15,13 +15,7 @@
  */
 
 import { registerWatch, unregisterWatch, checkFlightWatches } from './flightWatch.js';
-import {
-  authStart,
-  authCallback,
-  authRevoke,
-  cidForToken,
-  isAuthConfigured,
-} from './vatsimAuth.js';
+import { registerLogbook, fetchLogbook, recordFlights } from './logbook.js';
 
 const VATSIM_DATA_URL = 'https://data.vatsim.net/v3/vatsim-data.json';
 const OBS_FACILITY = 0;
@@ -40,28 +34,24 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // VATSIM Connect 로그인. 앱이 Custom Tab으로 /auth/start를 엽니다.
-      if (url.pathname === '/auth/start') return authStart(env, url);
-      if (url.pathname === '/auth/callback') return authCallback(env, url);
-      if (url.pathname === '/auth/revoke' && request.method === 'POST') {
-        return Response.json(await authRevoke(env, await request.json()));
-      }
-
       // 앱이 경로를 뽑을 때 감시를 등록합니다.
       if (url.pathname === '/watch' && request.method === 'POST') {
         const body = await request.json();
-        const cid = await resolveCid(env, body);
-        if (!cid) {
-          return Response.json({ ok: false, error: 'vatsim account not linked' });
-        }
-        return Response.json(await registerWatch(env, body, cid));
+        return Response.json(await registerWatch(env, body));
       }
       if (url.pathname === '/watch' && request.method === 'DELETE') {
-        const body = await request.json();
-        const cid = await resolveCid(env, body);
-        if (!cid) return Response.json({ ok: false });
-        return Response.json(await unregisterWatch(env, cid, body.challengeId));
+        return Response.json(await unregisterWatch(env, await request.json()));
       }
+      // 나의 비행 기록.
+      if (url.pathname === '/logbook' && request.method === 'POST') {
+        return Response.json(await registerLogbook(env, await request.json()));
+      }
+      if (url.pathname === '/logbook' && request.method === 'GET') {
+        return Response.json(
+          await fetchLogbook(env, String(url.searchParams.get('cid') || '').trim())
+        );
+      }
+
       // 배포 직후 동작 확인용 수동 실행.
       if (url.pathname === '/run') {
         return Response.json(await run(env));
@@ -74,40 +64,20 @@ export default {
   },
 };
 
-/**
- * 감시 요청의 주인이 누구인지 정합니다.
- *
- * 토큰이 있으면 서버가 VATSIM 로그인으로 확인한 CID를 씁니다. 앱이 보낸 cid는
- * 쳐다보지 않습니다 — 이게 남의 CID로 감시를 거는 걸 막는 유일한 지점입니다.
- *
- * VATSIM Connect가 아직 설정되지 않은 배포에서는 로그인할 방법 자체가 없으므로
- * 앱이 보낸 cid를 그대로 받습니다. 클라이언트가 승인되어 설정을 넣는 순간
- * 이 느슨한 경로는 자동으로 닫힙니다.
- */
-async function resolveCid(env, body) {
-  // 토큰을 들고 왔는데 통하지 않으면 여기서 끝냅니다.
-  // 앱이 보낸 cid로 물러서면, 아무 문자열이나 토큰이랍시고 보내서
-  // 검증을 건너뛰는 길이 열립니다.
-  if (body.token) {
-    return (await cidForToken(env, body.token)) || null;
-  }
-  if (isAuthConfigured(env)) return null;
-
-  const cid = String(body.cid || '').trim();
-  return /^\d{6,10}$/.test(cid) ? cid : null;
-}
-
 async function run(env) {
   const feed = await fetchFeed();
   const online = onlineControllers(feed);
   // 챌린지 완주 감시. 피드를 이미 받았으므로 추가 요청이 없습니다.
   const accessTokenForWatch = await getAccessToken(env);
   const projectIdForWatch = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
+  const pilots = feed.pilots || [];
   const watchCompleted = await checkFlightWatches(
     env,
-    feed.pilots || [],
+    pilots,
     (topic, data) => sendToTopic(projectIdForWatch, accessTokenForWatch, topic, data)
   );
+  // 나의 비행 기록. 같은 피드를 재사용하므로 추가 요청이 없습니다.
+  const logged = await recordFlights(env, pilots);
 
   const previous = await loadPreviousState(env);
 
@@ -117,7 +87,7 @@ async function run(env) {
   await saveState(env, online);
 
   if (newlyOnline.length === 0) {
-    return { online: online.length, notified: 0, watchCompleted };
+    return { online: online.length, notified: 0, watchCompleted, logged };
   }
 
   const accessToken = accessTokenForWatch;
@@ -153,6 +123,7 @@ async function run(env) {
     topics: topics.size,
     failed,
     watchCompleted,
+    logged,
   };
 }
 
@@ -175,13 +146,29 @@ function onlineControllers(data) {
 }
 
 /**
+ * 콜사인 하나가 대표할 수 있는 이름들.
+ *   RKRR_A_CTR → RKRR_A_CTR, RKRR, RKRR_CTR
+ *
+ * 가운데 토큰을 걷어낸 형태가 필요한 이유: 사용자는 RKRR_CTR로 등록하는데
+ * 실제 접속은 섹터가 나뉘어 RKRR_A_CTR로 들어옵니다. 이게 없으면 알림이 안 갑니다.
+ * 앱의 CallsignMatcher와 규칙이 같아야 합니다.
+ */
+function aliasesFor(callsign) {
+  const parts = callsign.split('_').filter(Boolean);
+  const aliases = new Set([callsign]);
+  if (parts.length > 0) aliases.add(parts[0]);
+  if (parts.length >= 3) aliases.add(parts[0] + '_' + parts[parts.length - 1]);
+  return aliases;
+}
+
+/**
  * 콜사인 하나가 여러 토픽에 걸립니다.
  * RKSI_TWR → cs_RKSI (공항 전체를 구독한 사람), cs_RKSI_TWR (해당 석만 구독한 사람)
  */
 function topicsFor(callsigns) {
   const map = new Map();
   for (const callsign of callsigns) {
-    const candidates = new Set([callsign, callsign.split('_')[0]]);
+    const candidates = aliasesFor(callsign);
     for (const raw of candidates) {
       if (!raw) continue;
       const topic = 'cs_' + normalizeTopic(raw);

@@ -40,17 +40,31 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.vatradar.app.R
 import com.vatradar.app.data.local.ChallengeEntity
 import com.vatradar.app.data.repository.ChallengeRepository
 import com.vatradar.app.domain.model.Airport
-import com.vatradar.app.domain.model.HaulRange
+import com.vatradar.app.domain.model.Continent
 import com.vatradar.app.domain.model.OfpSummary
-import com.vatradar.app.domain.model.PilotTier
 import com.vatradar.app.ui.weather.WeatherSection
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
+fun RouteScreen(
+    viewModel: RouteViewModel = viewModel(),
+    onOpenChallengeMap: (String, String) -> Unit = { _, _ -> }
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val missingId = stringResource(R.string.simbrief_id_required)
@@ -75,13 +89,6 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        RankCard(
-            points = state.totalPoints,
-            completedCount = state.completedCount,
-            remainingRolls = state.remainingRolls,
-            millisUntilReset = state.millisUntilReset
-        )
-
         if (state.vatsimCid.isBlank()) {
             Text(
                 stringResource(R.string.cid_needed),
@@ -90,7 +97,13 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
             )
         }
 
-        state.activeChallenges.forEach { ActiveChallengeCard(it) }
+        state.activeChallenges.forEach { challenge ->
+            ActiveChallengeCard(
+                challenge = challenge,
+                onOpenMap = { onOpenChallengeMap(challenge.origin, challenge.destination) },
+                onDelete = { viewModel.deleteChallenge(challenge.id) }
+            )
+        }
 
         Text(stringResource(R.string.random_route), style = MaterialTheme.typography.headlineSmall)
 
@@ -99,28 +112,70 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    HaulRange.entries.forEach { haul ->
+                Text(
+                    stringResource(R.string.pick_region),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = state.filter.continent == null,
+                        onClick = { viewModel.setContinent(null) },
+                        label = { Text(stringResource(R.string.worldwide)) }
+                    )
+                    Continent.entries.forEach { continent ->
                         FilterChip(
-                            selected = state.haul == haul,
-                            onClick = { viewModel.setHaul(haul) },
-                            label = { Text(stringResource(haul.labelRes())) },
-                            modifier = Modifier.weight(1f)
+                            selected = state.filter.continent == continent.code,
+                            onClick = { viewModel.setContinent(continent.code) },
+                            label = { Text(continent.displayName) }
                         )
                     }
                 }
 
-                Text(
-                    stringResource(state.haul.descriptionRes()),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // 대륙을 고른 뒤에만 나라를 좁힐 수 있게 합니다.
+                // 전 세계 나라를 한 번에 펼치면 200개가 넘어 고르기 어렵습니다.
+                if (state.filter.continent != null && state.countries.isNotEmpty()) {
+                    var countriesExpanded by remember(state.filter.continent) { mutableStateOf(false) }
+                    val selectedName = state.countries
+                        .firstOrNull { it.first == state.filter.country }?.second
+
+                    TextButton(
+                        onClick = { countriesExpanded = !countriesExpanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            selectedName ?: stringResource(R.string.all_countries),
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(
+                            if (countriesExpanded) Icons.Default.ExpandLess
+                            else Icons.Default.ExpandMore,
+                            null,
+                            Modifier.size(20.dp)
+                        )
+                    }
+
+                    AnimatedVisibility(visible = countriesExpanded) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(
+                                selected = state.filter.country == null,
+                                onClick = { viewModel.setCountry(null); countriesExpanded = false },
+                                label = { Text(stringResource(R.string.all_countries)) }
+                            )
+                            state.countries.forEach { (code, name) ->
+                                FilterChip(
+                                    selected = state.filter.country == code,
+                                    onClick = { viewModel.setCountry(code); countriesExpanded = false },
+                                    label = { Text(name) }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Text(
-                    stringResource(
-                        R.string.intl_airport_pool,
-                        "%,d".format(state.airportPoolSize)
-                    ),
+                    stringResource(R.string.real_route_pool, "%,d".format(state.routePoolSize)),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -130,7 +185,7 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
         Button(
             onClick = viewModel::roll,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.rolling && state.remainingRolls > 0
+            enabled = !state.rolling
         ) {
             if (state.rolling) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
@@ -142,10 +197,7 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
 
         state.error?.let { code ->
             Text(
-                stringResource(
-                    if (code == RouteViewModel.NO_ROLLS_LEFT) R.string.no_rolls_left
-                    else R.string.roll_failed
-                ),
+                stringResource(R.string.roll_failed),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -163,11 +215,17 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Text(
-                        "${stringResource(R.string.distance)} ${"%,d".format(route.distanceNm)} nm · " +
-                            stringResource(state.haul.labelRes()),
+                        "${stringResource(R.string.distance)} ${"%,d".format(route.distanceNm)} nm",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    route.airline?.let { airline ->
+                        Text(
+                            stringResource(R.string.operated_by, airline),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
@@ -227,107 +285,40 @@ fun RouteScreen(viewModel: RouteViewModel = viewModel()) {
     }
 }
 
-/** 현재 등급·포인트와 오늘 남은 뽑기 횟수. */
 @Composable
-private fun RankCard(
-    points: Int,
-    completedCount: Int,
-    remainingRolls: Int,
-    millisUntilReset: Long
+private fun ActiveChallengeCard(
+    challenge: ChallengeEntity,
+    onOpenMap: () -> Unit,
+    onDelete: () -> Unit
 ) {
-    val tier = PilotTier.forPoints(points)
-    val next = tier.next
-    val progress = PilotTier.progressToNext(points)
-
-    Card {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Card(onClick = onOpenMap) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TierBadge(tier)
-                    Text(
-                        stringResource(tier.labelRes),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
                 Text(
-                    stringResource(R.string.points_value, "%,d".format(points)),
-                    style = MaterialTheme.typography.titleMedium
+                    stringResource(R.string.active_challenge),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                // 카드 전체가 지도 열기라, X는 클릭이 카드로 새지 않도록 따로 받습니다.
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.delete),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable(onClick = onDelete),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth(),
-                color = Color(tier.colorArgb)
-            )
-
-            Text(
-                if (next != null) {
-                    stringResource(
-                        R.string.points_to_next_tier,
-                        "%,d".format(next.minPoints - points),
-                        stringResource(next.labelRes)
-                    )
-                } else {
-                    stringResource(R.string.max_tier)
-                },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            HorizontalDivider()
-
-            Text(
-                stringResource(
-                    R.string.rolls_remaining,
-                    remainingRolls,
-                    ChallengeRepository.DAILY_ROLL_LIMIT
-                ),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                stringResource(R.string.rolls_reset_in, formatDuration(millisUntilReset)) +
-                    " · " + stringResource(R.string.flights_completed, completedCount),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/** 등급 색 원형 배지. 지도의 내 항공기 아이콘과 같은 색을 씁니다. */
-@Composable
-private fun TierBadge(tier: PilotTier) {
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(Color(tier.colorArgb), CircleShape)
-    )
-}
-
-@Composable
-private fun ActiveChallengeCard(challenge: ChallengeEntity) {
-    Card {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                stringResource(R.string.active_challenge),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
             Text(
                 "${challenge.origin} → ${challenge.destination}",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                "%,d nm · ".format(challenge.distanceNm) +
-                    stringResource(R.string.challenge_reward, challenge.points),
+                "%,d nm".format(challenge.distanceNm),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -340,29 +331,13 @@ private fun ActiveChallengeCard(challenge: ChallengeEntity) {
                 color = if (challenge.seenEnroute) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Text(
+                stringResource(R.string.tap_to_see_map),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
-}
-
-/** "5시간 12분" 형태로 남은 시간을 표기합니다. */
-private fun formatDuration(millis: Long): String {
-    if (millis <= 0) return "0m"
-    val totalMinutes = millis / 60_000
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-    return if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
-}
-
-private fun HaulRange.labelRes(): Int = when (this) {
-    HaulRange.SHORT -> R.string.haul_short
-    HaulRange.MEDIUM -> R.string.haul_medium
-    HaulRange.LONG -> R.string.haul_long
-}
-
-private fun HaulRange.descriptionRes(): Int = when (this) {
-    HaulRange.SHORT -> R.string.haul_short_desc
-    HaulRange.MEDIUM -> R.string.haul_medium_desc
-    HaulRange.LONG -> R.string.haul_long_desc
 }
 
 @Composable

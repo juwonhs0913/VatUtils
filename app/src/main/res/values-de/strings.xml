@@ -27,13 +27,6 @@
 
     <!-- Route -->
     <string name="random_route">Zufällige Route</string>
-    <string name="haul_short">Kurzstrecke</string>
-    <string name="haul_medium">Mittelstrecke</string>
-    <string name="haul_long">Langstrecke</string>
-    <string name="haul_short_desc">Unter 1.500 NM · Schmalrumpf</string>
-    <string name="haul_medium_desc">1.500–3.500 NM · Großraumflugzeug</string>
-    <string name="haul_long_desc">Über 3.500 NM · Langstrecken-Großraumflugzeug</string>
-    <string name="intl_airport_pool">Auswahl aus %1$s internationalen Flughäfen weltweit.</string>
     <string name="roll_route">Route auslosen</string>
     <string name="roll_failed">Für diese Distanz wurde kein Paar gefunden. Bitte erneut versuchen.</string>
     <string name="departure">Abflug</string>
@@ -98,29 +91,35 @@
     <string name="error_prefix">Fehler: %1$s</string>
 
     <!-- Challenges / Rank -->
-    <string name="tier_bronze">Bronze</string>
-    <string name="tier_silver">Silber</string>
-    <string name="tier_gold">Gold</string>
-    <string name="tier_platinum">Platin</string>
     <string name="rank_label">Rang</string>
-    <string name="points_value">%1$s Pkt.</string>
-    <string name="flights_completed">%1$d Flüge abgeschlossen</string>
-    <string name="rolls_remaining">Noch %1$d von %2$d Auslosungen heute</string>
-    <string name="rolls_reset_in">Zurücksetzung in %1$s (00:00Z)</string>
-    <string name="no_rolls_left">Alle 5 Auslosungen für heute verbraucht. Zurücksetzung um 00:00Z.</string>
     <string name="active_challenge">Aktive Challenge</string>
-    <string name="challenge_reward">+%1$d Pkt. bei Abschluss</string>
     <string name="challenge_enroute">Unterwegs — Flug erkannt</string>
     <string name="challenge_waiting">Fliege diese Route auf VATSIM, um sie abzuschließen</string>
-    <string name="challenge_done">Challenge abgeschlossen! +%1$d Pkt.</string>
+    <string name="challenge_done">Challenge geschafft</string>
     <string name="cid_needed">Hinterlege deine VATSIM-CID in den Einstellungen, um Punkte für Flüge zu erhalten.</string>
     <string name="vatsim_cid">VATSIM-CID</string>
     <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Wird nur genutzt, um zu prüfen, ob du eine ausgeloste Route geflogen bist — sie geht nirgendwo hin außer an die öffentliche VATSIM-API.</string>
-    <string name="points_to_next_tier">%1$s Pkt. bis %2$s</string>
-    <string name="max_tier">Höchster Rang erreicht</string>
-    <string name="vatsim_connect">Mit VATSIM anmelden</string>
-    <string name="vatsim_connect_hint">Die Anmeldung bestätigt, dass die CID dir gehört — nur so zählen Challenge-Punkte. Ohne Anmeldung kannst du die CID manuell eingeben.</string>
-    <string name="vatsim_connected">Verbunden — CID %1$s</string>
-    <string name="vatsim_connected_hint">Von VATSIM bestätigt</string>
-    <string name="vatsim_disconnect">Trennen</string>
+    <string name="tab_my_flights">Meine Flüge</string>
+    <string name="pick_region">Wo soll es losgehen?</string>
+    <string name="worldwide">Weltweit</string>
+    <string name="all_countries">Alle Länder</string>
+    <string name="real_route_pool">%1$s echte Airline-Strecken passen.</string>
+    <string name="operated_by">Geflogen von %1$s</string>
+    <string name="tap_to_see_map">Tippen für die Karte</string>
+    <string name="delete">Löschen</string>
+    <string name="stat_hours">Stunden</string>
+    <string name="stat_distance">Distanz (nm)</string>
+    <string name="stat_countries">Länder</string>
+    <string name="stat_airports">Flughäfen</string>
+    <string name="stat_flights">Flüge</string>
+    <string name="countries_progress">%1$d von %2$d Ländern</string>
+    <string name="countries_goal">Lande in jedem Land auf der Karte.</string>
+    <string name="logbook_since">Aufzeichnung seit %1$s</string>
+    <string name="no_flights_yet">Noch keine Flüge aufgezeichnet. Mit hinterlegter CID auf VATSIM fliegen — dann erscheinen sie hier.</string>
+    <string name="recent_flights">Letzte Flüge</string>
+    <string name="pick_from_list">Aus Liste wählen</string>
+    <string name="centers_heading">Center (%1$d)</string>
+    <string name="airports_heading">Flughäfen</string>
+    <string name="airports_heading_hint">Ein Flughafen deckt Approach, Tower, Ground und Delivery ab.</string>
+    <string name="pick_region_for_airports">Region wählen, um Flughäfen zu sehen.</string>
 </resources>

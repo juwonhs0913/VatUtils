@@ -28,24 +28,35 @@ CREATE TABLE IF NOT EXISTS flight_watch (
 
 CREATE INDEX IF NOT EXISTS index_flight_watch_expires ON flight_watch(expires_at);
 
--- VATSIM Connect (OAuth2) 로그인 진행 중 상태.
--- state는 CSRF 방지용이며, 콜백에서 한 번 쓰고 지웁니다.
-CREATE TABLE IF NOT EXISTS auth_state (
-  state      TEXT PRIMARY KEY,
-  created_at INTEGER NOT NULL,
-  expires_at INTEGER NOT NULL
-);
 
--- 로그인으로 확인된 CID와 앱이 들고 다닐 불투명 토큰.
+-- 나의 비행 기록.
 --
--- VATSIM 액세스 토큰을 저장하지 않는 이유:
--- 한 번 CID를 확인하고 나면 다시 쓸 일이 없습니다. 계속 들고 있으면
--- 유출 시 그 사람의 VATSIM 계정 정보까지 읽을 수 있는 물건이 됩니다.
-CREATE TABLE IF NOT EXISTS auth_link (
-  token      TEXT PRIMARY KEY,
-  cid        TEXT NOT NULL,
-  created_at INTEGER NOT NULL
+-- VATSIM은 과거 비행의 출도착 공항을 공개하지 않습니다 (members/{cid}/history에는
+-- 콜사인과 시각만 있습니다). 그래서 이미 1분마다 받는 피드에서 직접 기록합니다.
+-- 백필은 불가능하고, 등록한 시점부터만 쌓입니다.
+CREATE TABLE IF NOT EXISTS logbook_watch (
+  cid        TEXT PRIMARY KEY,
+  created_at INTEGER NOT NULL,
+  seen_at    INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS index_auth_state_expires ON auth_state(expires_at);
-CREATE INDEX IF NOT EXISTS index_auth_link_cid ON auth_link(cid);
+CREATE TABLE IF NOT EXISTS logbook_flight (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  cid         TEXT    NOT NULL,
+  callsign    TEXT    NOT NULL,
+  departure   TEXT    NOT NULL,
+  arrival     TEXT    NOT NULL,
+  aircraft    TEXT,
+  started_at  INTEGER NOT NULL,
+  ended_at    INTEGER,
+  -- 마지막으로 본 위치. 도착 판정과, 앱이 가장 가까운 공항을 찾는 데 씁니다.
+  last_lat    REAL,
+  last_lon    REAL,
+  landed      INTEGER NOT NULL DEFAULT 0,
+  -- 순항 고도를 한 번이라도 넘겼는지. 접속만 했다 끊은 세션을 걸러냅니다.
+  airborne    INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS index_logbook_flight_cid ON logbook_flight(cid, started_at);
+CREATE UNIQUE INDEX IF NOT EXISTS index_logbook_open
+  ON logbook_flight(cid, departure, arrival, started_at);

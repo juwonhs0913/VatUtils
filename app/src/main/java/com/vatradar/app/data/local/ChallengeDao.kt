@@ -15,21 +15,21 @@ interface ChallengeDao {
     @Update
     suspend fun update(challenge: ChallengeEntity)
 
-    /** 오늘(UTC 기준) 뽑은 횟수. 하루 5회 제한 판정에 씁니다. */
-    @Query("SELECT COUNT(*) FROM challenges WHERE createdAt >= :sinceUtcMillis")
-    suspend fun countCreatedSince(sinceUtcMillis: Long): Int
-
     @Query("SELECT * FROM challenges WHERE status = 'ACTIVE' ORDER BY createdAt DESC")
     suspend fun activeChallenges(): List<ChallengeEntity>
 
     @Query("SELECT * FROM challenges ORDER BY createdAt DESC LIMIT :limit")
     fun recent(limit: Int): Flow<List<ChallengeEntity>>
 
-    @Query("SELECT COALESCE(SUM(points), 0) FROM challenges WHERE status = 'COMPLETED'")
-    fun totalPoints(): Flow<Int>
-
     @Query("SELECT COUNT(*) FROM challenges WHERE status = 'COMPLETED'")
     fun completedCount(): Flow<Int>
+
+    /** 사용자가 X를 눌러 직접 지웁니다. */
+    @Query("DELETE FROM challenges WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM challenges WHERE id = :id LIMIT 1")
+    suspend fun findById(id: Long): ChallengeEntity?
 
     /** 기한이 지난 챌린지를 만료 처리합니다. */
     @Query("UPDATE challenges SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND createdAt < :cutoffMillis")
