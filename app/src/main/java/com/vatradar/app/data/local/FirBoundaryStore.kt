@@ -42,6 +42,9 @@ class FirBoundaryStore(private val context: Context) {
     private val uirs = HashMap<String, List<String>>()
     /** 경계 ID → 아직 파싱하지 않은 원본 라인 */
     private val rawBoundaries = HashMap<String, String>()
+
+    /** 루트 경계 ID -> 그 아래 섹터 경계 ID들. KZNY -> [KZNY-W, KZNY-BDA] */
+    private val sectorsByRoot = HashMap<String, MutableList<String>>()
     /** 경계 ID → 파싱된 폴리곤 (링 여러 개 가능) */
     private val parsedBoundaries = HashMap<String, List<List<LatLng>>>()
 
@@ -69,7 +72,16 @@ class FirBoundaryStore(private val context: Context) {
                     }
                     context.assets.open("fir_boundaries.txt").bufferedReader().forEachLine { line ->
                         val id = line.substringBefore('|')
-                        if (id.isNotBlank()) rawBoundaries[id.uppercase()] = line
+                        if (id.isNotBlank()) {
+                            val upper = id.uppercase()
+                            rawBoundaries[upper] = line
+                            // KZNY-W 는 KZNY 의 조각입니다. 루트로 접속했을 때
+                            // 조각까지 함께 그리려고 미리 묶어 둡니다.
+                            val root = upper.substringBefore('-')
+                            if (root != upper) {
+                                sectorsByRoot.getOrPut(root) { mutableListOf() } += upper
+                            }
+                        }
                     }
                 }.onFailure { Log.e("VATRadar", "FIR 데이터 로드 실패", it) }
             }
@@ -107,7 +119,7 @@ class FirBoundaryStore(private val context: Context) {
             byIcao[root]
         ).forEach { record ->
             if (record != null) {
-                val rings = boundaryById(record.boundaryId)
+                val rings = withSectors(record.boundaryId)
                 if (rings.isNotEmpty()) return rings
             }
         }
@@ -124,6 +136,45 @@ class FirBoundaryStore(private val context: Context) {
 
         // 경계 ID가 콜사인과 그대로 같은 경우
         return boundaryById(root)
+    }
+
+    /**
+     * 루트 경계에 그 아래 섹터를 더합니다.
+     *
+     * 뉴욕이 이게 필요한 이유: KZNY 자체는 **뉴욕 오세아닉**(대서양)이고, 정작
+     * 뉴욕 상공은 KZNY-W 에 들어 있습니다. 루트만 그리면 NY_CTR 이 대서양에만
+     * 표시되어 "관제소가 안 뜬다"로 보입니다.
+     *
+     * 단, 섹터가 루트 안에 완전히 들어가는 경우(한국 RKRR-N 처럼 단순 분할)는
+     * 겹쳐 칠해질 뿐이라 뺍니다. 경계 상자 포함 여부로 거릅니다.
+     */
+    private suspend fun withSectors(boundaryId: String): List<List<LatLng>> {
+        val rootId = boundaryId.uppercase()
+        val rootRings = boundaryById(rootId)
+        val sectorIds = sectorsByRoot[rootId] ?: return rootRings
+        if (rootRings.isEmpty()) return sectorIds.flatMap { boundaryById(it) }
+
+        val rootBox = boundingBox(rootRings)
+        val extra = sectorIds.flatMap { boundaryById(it) }
+            .filterNot { ring -> rootBox.contains(boundingBox(listOf(ring))) }
+        return rootRings + extra
+    }
+
+    private data class Box(
+        val minLat: Double, val maxLat: Double,
+        val minLon: Double, val maxLon: Double
+    ) {
+        fun contains(other: Box): Boolean =
+            other.minLat >= minLat && other.maxLat <= maxLat &&
+                other.minLon >= minLon && other.maxLon <= maxLon
+    }
+
+    private fun boundingBox(rings: List<List<LatLng>>): Box {
+        val points = rings.flatten()
+        return Box(
+            points.minOf { it.latitude }, points.maxOf { it.latitude },
+            points.minOf { it.longitude }, points.maxOf { it.longitude }
+        )
     }
 
     private suspend fun unionOf(firIcaos: List<String>): List<List<LatLng>> =

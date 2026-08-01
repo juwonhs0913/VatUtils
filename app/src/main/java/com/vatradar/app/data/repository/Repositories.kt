@@ -1,7 +1,6 @@
 package com.vatradar.app.data.repository
 
 import android.content.Context
-import com.vatradar.app.data.local.AirlineRouteStore
 import com.vatradar.app.data.local.AirportDao
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
@@ -113,9 +112,7 @@ class WeatherRepository(private val api: WeatherApiService) {
 data class RandomRoute(
     val origin: Airport,
     val destination: Airport,
-    val distanceNm: Int,
-    /** 이 구간을 실제로 운항하는 항공사. 실재 노선에서 뽑히지 않았으면 null입니다. */
-    val airline: String? = null
+    val distanceNm: Int
 )
 
 class AirportRepository(
@@ -132,37 +129,14 @@ class AirportRepository(
         }
 
     /**
-     * 실제로 운항되는 국제선 중에서 무작위로 하나 고릅니다.
+     * 국제공항 중에서 출발지와 도착지를 무작위로 고릅니다.
      *
      * [filter]는 **출발지**에만 겁니다. 도착지까지 같은 범위로 묶으면 국내선만 나와서
      * 나라를 고르는 의미가 없어집니다.
-     *
-     * 조건에 맞는 실재 노선이 없으면 (예: 정기 국제선이 거의 없는 나라) 그 범위의
-     * 공항끼리 임의로 잇는 방식으로 물러섭니다. 빈손으로 돌려주는 것보다 낫습니다.
      */
     suspend fun randomRoute(filter: RouteFilter): RandomRoute? = withContext(Dispatchers.Default) {
-        val byIcao = international().associateBy { it.icao }
-
-        val real = AirlineRouteStore.routes(context).filter { route ->
-            val origin = byIcao[route.origin] ?: return@filter false
-            byIcao.containsKey(route.destination) && filter.matches(origin)
-        }
-
-        if (real.isNotEmpty()) {
-            val picked = real.random()
-            val origin = byIcao.getValue(picked.origin)
-            val destination = byIcao.getValue(picked.destination)
-            return@withContext RandomRoute(
-                origin = origin,
-                destination = destination,
-                distanceNm = origin.distanceNmTo(destination).roundToInt(),
-                airline = picked.airline.takeIf { it.isNotBlank() }
-            )
-        }
-
-        // 실재 노선이 없는 범위 — 그 범위의 공항에서 아무 곳으로나 잇습니다.
-        val origins = international().filter { filter.matches(it) }
-        val all = internationalCache ?: return@withContext null
+        val all = international()
+        val origins = all.filter { filter.matches(it) }
         if (origins.isEmpty() || all.size < 2) return@withContext null
 
         repeat(MAX_ATTEMPTS) {
@@ -179,14 +153,9 @@ class AirportRepository(
         null
     }
 
-    /** 해당 범위에서 실제로 뽑힐 수 있는 노선 수. 화면에 후보 규모를 보여줍니다. */
-    suspend fun routeCount(filter: RouteFilter): Int = withContext(Dispatchers.Default) {
-        val byIcao = international().associateBy { it.icao }
-        AirlineRouteStore.routes(context).count { route ->
-            val origin = byIcao[route.origin]
-            origin != null && byIcao.containsKey(route.destination) && filter.matches(origin)
-        }
-    }
+    /** 해당 범위에서 출발지가 될 수 있는 공항 수. */
+    suspend fun routeCount(filter: RouteFilter): Int =
+        international().count { filter.matches(it) }
 
     /**
      * ICAO 접두사 → 국가 코드.

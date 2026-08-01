@@ -60,3 +60,4 @@ CREATE TABLE IF NOT EXISTS logbook_flight (
 CREATE INDEX IF NOT EXISTS index_logbook_flight_cid ON logbook_flight(cid, started_at);
 CREATE UNIQUE INDEX IF NOT EXISTS index_logbook_open
   ON logbook_flight(cid, departure, arrival, started_at);
+

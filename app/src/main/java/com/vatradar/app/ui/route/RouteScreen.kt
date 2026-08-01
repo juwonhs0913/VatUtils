@@ -219,13 +219,6 @@ fun RouteScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    route.airline?.let { airline ->
-                        Text(
-                            stringResource(R.string.operated_by, airline),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
                 }
             }
 

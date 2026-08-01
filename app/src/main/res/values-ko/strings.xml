@@ -103,8 +103,7 @@
     <string name="pick_region">어디에서 출발할까요?</string>
     <string name="worldwide">전 세계</string>
     <string name="all_countries">전체 국가</string>
-    <string name="real_route_pool">조건에 맞는 실제 노선 %1$s개</string>
-    <string name="operated_by">%1$s 운항 노선</string>
+    <string name="real_route_pool">조건에 맞는 국제공항 %1$s곳</string>
     <string name="tap_to_see_map">눌러서 지도로 보기</string>
     <string name="delete">삭제</string>
     <string name="stat_hours">비행시간</string>

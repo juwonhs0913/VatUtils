@@ -103,8 +103,7 @@
     <string name="pick_region">想从哪里出发？</string>
     <string name="worldwide">全球</string>
     <string name="all_countries">所有国家</string>
-    <string name="real_route_pool">符合条件的真实航线 %1$s 条</string>
-    <string name="operated_by">由 %1$s 运营</string>
+    <string name="real_route_pool">符合条件的国际机场 %1$s 个</string>
     <string name="tap_to_see_map">点按在地图上查看</string>
     <string name="delete">删除</string>
     <string name="stat_hours">飞行时间</string>

@@ -56,7 +56,9 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.vatradar.app.R
+import kotlin.math.pow
 import com.vatradar.app.domain.model.Aircraft
+import com.vatradar.app.domain.BoundaryLabelPoint
 import com.vatradar.app.domain.model.Controller
 import com.vatradar.app.domain.model.FacilityType
 import com.vatradar.app.util.formatZuluHhmm
@@ -123,16 +125,18 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val latestBadges by rememberUpdatedState(badgeGroups)
 
     // 구역 라벨: 폴리곤이 있는 관제소 + APP 원. 링 좌표 평균을 라벨 위치로 씁니다.
-    val boundaryLabels = remember(boundaryControllers, approachControllers) {
+    val zoom = cameraPositionState.position.zoom
+    val boundaryLabels = remember(boundaryControllers, approachControllers, zoom) {
         boundaryControllers.mapNotNull { controller ->
-            val points = controller.boundary.flatten()
-            if (points.isEmpty()) return@mapNotNull null
+            val position = BoundaryLabelPoint.of(controller.boundary) ?: return@mapNotNull null
+            // 화면에서 너무 좁은 구역은 라벨을 붙이지 않습니다.
+            // 일본·유럽처럼 섹터가 잘게 나뉜 곳에서 라벨이 서로 겹쳐 읽을 수 없게 됩니다.
+            val widthPx = BoundaryLabelPoint.longitudeSpan(controller.boundary) *
+                256.0 * 2.0.pow(zoom.toDouble()) / 360.0
+            if (widthPx < MIN_LABEL_WIDTH_PX) return@mapNotNull null
             BoundaryLabel(
                 callsign = controller.callsign,
-                position = LatLng(
-                    points.sumOf { it.latitude } / points.size,
-                    points.sumOf { it.longitude } / points.size
-                ),
+                position = position,
                 argb = AirportBadgeIcons.facilityArgb(controller.facility)
             )
         } + approachControllers.map { controller ->
@@ -298,6 +302,9 @@ private fun WeatherSectionHost(state: MapUiState) {
  * APP 담당 공역 반경.
  * visual_range는 관제사가 설정하는 값이라 0이거나 비현실적으로 큰 경우가 있어 범위를 제한합니다.
  */
+/** 라벨을 붙일 최소 폭(픽셀). 이보다 좁으면 글자가 구역을 덮어 오히려 방해가 됩니다. */
+private const val MIN_LABEL_WIDTH_PX = 90.0
+
 private fun Controller.approachRadiusMeters(): Double {
     // 관제사가 넉넉히 잡아 두는 값이라 그대로 그리면 원이 지도를 덮습니다.
     // 실제 접근 관제 담당 범위에 가깝도록 줄여서 그립니다.

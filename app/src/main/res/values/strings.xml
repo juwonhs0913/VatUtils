@@ -106,8 +106,7 @@
     <string name="pick_region">Where do you want to depart from?</string>
     <string name="worldwide">Worldwide</string>
     <string name="all_countries">All countries</string>
-    <string name="real_route_pool">%1$s real airline routes match.</string>
-    <string name="operated_by">Flown by %1$s</string>
+    <string name="real_route_pool">%1$s international airports match.</string>
     <string name="tap_to_see_map">Tap to see it on the map</string>
     <string name="delete">Delete</string>
     <string name="stat_hours">Hours</string>

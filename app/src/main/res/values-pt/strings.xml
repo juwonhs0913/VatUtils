@@ -103,8 +103,7 @@
     <string name="pick_region">De onde você quer partir?</string>
     <string name="worldwide">Mundo todo</string>
     <string name="all_countries">Todos os países</string>
-    <string name="real_route_pool">%1$s rotas reais correspondem.</string>
-    <string name="operated_by">Operado por %1$s</string>
+    <string name="real_route_pool">%1$s aeroportos internacionais correspondem.</string>
     <string name="tap_to_see_map">Toque para ver no mapa</string>
     <string name="delete">Excluir</string>
     <string name="stat_hours">Horas</string>
