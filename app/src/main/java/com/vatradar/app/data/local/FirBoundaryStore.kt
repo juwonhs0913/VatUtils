@@ -22,6 +22,12 @@ import kotlinx.coroutines.withContext
  * 경계 좌표는 요청된 것만 파싱해 캐시합니다. 전부 올리면 메모리 낭비이고,
  * 실제로 접속 중인 관제소는 보통 수십~수백 곳뿐입니다.
  */
+/** 담당 구역과 소속 ACC 전역. [parent]는 세부 섹터일 때만 채워집니다. */
+data class BoundaryMatch(
+    val rings: List<List<LatLng>>,
+    val parent: List<List<LatLng>>
+)
+
 class FirBoundaryStore(private val context: Context) {
 
     private data class FirRecord(
@@ -102,6 +108,44 @@ class FirBoundaryStore(private val context: Context) {
      *   HOU_46_CTR  → 콜사인 접두사 HOU → KZHU (섹터 번호 46은 무시)
      *   AFRE_CTR    → UIR AFRE → 소속 FIR 폴리곤 전체
      */
+    /**
+     * 담당 구역과, 그것이 세부 섹터일 때의 소속 ACC 전역.
+     *
+     * VATJPN SOP는 "より狭域を担当するものが優先される"(좁은 쪽이 우선)라고 정하고 있어
+     * 담당 구역은 섹터가 맞습니다. 다만 섹터만 덩그러니 그리면 그 관제사가 어느 ACC
+     * 소속인지 지도에서 알 수 없습니다. vattastic 같은 다른 도구가 ACC 전역을 칠하는
+     * 것도 그래서입니다. 전역은 옅게 깔고 담당 섹터를 진하게 얹습니다.
+     */
+    suspend fun boundaryMatch(callsign: String): BoundaryMatch {
+        val rings = boundariesFor(callsign)
+        if (rings.isEmpty()) return BoundaryMatch(emptyList(), emptyList())
+
+        val parentId = matchedBoundaryId(callsign)?.takeIf { '-' in it }?.substringBefore('-')
+            ?: return BoundaryMatch(rings, emptyList())
+
+        val parent = boundaryById(parentId)
+        // 전역을 못 찾거나 담당 구역과 같으면 겹쳐 그릴 이유가 없습니다.
+        return if (parent.isEmpty() || parent == rings) BoundaryMatch(rings, emptyList())
+        else BoundaryMatch(rings, parent)
+    }
+
+    /** boundariesFor가 어떤 경계 ID로 매칭했는지. 소속 ACC를 되짚는 데 씁니다. */
+    private suspend fun matchedBoundaryId(callsign: String): String? {
+        ensureLoaded()
+        val upper = callsign.uppercase()
+        val base = upper.substringBeforeLast('_')
+        val root = base.substringBefore('_')
+        listOf(
+            byCallsignPrefix[base], byIcao[base],
+            byCallsignPrefix[root], byIcao[root]
+        ).forEach { record ->
+            if (record != null && boundaryById(record.boundaryId).isNotEmpty()) {
+                return record.boundaryId.uppercase()
+            }
+        }
+        return null
+    }
+
     suspend fun boundariesFor(callsign: String): List<List<LatLng>> {
         ensureLoaded()
 

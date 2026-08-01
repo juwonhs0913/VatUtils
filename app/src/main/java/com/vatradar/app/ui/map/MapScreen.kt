@@ -160,8 +160,19 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             onMapClick = { viewModel.dismissSheet() }
         ) {
             // 1) 광역 관제 구역 — FIR 폴리곤
+            //    세부 섹터를 담당하는 경우, 소속 ACC 전역을 옅게 깔아 소속을 보여줍니다.
+            //    섹터만 그리면 그 관제사가 어느 ACC인지 지도에서 알 수 없습니다.
             boundaryControllers.forEach { controller ->
                 val color = facilityColor(controller.facility)
+                controller.parentBoundary.forEach { ring ->
+                    Polygon(
+                        points = ring,
+                        strokeColor = color.copy(alpha = 0.35f),
+                        strokeWidth = 2f,
+                        fillColor = color.copy(alpha = 0.04f),
+                        clickable = false
+                    )
+                }
                 controller.boundary.forEach { ring ->
                     Polygon(
                         points = ring,

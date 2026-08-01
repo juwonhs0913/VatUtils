@@ -52,7 +52,12 @@ data class Controller(
      * VATSpy 기반 관제 구역 폴리곤 (CTR/FSS 등 광역 관제만 채워집니다).
      * 공항 단위 관제(TWR/GND/DEL/APP)는 비어 있고 마커로만 표시합니다.
      */
-    val boundary: List<List<LatLng>> = emptyList()
+    val boundary: List<List<LatLng>> = emptyList(),
+    /**
+     * 세부 섹터를 담당할 때의 소속 ACC 전역. 지도에 옅게 깔아 소속을 보여줍니다.
+     * 전역을 담당하는 콜사인이면 비어 있습니다.
+     */
+    val parentBoundary: List<List<LatLng>> = emptyList()
 ) {
     /** 콜사인에서 앞부분 ICAO/FIR 코드를 뽑습니다. RKSI_TWR → RKSI, RKRR_CTR → RKRR */
     val prefix: String get() = callsign.substringBefore('_')

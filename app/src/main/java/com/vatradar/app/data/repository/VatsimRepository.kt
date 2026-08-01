@@ -1,6 +1,7 @@
 package com.vatradar.app.data.repository
 
 import com.vatradar.app.data.local.AirportDao
+import com.vatradar.app.data.local.BoundaryMatch
 import com.vatradar.app.data.local.FirBoundaryStore
 import com.vatradar.app.data.remote.VatsimApiService
 import com.vatradar.app.domain.model.Aircraft
@@ -77,14 +78,14 @@ class VatsimRepository(
 
                 // 광역 관제(CTR/FSS)만 FIR 폴리곤을 찾습니다.
                 // 공항 관제는 폴리곤이 아니라 공항 좌표 마커가 맞습니다.
-                val boundary = if (facility == FacilityType.CTR || facility == FacilityType.FSS) {
-                    firBoundaryStore.boundariesFor(c.callsign)
+                val match = if (facility == FacilityType.CTR || facility == FacilityType.FSS) {
+                    firBoundaryStore.boundaryMatch(c.callsign)
                 } else {
-                    emptyList()
+                    BoundaryMatch(emptyList(), emptyList())
                 }
 
                 // 폴리곤이 있으면 그 무게중심을 라벨 위치로 씁니다.
-                val center = boundary.takeIf { it.isNotEmpty() }
+                val center = match.rings.takeIf { it.isNotEmpty() }
                     ?.let { firBoundaryStore.centroid(it) }
 
                 Controller(
@@ -98,7 +99,8 @@ class VatsimRepository(
                     latitude = airport?.latitude ?: center?.latitude,
                     longitude = airport?.longitude ?: center?.longitude,
                     airportName = airport?.name,
-                    boundary = boundary
+                    boundary = match.rings,
+                    parentBoundary = match.parent
                 )
             }
 
