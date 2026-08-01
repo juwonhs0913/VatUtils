@@ -93,13 +93,12 @@
     <string name="refresh">Refresh</string>
     <string name="error_prefix">Error: %1$s</string>
 
-    <!-- Challenges / Rank -->
-    <string name="rank_label">Rank</string>
+    <!-- Challenges -->
     <string name="active_challenge">Active challenge</string>
     <string name="challenge_enroute">Enroute — flight detected</string>
     <string name="challenge_waiting">Waiting for you to fly this route on VATSIM</string>
     <string name="challenge_done">Challenge complete</string>
-    <string name="cid_needed">Add your VATSIM CID in Settings to earn points for completed flights.</string>
+    <string name="cid_needed">Add your VATSIM CID in Settings so your flights are tracked.</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">Your numeric VATSIM ID (e.g. 1234567). Used only to check whether you flew a rolled route — it is never sent anywhere except the public VATSIM API.</string>
     <string name="tab_my_flights">My flights</string>

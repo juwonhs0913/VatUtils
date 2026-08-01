@@ -90,13 +90,12 @@
     <string name="refresh">刷新</string>
     <string name="error_prefix">错误：%1$s</string>
 
-    <!-- Challenges / Rank -->
-    <string name="rank_label">等级</string>
+    <!-- Challenges -->
     <string name="active_challenge">进行中的挑战</string>
     <string name="challenge_enroute">飞行中 — 已确认</string>
     <string name="challenge_waiting">在 VATSIM 上飞完该航线即可完成</string>
     <string name="challenge_done">挑战完成</string>
-    <string name="cid_needed">在设置中登记 VATSIM CID 后，完成的航班将获得积分。</string>
+    <string name="cid_needed">在设置中填写 VATSIM CID 后即可记录您的飞行。</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">您的数字 VATSIM ID（如 1234567）。仅用于确认您是否飞了抽取的航线，除 VATSIM 公开 API 外不会发送到任何地方。</string>
     <string name="tab_my_flights">我的飞行</string>

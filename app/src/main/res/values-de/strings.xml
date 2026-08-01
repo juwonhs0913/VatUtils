@@ -90,13 +90,12 @@
     <string name="refresh">Aktualisieren</string>
     <string name="error_prefix">Fehler: %1$s</string>
 
-    <!-- Challenges / Rank -->
-    <string name="rank_label">Rang</string>
+    <!-- Challenges -->
     <string name="active_challenge">Aktive Challenge</string>
     <string name="challenge_enroute">Unterwegs — Flug erkannt</string>
     <string name="challenge_waiting">Fliege diese Route auf VATSIM, um sie abzuschließen</string>
     <string name="challenge_done">Challenge geschafft</string>
-    <string name="cid_needed">Hinterlege deine VATSIM-CID in den Einstellungen, um Punkte für Flüge zu erhalten.</string>
+    <string name="cid_needed">Hinterlege deine VATSIM-CID in den Einstellungen, damit deine Flüge erfasst werden.</string>
     <string name="vatsim_cid">VATSIM-CID</string>
     <string name="vatsim_cid_hint">Deine numerische VATSIM-ID (z. B. 1234567). Wird nur genutzt, um zu prüfen, ob du eine ausgeloste Route geflogen bist — sie geht nirgendwo hin außer an die öffentliche VATSIM-API.</string>
     <string name="tab_my_flights">Meine Flüge</string>

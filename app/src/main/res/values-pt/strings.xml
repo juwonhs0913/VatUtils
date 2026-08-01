@@ -90,13 +90,12 @@
     <string name="refresh">Atualizar</string>
     <string name="error_prefix">Erro: %1$s</string>
 
-    <!-- Challenges / Rank -->
-    <string name="rank_label">Rank</string>
+    <!-- Challenges -->
     <string name="active_challenge">Desafio ativo</string>
     <string name="challenge_enroute">Em rota — voo detectado</string>
     <string name="challenge_waiting">Voe esta rota na VATSIM para concluir</string>
     <string name="challenge_done">Desafio concluído</string>
-    <string name="cid_needed">Cadastre seu VATSIM CID nas Configurações para ganhar pontos pelos voos.</string>
+    <string name="cid_needed">Adicione seu CID da VATSIM nas Configurações para que seus voos sejam registrados.</string>
     <string name="vatsim_cid">VATSIM CID</string>
     <string name="vatsim_cid_hint">Seu ID numérico da VATSIM (ex.: 1234567). Usado apenas para verificar se você voou uma rota sorteada — não é enviado a lugar algum além da API pública da VATSIM.</string>
     <string name="tab_my_flights">Meus voos</string>
