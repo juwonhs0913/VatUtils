@@ -22,10 +22,17 @@ import kotlinx.coroutines.withContext
  * 경계 좌표는 요청된 것만 파싱해 캐시합니다. 전부 올리면 메모리 낭비이고,
  * 실제로 접속 중인 관제소는 보통 수십~수백 곳뿐입니다.
  */
-/** 담당 구역과 소속 ACC 전역. [parent]는 세부 섹터일 때만 채워집니다. */
+/**
+ * 담당 구역과 소속 ACC 전역.
+ *
+ * [label]을 따로 두는 이유: 그리기용 [rings]에는 뉴욕처럼 떨어져 있는 조각을 더해
+ * 넣는데, 그 조각들이 라벨 위치 계산을 끌고 갑니다. 마가단(UHMM)은 그 때문에
+ * 라벨이 야쿠티야까지 밀려났습니다. 이름표는 그 구역의 **주 도형** 위에 놓입니다.
+ */
 data class BoundaryMatch(
     val rings: List<List<LatLng>>,
-    val parent: List<List<LatLng>>
+    val parent: List<List<LatLng>>,
+    val label: List<List<LatLng>> = rings
 )
 
 class FirBoundaryStore(private val context: Context) {
@@ -120,13 +127,17 @@ class FirBoundaryStore(private val context: Context) {
         val rings = boundariesFor(callsign)
         if (rings.isEmpty()) return BoundaryMatch(emptyList(), emptyList())
 
-        val parentId = matchedBoundaryId(callsign)?.takeIf { '-' in it }?.substringBefore('-')
-            ?: return BoundaryMatch(rings, emptyList())
+        val matchedId = matchedBoundaryId(callsign)
+        // 라벨은 매칭된 경계 그 자체 위에 놓습니다 (합쳐 넣은 조각은 빼고).
+        val labelRings = matchedId?.let { boundaryById(it) }?.takeIf { it.isNotEmpty() } ?: rings
+
+        val parentId = matchedId?.takeIf { '-' in it }?.substringBefore('-')
+            ?: return BoundaryMatch(rings, emptyList(), labelRings)
 
         val parent = boundaryById(parentId)
         // 전역을 못 찾거나 담당 구역과 같으면 겹쳐 그릴 이유가 없습니다.
-        return if (parent.isEmpty() || parent == rings) BoundaryMatch(rings, emptyList())
-        else BoundaryMatch(rings, parent)
+        return if (parent.isEmpty() || parent == rings) BoundaryMatch(rings, emptyList(), labelRings)
+        else BoundaryMatch(rings, parent, labelRings)
     }
 
     /** boundariesFor가 어떤 경계 ID로 매칭했는지. 소속 ACC를 되짚는 데 씁니다. */
@@ -189,8 +200,12 @@ class FirBoundaryStore(private val context: Context) {
      * 뉴욕 상공은 KZNY-W 에 들어 있습니다. 루트만 그리면 NY_CTR 이 대서양에만
      * 표시되어 "관제소가 안 뜬다"로 보입니다.
      *
-     * 단, 섹터가 루트 안에 완전히 들어가는 경우(한국 RKRR-N 처럼 단순 분할)는
-     * 겹쳐 칠해질 뿐이라 뺍니다. 경계 상자 포함 여부로 거릅니다.
+     * 반대로 마가단(UHMM)처럼 섹터가 루트를 잘게 나눈 것뿐인 경우에는 더하면 안 됩니다.
+     * 겹쳐 칠해질 뿐 아니라, 링이 늘어나면서 라벨 위치 계산이 엉뚱한 곳으로 끌려갑니다
+     * (UHMM 라벨이 야쿠티야까지 밀려났습니다).
+     *
+     * 판정은 **섹터의 대표점이 루트 안에 있는가**로 합니다. 경계 상자로 보면
+     * 날짜변경선을 걸친 도형에서 상자가 지구 전체로 벌어져 판정이 무너집니다.
      */
     private suspend fun withSectors(boundaryId: String): List<List<LatLng>> {
         val rootId = boundaryId.uppercase()
@@ -198,27 +213,38 @@ class FirBoundaryStore(private val context: Context) {
         val sectorIds = sectorsByRoot[rootId] ?: return rootRings
         if (rootRings.isEmpty()) return sectorIds.flatMap { boundaryById(it) }
 
-        val rootBox = boundingBox(rootRings)
-        val extra = sectorIds.flatMap { boundaryById(it) }
-            .filterNot { ring -> rootBox.contains(boundingBox(listOf(ring))) }
+        val extra = sectorIds.flatMap { id ->
+            val rings = boundaryById(id)
+            val point = representativePoint(rings)
+            // 루트 밖에 있는 조각만 더합니다.
+            if (point == null || rootRings.any { contains(it, point) }) emptyList() else rings
+        }
         return rootRings + extra
     }
 
-    private data class Box(
-        val minLat: Double, val maxLat: Double,
-        val minLon: Double, val maxLon: Double
-    ) {
-        fun contains(other: Box): Boolean =
-            other.minLat >= minLat && other.maxLat <= maxLat &&
-                other.minLon >= minLon && other.maxLon <= maxLon
+    /** 조각을 대표하는 점 — 가장 점이 많은 링의 평균. */
+    private fun representativePoint(rings: List<List<LatLng>>): LatLng? {
+        val biggest = rings.maxByOrNull { it.size } ?: return null
+        if (biggest.isEmpty()) return null
+        return LatLng(
+            biggest.sumOf { it.latitude } / biggest.size,
+            biggest.sumOf { it.longitude } / biggest.size
+        )
     }
 
-    private fun boundingBox(rings: List<List<LatLng>>): Box {
-        val points = rings.flatten()
-        return Box(
-            points.minOf { it.latitude }, points.maxOf { it.latitude },
-            points.minOf { it.longitude }, points.maxOf { it.longitude }
-        )
+    private fun contains(ring: List<LatLng>, point: LatLng): Boolean {
+        var inside = false
+        for (i in ring.indices) {
+            val a = ring[i]
+            val b = ring[(i + 1) % ring.size]
+            if ((a.latitude > point.latitude) != (b.latitude > point.latitude)) {
+                val crossing = a.longitude +
+                    (point.latitude - a.latitude) * (b.longitude - a.longitude) /
+                    (b.latitude - a.latitude)
+                if (point.longitude < crossing) inside = !inside
+            }
+        }
+        return inside
     }
 
     private suspend fun unionOf(firIcaos: List<String>): List<List<LatLng>> =
@@ -253,7 +279,10 @@ class FirBoundaryStore(private val context: Context) {
 
     /** 폴리곤 무게중심 — 마커/라벨 위치로 씁니다. */
     fun centroid(rings: List<List<LatLng>>): LatLng? {
-        val all = rings.flatten()
+        // 극점(위도 90)에 찍힌 닫기용 정점은 북극권 FIR의 중심을 크게 북쪽으로
+        // 끌고 갑니다. BoundaryLabelPoint와 같은 이유로 걷어냅니다.
+        val all = rings.flatten().filter { kotlin.math.abs(it.latitude) < 89.0 }
+            .ifEmpty { rings.flatten() }
         if (all.isEmpty()) return null
         return LatLng(all.sumOf { it.latitude } / all.size, all.sumOf { it.longitude } / all.size)
     }

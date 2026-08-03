@@ -144,10 +144,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val zoom = cameraPositionState.position.zoom
     val boundaryLabels = remember(boundaryControllers, approachControllers, zoom) {
         boundaryControllers.mapNotNull { controller ->
-            val position = BoundaryLabelPoint.of(controller.boundary) ?: return@mapNotNull null
+            val shape = controller.labelBoundary.ifEmpty { controller.boundary }
+            val position = BoundaryLabelPoint.of(shape) ?: return@mapNotNull null
             // 화면에서 너무 좁은 구역은 라벨을 붙이지 않습니다.
             // 일본·유럽처럼 섹터가 잘게 나뉜 곳에서 라벨이 서로 겹쳐 읽을 수 없게 됩니다.
-            val widthPx = BoundaryLabelPoint.longitudeSpan(controller.boundary) *
+            val widthPx = BoundaryLabelPoint.longitudeSpan(shape) *
                 256.0 * 2.0.pow(zoom.toDouble()) / 360.0
             if (widthPx < MIN_LABEL_WIDTH_PX) return@mapNotNull null
             BoundaryLabel(
