@@ -133,4 +133,5 @@
     <string name="unsaved_changes">Há alterações não salvas.</string>
     <string name="saved">Salvo</string>
     <string name="discard">Descartar</string>
+    <string name="scroll_for_more">Role para ver mais</string>
 </resources>

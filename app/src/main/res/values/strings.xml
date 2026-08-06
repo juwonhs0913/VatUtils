@@ -136,4 +136,5 @@
     <string name="unsaved_changes">You have unsaved changes.</string>
     <string name="saved">Saved</string>
     <string name="discard">Discard</string>
+    <string name="scroll_for_more">Scroll for more</string>
 </resources>

@@ -71,6 +71,12 @@ import com.google.maps.android.compose.CameraPositionState
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.FlightLand
 import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.ui.graphics.Brush
 import com.vatradar.app.R
 import kotlin.math.pow
 import com.vatradar.app.domain.model.Aircraft
@@ -156,7 +162,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 position = position,
                 argb = AirportBadgeIcons.facilityArgb(controller.facility)
             )
-        } + approachControllers.map { controller ->
+        } + approachControllers.filter { zoom >= APP_LABEL_MIN_ZOOM }.map { controller ->
             // 원 한가운데 두면 공항 마커·배지와 겹칩니다. 반경만큼 북쪽으로 올려
             // 원 위쪽 테두리 바깥에 태그가 붙게 합니다.
             val offsetDeg = controller.approachRadiusMeters() / 111_320.0
@@ -337,14 +343,21 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 onDismissRequest = viewModel::dismissSheet,
                 sheetState = sheetState
             ) {
+                val sheetScroll = rememberScrollState()
+
+                // 아래로 더 있다는 걸 보여주려고 Box로 감쌉니다.
+                // 시트가 딱 잘려 보이면 사용자는 그게 전부인 줄 압니다.
+                Box(Modifier.fillMaxWidth()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // 기상까지 붙으면 길어질 수 있어, 화면 절반을 넘으면 안에서 스크롤합니다.
-                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.55f)
-                        .verticalScroll(rememberScrollState())
+                        // 기상까지 붙으면 길어지므로 안에서 스크롤합니다.
+                        // 상한이 시트가 실제로 차지하는 높이보다 크면 내용이 화면
+                        // 아래로 잘려 나가고, 그 자리에 둔 스크롤 표시도 같이 가려집니다.
+                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.42f)
+                        .verticalScroll(sheetScroll)
                         .padding(horizontal = 20.dp)
-                        .padding(bottom = 24.dp),
+                        .padding(bottom = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     if (aircraft != null) {
@@ -364,7 +377,49 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     }
                     WeatherSectionHost(state)
                 }
+
+                ScrollMoreHint(
+                    visible = sheetScroll.canScrollForward,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+                }
             }
+        }
+    }
+}
+
+/**
+ * 시트 아래쪽에 "더 있다"는 표시.
+ *
+ * 내용이 잘린 자리에 배경색으로 흐려지는 띠와 아래 화살표를 얹습니다.
+ * 스크롤이 끝까지 내려가면 사라집니다 — 남아 있으면 오히려 거짓말이 됩니다.
+ */
+@Composable
+private fun ScrollMoreHint(visible: Boolean, modifier: Modifier = Modifier) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier
+    ) {
+        val surface = MaterialTheme.colorScheme.surfaceContainerLow
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(surface.copy(alpha = 0f), surface)
+                    )
+                ),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(R.string.scroll_for_more),
+                modifier = Modifier.padding(bottom = 4.dp).size(22.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -382,7 +437,16 @@ private fun WeatherSectionHost(state: MapUiState) {
  * visual_range는 관제사가 설정하는 값이라 0이거나 비현실적으로 큰 경우가 있어 범위를 제한합니다.
  */
 /** 라벨을 붙일 최소 폭(픽셀). 이보다 좁으면 글자가 구역을 덮어 오히려 방해가 됩니다. */
-private const val MIN_LABEL_WIDTH_PX = 90.0
+private const val MIN_LABEL_WIDTH_PX = 55.0
+
+/**
+ * 어프로치 이름표를 붙이기 시작하는 줌.
+ *
+ * 어프로치 공역은 반경 수십 해리라 세계 지도에서는 점입니다. 그 위에 이름표만
+ * 남으면 정작 넓은 관제 구역 이름이 가려집니다. 멀리서는 관제 구역만,
+ * 가까이 가면 어프로치까지 보이게 합니다.
+ */
+private const val APP_LABEL_MIN_ZOOM = 6f
 
 private fun Controller.approachRadiusMeters(): Double {
     // 관제사가 넉넉히 잡아 두는 값이라 그대로 그리면 원이 지도를 덮습니다.
