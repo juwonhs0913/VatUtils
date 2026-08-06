@@ -3,6 +3,7 @@ package com.vatradar.app.data.local
 import android.content.Context
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
+import com.vatradar.app.domain.BoundaryLabelPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -278,12 +279,12 @@ class FirBoundaryStore(private val context: Context) {
             }
 
     /** 폴리곤 무게중심 — 마커/라벨 위치로 씁니다. */
-    fun centroid(rings: List<List<LatLng>>): LatLng? {
-        // 극점(위도 90)에 찍힌 닫기용 정점은 북극권 FIR의 중심을 크게 북쪽으로
-        // 끌고 갑니다. BoundaryLabelPoint와 같은 이유로 걷어냅니다.
-        val all = rings.flatten().filter { kotlin.math.abs(it.latitude) < 89.0 }
-            .ifEmpty { rings.flatten() }
-        if (all.isEmpty()) return null
-        return LatLng(all.sumOf { it.latitude } / all.size, all.sumOf { it.longitude } / all.size)
-    }
+    /**
+     * 구역의 대표 지점 — 관제사 마커 위치와 검색 결과 카메라에 씁니다.
+     *
+     * 이름표와 **같은 계산**을 씁니다. 예전에는 여기만 단순 평균이라
+     * 마가단(UHMM)을 고르면 카메라가 야쿠츠크로 날아갔습니다. 날짜변경선 건너편
+     * 조각(-180~-169)이 평균을 서쪽으로 끌어당겼기 때문입니다.
+     */
+    fun centroid(rings: List<List<LatLng>>): LatLng? = BoundaryLabelPoint.of(rings)
 }

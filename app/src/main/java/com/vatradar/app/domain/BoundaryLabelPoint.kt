@@ -38,24 +38,52 @@ object BoundaryLabelPoint {
     private data class Point(val lat: Double, val lon: Double)
 
     fun of(rings: List<List<LatLng>>): LatLng? {
-        val biggest = biggestRing(rings) ?: return null
+        val anchor = anchorFor(rings) ?: return null
 
-        var lat = biggest.sumOf { it.lat } / biggest.size
-        var lon = biggest.sumOf { it.lon } / biggest.size   // 이미 한 프레임에 펴져 있습니다
+        // 후보는 극점 정점을 뺀 도형에서 냅니다 — 그래야 북극권 구역이
+        // 이름표를 극점으로 끌고 가지 않습니다.
+        val trimmed = biggestRing(rings, anchor, dropPoles = true)
+        // 검증과 폴백은 **원본** 도형으로 합니다. 극점 정점을 빼면 링이 다른 곳에서
+        // 이어지면서 원래 없던 영역이 생길 수 있어(남극권 쐐기), 다듬은 도형만 믿으면
+        // 실제로는 구역 밖인 점을 고르게 됩니다.
+        val actual = biggestRing(rings, anchor, dropPoles = false) ?: return null
 
-        if (!contains(biggest, lat, lon)) {
-            widestChord(biggest)?.let { (chordLat, chordLon) ->
-                lat = chordLat
-                lon = chordLon
+        val candidate = trimmed ?: actual
+        var lat = candidate.sumOf { it.lat } / candidate.size
+        var lon = candidate.sumOf { it.lon } / candidate.size
+
+        if (!contains(actual, lat, lon)) {
+            val chord = widestChord(actual)
+            if (chord != null) {
+                lat = chord.first
+                lon = chord.second
+            } else {
+                // 위도가 두 값뿐인 쐐기(남극 맥머도 NZCM 등)는 가로로 잘라도
+                // 후보 위도가 안 나옵니다. 그런 도형은 꼭짓점 평균이 안쪽입니다.
+                lat = actual.sumOf { it.lat } / actual.size
+                lon = actual.sumOf { it.lon } / actual.size
             }
         }
 
         return LatLng(lat, normalizeLongitude(lon))
     }
 
+    /**
+     * 구역 전체에서 기준 경도를 한 번만 정합니다.
+     *
+     * 링마다 따로 정하면, 날짜변경선에서 두 조각으로 쪼개진 구역(피지 NFFJ,
+     * 마가단 섹터들)의 조각들이 서로 다른 프레임에 놓여 이어지지 않습니다.
+     */
+    private fun anchorFor(rings: List<List<LatLng>>): Double? {
+        val points = rings.filter { it.size >= 3 }.flatten()
+        return if (points.isEmpty()) null else circularMeanLongitude(points)
+    }
+
     /** 링들이 차지하는 경도 폭. 화면에서 얼마나 넓은지 가늠하는 데 씁니다. */
     fun longitudeSpan(rings: List<List<LatLng>>): Double {
-        val biggest = biggestRing(rings) ?: return 0.0
+        val anchor = anchorFor(rings) ?: return 0.0
+        val biggest = biggestRing(rings, anchor, dropPoles = true)
+            ?: biggestRing(rings, anchor, dropPoles = false) ?: return 0.0
         val lons = biggest.map { it.lon }
         return (lons.max() - lons.min()).coerceAtMost(360.0)
     }
@@ -64,27 +92,39 @@ object BoundaryLabelPoint {
      * 극점 정점을 걷어내고, 경도를 한 프레임에 편 뒤, 가장 넓은 링을 고릅니다.
      * 돌려주는 링의 경도는 [-180,180]을 벗어날 수 있습니다 — 계산용 좌표입니다.
      */
-    private fun biggestRing(rings: List<List<LatLng>>): List<Point>? =
-        rings.map { dropPoleClosure(it) }
-            .filter { it.size >= 3 }
-            .map { alignLongitudes(it) }
-            .maxByOrNull { area(it) }
+    private fun biggestRing(
+        rings: List<List<LatLng>>,
+        anchor: Double,
+        dropPoles: Boolean
+    ): List<Point>? {
+        val usable = if (dropPoles) rings.mapNotNull { dropPoleClosure(it) }
+        else rings.filter { it.size >= 3 }
+        if (usable.isEmpty()) return null
 
-    private fun dropPoleClosure(ring: List<LatLng>): List<LatLng> {
-        val trimmed = ring.filter { abs(it.latitude) < POLE_LATITUDE }
-        // 전부 극점인 링(있을 리 없지만)은 원본을 그대로 둡니다.
-        return if (trimmed.size >= 3) trimmed else ring
+        return usable.map { ring -> alignLongitudes(ring, anchor) }
+            .maxByOrNull { area(it) }
     }
 
     /**
-     * 링의 원형 평균 경도를 기준으로, 모든 점을 그 ±180도 안으로 옮깁니다.
+     * 극점을 빼고 3점이 안 남는 링은 **버립니다**.
+     *
+     * 남극권 구역(NZCM 등)에는 위도 -90 정점 세 개로 폴리곤을 닫는 조각이 있습니다.
+     * 이걸 원본 그대로 살려 두면 그 조각이 가장 넓은 링으로 뽑혀 이름표를 극점으로
+     * 끌고 갑니다. 실제 공역이 아니라 닫기용 조각이라 버리는 게 맞습니다.
+     */
+    private fun dropPoleClosure(ring: List<LatLng>): List<LatLng>? {
+        val trimmed = ring.filter { abs(it.latitude) < POLE_LATITUDE }
+        return trimmed.takeIf { it.size >= 3 }
+    }
+
+    /**
+     * 주어진 기준 경도의 ±180도 안으로 모든 점을 옮깁니다.
      *
      * 이웃한 점끼리만 보고 펴면(누적 방식) 시작점이 어디냐에 따라 결과가 달라지고,
      * 180에 걸친 점 하나 때문에 링 전체가 한 바퀴 밀립니다. 기준점을 먼저 정하면
      * 그런 일이 없습니다.
      */
-    private fun alignLongitudes(ring: List<LatLng>): List<Point> {
-        val anchor = circularMeanLongitude(ring)
+    private fun alignLongitudes(ring: List<LatLng>, anchor: Double): List<Point> {
         return ring.map { point ->
             var lon = point.longitude
             while (lon - anchor > 180) lon -= 360
