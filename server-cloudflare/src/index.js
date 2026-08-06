@@ -25,9 +25,37 @@ const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
 /** 한 번에 띄우는 FCM 요청 수. Workers의 동시 요청 한도를 넘지 않도록 나눠 보냅니다. */
 const SEND_BATCH_SIZE = 6;
 
+/**
+ * 한 번의 cron 안에서 피드를 몇 번 볼지, 그리고 그 간격(ms).
+ *
+ * Cloudflare cron은 1분이 최소 단위입니다. 그대로 두면 관제사가 접속한 직후에
+ * 켜진 경우 최대 1분을 기다리고, 거기에 VATSIM 피드 자체의 갱신 지연(15초)이
+ * 더해져 알림이 80초 넘게 늦습니다.
+ *
+ * 기다리는 동안에는 CPU를 쓰지 않으므로, 한 번 깨어난 김에 20초 간격으로
+ * 세 번 봅니다. 최악의 경우가 60초에서 20초로 줄어듭니다.
+ */
+const CHECKS_PER_RUN = 3;
+const CHECK_INTERVAL_MS = 20_000;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function runRepeatedly(env) {
+  for (let i = 0; i < CHECKS_PER_RUN; i++) {
+    if (i > 0) await sleep(CHECK_INTERVAL_MS);
+    try {
+      await run(env);
+    } catch (error) {
+      // 한 번 실패해도 남은 확인은 계속합니다. 다음 cron까지 1분을 통째로
+      // 날리는 것보다 낫습니다.
+      console.warn(`주기 확인 실패(${i + 1}/${CHECKS_PER_RUN}): ${error}`);
+    }
+  }
+}
+
 export default {
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(run(env));
+    ctx.waitUntil(runRepeatedly(env));
   },
 
   async fetch(request, env) {
@@ -209,12 +237,26 @@ async function saveState(env, online) {
 
 // ---------------------------------------------------------------- FCM
 
+/** 발급받은 액세스 토큰. 격리 인스턴스가 살아 있는 동안 재사용합니다. */
+let cachedToken = null;
+
 /**
  * FCM HTTP v1은 서비스 계정으로 서명한 JWT를 액세스 토큰으로 교환해야 합니다.
- * 토큰은 1시간 유효하지만, 매 실행마다 새로 받아도 비용이 미미하고
- * 캐시를 두면 저장소 쓰기가 늘어나므로 그냥 매번 발급합니다.
+ *
+ * 토큰은 1시간 유효합니다. 한 번의 cron에서 세 번 확인하도록 바꾸면서 발급도
+ * 세 배가 됐는데, 매번 받으면 확인마다 구글 왕복이 하나 더 붙어 알림이 그만큼
+ * 늦습니다. 만료 1분 전까지 재사용합니다.
  */
 async function getAccessToken(env) {
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
+    return cachedToken.value;
+  }
+  const token = await requestAccessToken(env);
+  cachedToken = { value: token, expiresAt: Date.now() + 3600_000 };
+  return token;
+}
+
+async function requestAccessToken(env) {
   const credentials = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
   const now = Math.floor(Date.now() / 1000);
 
