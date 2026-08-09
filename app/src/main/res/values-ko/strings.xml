@@ -83,7 +83,7 @@
     <string name="add">추가</string>
     <string name="remove">삭제</string>
     <string name="no_watched_controllers">등록된 관제소가 없습니다.</string>
-    <string name="alerts_hint">접두사로 등록하면 하위 관제석까지 모두 감지합니다 (RKSI → RKSI_TWR, RKSI_APP 등). 앱을 켜두지 않고도 몇 초 안에 받으려면 README의 FCM 서버 배포 안내를 참고하세요.</string>
+    <string name="alerts_hint">접두사로 등록하면 그 아래 관제석이 모두 잡힙니다 (RKSI → RKSI_TWR, RKSI_APP 등).</string>
 
     <!-- Common -->
     <string name="loading">불러오는 중…</string>
@@ -134,4 +134,11 @@
     <string name="saved">저장했습니다</string>
     <string name="discard">되돌리기</string>
     <string name="scroll_for_more">아래로 더 있습니다</string>
+    <string name="star_event">알림 받기</string>
+    <string name="unstar_event">알림 끄기</string>
+    <string name="event_starting_soon">한 시간 뒤 이벤트가 시작합니다</string>
+    <string name="collapse_list">목록 접기</string>
+    <string name="expand_list">목록 펼치기</string>
+    <string name="nearby_approach_title">근처 공항의 어프로치</string>
+    <string name="nearby_approach_hint">하나의 접근관제가 함께 볼 수 있을 만큼 가까운 공항들입니다. 해당하는 것만 담으세요 — 저희가 임의로 묶지 않습니다.</string>
 </resources>

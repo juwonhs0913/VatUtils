@@ -83,7 +83,7 @@
     <string name="add">添加</string>
     <string name="remove">删除</string>
     <string name="no_watched_controllers">尚未登记任何管制席位。</string>
-    <string name="alerts_hint">按前缀登记会匹配其下所有席位（RKSI → RKSI_TWR、RKSI_APP 等）。若希望无需保持应用运行也能在数秒内收到提醒，请参考 README 中的 FCM 服务器部署说明。</string>
+    <string name="alerts_hint">按前缀登记会匹配其下所有席位（RKSI → RKSI_TWR、RKSI_APP 等）。</string>
 
     <!-- Common -->
     <string name="loading">加载中…</string>
@@ -134,4 +134,11 @@
     <string name="saved">已保存</string>
     <string name="discard">放弃</string>
     <string name="scroll_for_more">向下滚动查看更多</string>
+    <string name="star_event">提醒我</string>
+    <string name="unstar_event">取消提醒</string>
+    <string name="event_starting_soon">活动将在一小时后开始</string>
+    <string name="collapse_list">收起列表</string>
+    <string name="expand_list">展开列表</string>
+    <string name="nearby_approach_title">邻近机场的进近</string>
+    <string name="nearby_approach_hint">这些机场足够近，可能由同一进近席位管制。请自行添加适用的项——我们不做臆测。</string>
 </resources>

@@ -83,7 +83,7 @@
     <string name="add">Adicionar</string>
     <string name="remove">Remover</string>
     <string name="no_watched_controllers">Nenhuma posição registrada.</string>
-    <string name="alerts_hint">Registrar um prefixo detecta todas as posições abaixo dele (RKSI → RKSI_TWR, RKSI_APP, …). Para alertas em segundos sem manter o app rodando, veja a configuração do servidor FCM no README.</string>
+    <string name="alerts_hint">Registrar um prefixo cobre todas as posições abaixo dele (RKSI → RKSI_TWR, RKSI_APP …).</string>
 
     <!-- Common -->
     <string name="loading">Carregando…</string>
@@ -134,4 +134,11 @@
     <string name="saved">Salvo</string>
     <string name="discard">Descartar</string>
     <string name="scroll_for_more">Role para ver mais</string>
+    <string name="star_event">Lembrar</string>
+    <string name="unstar_event">Remover lembrete</string>
+    <string name="event_starting_soon">O evento começa em uma hora</string>
+    <string name="collapse_list">Recolher lista</string>
+    <string name="expand_list">Mostrar lista</string>
+    <string name="nearby_approach_title">Aeroportos próximos</string>
+    <string name="nearby_approach_hint">Estes aeroportos estão perto o suficiente para que uma mesma aproximação cubra ambos. Adicione os que se aplicam — não adivinhamos.</string>
 </resources>

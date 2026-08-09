@@ -83,7 +83,7 @@
     <string name="add">Hinzufügen</string>
     <string name="remove">Entfernen</string>
     <string name="no_watched_controllers">Keine Positionen hinterlegt.</string>
-    <string name="alerts_hint">Ein Präfix erfasst alle darunterliegenden Positionen (RKSI → RKSI_TWR, RKSI_APP, …). Für Hinweise binnen Sekunden, ohne die App laufen zu lassen, siehe die FCM-Server-Anleitung in der README.</string>
+    <string name="alerts_hint">Ein Präfix trifft jede Position darunter (RKSI → RKSI_TWR, RKSI_APP …).</string>
 
     <!-- Common -->
     <string name="loading">Wird geladen…</string>
@@ -134,4 +134,11 @@
     <string name="saved">Gespeichert</string>
     <string name="discard">Verwerfen</string>
     <string name="scroll_for_more">Weiter scrollen</string>
+    <string name="star_event">Erinnern</string>
+    <string name="unstar_event">Erinnerung aus</string>
+    <string name="event_starting_soon">Event beginnt in einer Stunde</string>
+    <string name="collapse_list">Liste einklappen</string>
+    <string name="expand_list">Liste zeigen</string>
+    <string name="nearby_approach_title">Nahe Flughäfen</string>
+    <string name="nearby_approach_hint">Diese Flughäfen liegen nah genug, dass ein Approach beide abdecken könnte. Füge die zutreffenden hinzu — wir raten nicht.</string>
 </resources>

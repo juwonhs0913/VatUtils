@@ -34,6 +34,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.ui.graphics.Color
+import com.vatradar.app.notification.EventReminderWorker
 import com.vatradar.app.R
 import androidx.core.net.toUri
 import androidx.browser.customtabs.CustomTabsIntent
@@ -55,16 +60,25 @@ data class EventsUiState(
     val events: List<VatsimEvent> = emptyList(),
     val error: String? = null,
     val selectedTab: Int = 0,
-    val query: String = ""
+    val query: String = "",
+    val starred: Set<String> = emptySet()
 )
 
 class EventsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = ServiceLocator.eventsRepository()
+    private val settings = ServiceLocator.settingsRepository(app)
     private val _uiState = MutableStateFlow(EventsUiState())
     val uiState = _uiState.asStateFlow()
 
-    init { refresh() }
+    init {
+        refresh()
+        viewModelScope.launch {
+            settings.settings.collect { stored ->
+                _uiState.value = _uiState.value.copy(starred = stored.starredEvents)
+            }
+        }
+    }
 
     fun refresh() {
         viewModelScope.launch {
@@ -88,6 +102,27 @@ class EventsViewModel(app: Application) : AndroidViewModel(app) {
         val now = System.currentTimeMillis()
         val hasOngoing = events.any { it.startEpochMillis <= now && it.endEpochMillis >= now }
         return if (hasOngoing) 0 else 1
+    }
+
+    /**
+     * 관심 표시를 켜고 끕니다.
+     *
+     * 예약은 표시할 때 겁니다. 앱을 다시 열지 않아도 알림이 오도록
+     * WorkManager에 맡기고, 취소하면 예약도 함께 지웁니다.
+     */
+    fun toggleStar(event: VatsimEvent) {
+        viewModelScope.launch {
+            val context = getApplication<Application>()
+            if (event.id.toString() in _uiState.value.starred) {
+                settings.unstarEvent(event.id)
+                EventReminderWorker.cancel(context, event.id)
+            } else {
+                settings.starEvent(event.id)
+                EventReminderWorker.schedule(
+                    context, event.id, event.name, event.startEpochMillis
+                )
+            }
+        }
     }
 
     fun setQuery(value: String) {
@@ -178,14 +213,24 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(shown, key = { it.id }) { EventCard(it) }
+                items(shown, key = { it.id }) { event ->
+                    EventCard(
+                        event = event,
+                        starred = event.id.toString() in state.starred,
+                        onToggleStar = { viewModel.toggleStar(event) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun EventCard(event: VatsimEvent) {
+private fun EventCard(
+    event: VatsimEvent,
+    starred: Boolean,
+    onToggleStar: () -> Unit
+) {
     val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Column {
@@ -234,12 +279,33 @@ private fun EventCard(event: VatsimEvent) {
                     )
                 }
 
-                if (event.link.isNotBlank()) {
-                    androidx.compose.material3.TextButton(
-                        onClick = {
-                            CustomTabsIntent.Builder().build().launchUrl(context, event.link.toUri())
-                        }
-                    ) { Text(stringResource(R.string.view_on_vatsim)) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (event.link.isNotBlank()) {
+                        androidx.compose.material3.TextButton(
+                            onClick = {
+                                CustomTabsIntent.Builder().build()
+                                    .launchUrl(context, event.link.toUri())
+                            }
+                        ) { Text(stringResource(R.string.view_on_vatsim)) }
+                    } else {
+                        Spacer(Modifier)
+                    }
+
+                    IconButton(onClick = onToggleStar) {
+                        Icon(
+                            if (starred) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = stringResource(
+                                if (starred) R.string.unstar_event else R.string.star_event
+                            ),
+                            // 켜면 노랑, 끄면 기본색.
+                            tint = if (starred) Color(0xFFF5B301)
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }

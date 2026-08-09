@@ -47,6 +47,10 @@ import androidx.compose.material3.HorizontalDivider
 import com.vatradar.app.data.local.ControllerCatalog
 import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.Continent
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AssistChip
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
@@ -64,7 +68,9 @@ data class CatalogState(
     val countryNames: Map<String, String> = emptyMap(),
     val allCenters: List<ControllerCatalog.CenterEntry> = emptyList(),
     val centers: List<ControllerCatalog.CenterEntry> = emptyList(),
-    val airports: List<Airport> = emptyList()
+    val airports: List<Airport> = emptyList(),
+    /** 등록한 공항 근처의 어프로치 — 같은 접근관제일 수 있어 제안만 합니다. */
+    val nearbyApproaches: List<String> = emptyList()
 )
 
 class AlertsViewModel(app: Application) : AndroidViewModel(app) {
@@ -81,11 +87,31 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
     fun addWatched(v: String) = viewModelScope.launch {
         repo.addWatched(v)
         FcmTopics.subscribe(v)
+        refreshSuggestions()
     }
 
     fun removeWatched(v: String) = viewModelScope.launch {
         repo.removeWatched(v)
         FcmTopics.unsubscribe(v)
+        refreshSuggestions()
+    }
+
+    /**
+     * 등록한 공항 근처의 어프로치 제안.
+     *
+     * 인천과 김포는 서울 어프로치 하나가 봅니다. 하네다와 나리타도 마찬가지입니다.
+     * 그런데 관제사는 둘 중 한쪽 콜사인으로만 접속하므로 인천만 등록해 두면 놓칩니다.
+     *
+     * 자동으로 묶지 않는 이유: "가까우면 같은 접근관제"는 추측이라 틀립니다.
+     * 히드로와 개트윅은 22해리인데 담당 디렉터가 서로 다릅니다. 어느 공항이 묶이는지는
+     * 그 지역을 아는 사람이 제일 잘 알므로, 후보만 보여 주고 고르게 합니다.
+     * 고르면 평범한 등록값이 되어 목록에 그대로 보이고 지울 수도 있습니다.
+     */
+    private suspend fun refreshSuggestions() {
+        val watched = repo.current().watchedCallsigns
+        val suggestions = airportRepo.approachNeighbours(watched)
+            .filterNot { it in watched }
+        _catalog.value = _catalog.value.copy(nearbyApproaches = suggestions)
     }
 
     // ---------------- 관제소 고르기 ----------------
@@ -104,6 +130,7 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
                 countryNames = airportRepo.countryNames()
             )
             applyFilter()
+            refreshSuggestions()
         }
     }
 
@@ -238,6 +265,34 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
                 )
             }
         }
+        if (catalog.nearbyApproaches.isNotEmpty()) {
+            Card {
+                Column(
+                    Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.nearby_approach_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        stringResource(R.string.nearby_approach_hint),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        catalog.nearbyApproaches.forEach { callsign ->
+                            AssistChip(
+                                onClick = { viewModel.addWatched(callsign) },
+                                label = { Text(callsign) },
+                                leadingIcon = { Icon(Icons.Default.Add, null, Modifier.size(16.dp)) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         ControllerPicker(
             catalog = catalog,
             watched = settings.watchedCallsigns,
@@ -273,36 +328,59 @@ private fun ControllerPicker(
                 style = MaterialTheme.typography.titleMedium
             )
 
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = catalog.continent == null,
-                    onClick = { onContinent(null) },
-                    label = { Text(stringResource(R.string.worldwide)) }
-                )
-                Continent.entries.forEach { continent ->
-                    FilterChip(
-                        selected = catalog.continent == continent.code,
-                        onClick = { onContinent(continent.code) },
-                        label = { Text(continent.displayName) }
-                    )
-                }
-            }
 
-            if (catalog.continent != null && catalog.countries.isNotEmpty()) {
+
+            // 대륙과 나라를 고르면 칩이 여러 줄로 늘어나 목록을 밀어냅니다.
+            // 다 고르고 나면 접어 두고, 지금 무엇을 골랐는지만 한 줄로 보여 줍니다.
+            var chipsOpen by remember { mutableStateOf(true) }
+
+            if (chipsOpen) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
-                        selected = catalog.country == null,
-                        onClick = { onCountry(null) },
-                        label = { Text(stringResource(R.string.all_countries)) }
+                        selected = catalog.continent == null,
+                        onClick = { onContinent(null) },
+                        label = { Text(stringResource(R.string.worldwide)) }
                     )
-                    catalog.countries.forEach { (code, name) ->
+                    Continent.entries.forEach { continent ->
                         FilterChip(
-                            selected = catalog.country == code,
-                            onClick = { onCountry(code) },
-                            label = { Text(name) }
+                            selected = catalog.continent == continent.code,
+                            onClick = { onContinent(continent.code) },
+                            label = { Text(continent.displayName) }
                         )
                     }
                 }
+
+                if (catalog.continent != null && catalog.countries.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = catalog.country == null,
+                            onClick = { onCountry(null) },
+                            label = { Text(stringResource(R.string.all_countries)) }
+                        )
+                        catalog.countries.forEach { (code, name) ->
+                            FilterChip(
+                                selected = catalog.country == code,
+                                onClick = { onCountry(code) },
+                                label = { Text(name) }
+                            )
+                        }
+                    }
+                }
+            }
+
+            TextButton(
+                onClick = { chipsOpen = !chipsOpen },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    if (chipsOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    null,
+                    Modifier.size(20.dp)
+                )
+                Text(
+                    "  " + if (chipsOpen) stringResource(R.string.collapse_list)
+                    else stringResource(R.string.expand_list) + " · " + currentScope(catalog)
+                )
             }
 
             HorizontalDivider()
@@ -346,6 +424,7 @@ private fun ControllerPicker(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
         }
     }
 }
@@ -380,4 +459,12 @@ private fun PickerRow(
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+/** 지금 좁혀 둔 범위를 한 줄로. 접었을 때 무엇을 골랐는지 알 수 있어야 합니다. */
+@Composable
+private fun currentScope(catalog: CatalogState): String {
+    val country = catalog.countries.firstOrNull { it.first == catalog.country }?.second
+    val continent = Continent.fromCode(catalog.continent)?.displayName
+    return country ?: continent ?: stringResource(R.string.worldwide)
 }

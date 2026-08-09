@@ -17,6 +17,8 @@ data class UserSettings(
     /** VATSIM CID. 챌린지 완주 확인에 씁니다. */
     val vatsimCid: String = "",
     val watchedCallsigns: Set<String> = emptySet(),
+    /** 관심 표시한 이벤트 ID. 시작 1시간 전에 알립니다. */
+    val starredEvents: Set<String> = emptySet(),
     val notifyEnabled: Boolean = false,
     /** 빈 문자열이면 시스템 언어를 따릅니다. */
     val languageTag: String = "",
@@ -30,6 +32,7 @@ class SettingsRepository(private val context: Context) {
         val SIMBRIEF_ID = stringPreferencesKey("simbrief_id")
         val VATSIM_CID = stringPreferencesKey("vatsim_cid")
         val WATCHED = stringSetPreferencesKey("watched_callsigns")
+        val STARRED_EVENTS = stringSetPreferencesKey("starred_events")
         val NOTIFY = booleanPreferencesKey("notify_enabled")
         val LANGUAGE = stringPreferencesKey("language_tag")
         val THEME = stringPreferencesKey("theme_mode")
@@ -42,6 +45,7 @@ class SettingsRepository(private val context: Context) {
             simBriefId = p[Keys.SIMBRIEF_ID] ?: "",
             vatsimCid = p[Keys.VATSIM_CID] ?: "",
             watchedCallsigns = p[Keys.WATCHED] ?: emptySet(),
+            starredEvents = p[Keys.STARRED_EVENTS] ?: emptySet(),
             notifyEnabled = p[Keys.NOTIFY] ?: false,
             languageTag = p[Keys.LANGUAGE] ?: "",
             themeMode = p[Keys.THEME] ?: "system"
@@ -63,6 +67,14 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun removeWatched(callsign: String) = edit { p ->
         p[Keys.WATCHED] = (p[Keys.WATCHED] ?: emptySet()) - callsign
+    }
+
+    suspend fun starEvent(id: Int) = edit { p ->
+        p[Keys.STARRED_EVENTS] = (p[Keys.STARRED_EVENTS] ?: emptySet()) + id.toString()
+    }
+
+    suspend fun unstarEvent(id: Int) = edit { p ->
+        p[Keys.STARRED_EVENTS] = (p[Keys.STARRED_EVENTS] ?: emptySet()) - id.toString()
     }
 
     suspend fun alreadyNotified(): Set<String> =

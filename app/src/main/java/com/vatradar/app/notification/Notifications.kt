@@ -54,6 +54,25 @@ object Notifications {
 
 
 
+    /** 관심 이벤트 시작 1시간 전 알림. */
+    fun showEventReminder(context: Context, name: String, startEpochMillis: Long) {
+        if (!canPost(context)) return
+        ensureChannels(context)
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ONLINE)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.event_starting_soon))
+            .setContentText(name)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(name))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(openAppIntent(context))
+            .build()
+
+        NotificationManagerCompat.from(context)
+            .notify(("event" + startEpochMillis + name).hashCode(), notification)
+    }
+
     /** 챌린지 완주 축하 알림. */
     fun showChallengeComplete(context: Context, route: String) {
         if (!canPost(context)) return
