@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +34,8 @@ import com.vatradar.app.ui.nav.Destination
 import com.vatradar.app.ui.myflights.MyFlightsScreen
 import com.vatradar.app.ui.route.ChallengeMapScreen
 import com.vatradar.app.ui.route.RouteScreen
+import com.vatradar.app.ui.settings.LicensesScreen
+import com.vatradar.app.ui.settings.OssLicensesScreen
 import com.vatradar.app.ui.settings.SettingsScreen
 import com.vatradar.app.ui.theme.ThemeMode
 import com.vatradar.app.ui.theme.VatRadarTheme
@@ -70,9 +71,10 @@ fun VatRadarRoot() {
     val currentRoute = backStackEntry?.destination
 
     val isSettings = currentRoute?.route == Destination.SETTINGS
-    val isAlerts = currentRoute?.route == Destination.ALERTS
+    val isLicenses = currentRoute?.route == Destination.LICENSES
+    val isOssLicenses = currentRoute?.route == Destination.OSS_LICENSES
     val isChallengeMap = currentRoute?.route == Destination.CHALLENGE_MAP
-    val isSubPage = isSettings || isAlerts || isChallengeMap
+    val isSubPage = isSettings || isLicenses || isOssLicenses || isChallengeMap
 
     Scaffold(
         topBar = {
@@ -84,7 +86,8 @@ fun VatRadarRoot() {
                     Text(
                         when {
                             isSettings -> stringResource(R.string.settings)
-                            isAlerts -> stringResource(R.string.alerts)
+                            isLicenses -> stringResource(R.string.licenses)
+                            isOssLicenses -> stringResource(R.string.open_source_licenses)
                             isChallengeMap -> stringResource(R.string.active_challenge)
                             labelRes != null -> stringResource(labelRes)
                             else -> stringResource(R.string.app_name)
@@ -103,12 +106,6 @@ fun VatRadarRoot() {
                 },
                 actions = {
                     if (!isSubPage) {
-                        IconButton(onClick = { navController.navigate(Destination.ALERTS) }) {
-                            Icon(
-                                Icons.Default.NotificationsActive,
-                                contentDescription = stringResource(R.string.alerts)
-                            )
-                        }
                         IconButton(onClick = { navController.navigate(Destination.SETTINGS) }) {
                             Icon(
                                 Icons.Default.Settings,
@@ -160,9 +157,17 @@ fun VatRadarRoot() {
                 )
             }
             composable(Destination.EVENTS.route) { EventsScreen() }
+            composable(Destination.ALERTS.route) { AlertsScreen() }
             composable(Destination.MY_FLIGHTS.route) { MyFlightsScreen() }
-            composable(Destination.SETTINGS) { SettingsScreen() }
-            composable(Destination.ALERTS) { AlertsScreen() }
+            composable(Destination.SETTINGS) {
+                SettingsScreen(onOpenLicenses = { navController.navigate(Destination.LICENSES) })
+            }
+            composable(Destination.LICENSES) {
+                LicensesScreen(
+                    onOpenOssLicenses = { navController.navigate(Destination.OSS_LICENSES) }
+                )
+            }
+            composable(Destination.OSS_LICENSES) { OssLicensesScreen() }
             composable(Destination.CHALLENGE_MAP) { entry ->
                 ChallengeMapScreen(
                     origin = entry.arguments?.getString("origin").orEmpty(),

@@ -8,7 +8,6 @@ import com.vatradar.app.data.remote.WeatherApiService
 import com.vatradar.app.di.NetworkModule
 import com.vatradar.app.domain.metar.DecodedMetar
 import com.vatradar.app.domain.metar.MetarDecoder
-import com.vatradar.app.domain.ApproachNeighbours
 import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.RouteFilter
 import com.vatradar.app.domain.model.OfpSummary
@@ -174,19 +173,6 @@ class AirportRepository(
                 }
         mostCommon(1) + mostCommon(2)   // 2글자가 1글자를 덮어씁니다
     }
-
-    /**
-     * 등록한 관제소들과 **같은 접근관제를 받는 이웃 공항**의 어프로치 콜사인.
-     *
-     * 인천만 등록해 둔 사람이 김포 어프로치(서울 어프로치) 접속을 놓치지 않도록
-     * 넓혀 줍니다. 자세한 규칙은 ApproachNeighbours 참고.
-     */
-    suspend fun approachNeighbours(watched: Collection<String>): List<String> =
-        withContext(Dispatchers.Default) {
-            if (watched.isEmpty()) return@withContext emptyList()
-            val airports = international()
-            watched.flatMap { ApproachNeighbours.extraCallsigns(it, airports) }.distinct()
-        }
 
     /** 나라 코드 → 표시 이름 (국제공항이 있는 나라만). */
     suspend fun countryNames(): Map<String, String> =

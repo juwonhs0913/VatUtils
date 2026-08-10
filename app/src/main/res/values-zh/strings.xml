@@ -65,7 +65,6 @@
 
     <!-- Settings -->
     <string name="language">语言</string>
-    <string name="alerts">提醒</string>
     <string name="appearance">显示模式</string>
     <string name="theme_system">跟随系统</string>
     <string name="theme_light">浅色</string>
@@ -116,10 +115,6 @@
     <string name="no_flights_yet">尚无飞行记录。填入 CID 后在 VATSIM 飞行，记录会出现在这里。</string>
     <string name="recent_flights">最近的飞行</string>
     <string name="pick_from_list">从列表中选择</string>
-    <string name="centers_heading">区域管制 (%1$d)</string>
-    <string name="airports_heading">机场</string>
-    <string name="airports_heading_hint">添加机场即涵盖其进近、塔台、地面和放行席位。</string>
-    <string name="pick_region_for_airports">请先选择地区以查看机场。</string>
     <string name="search_events">搜索活动</string>
     <string name="no_matching_events">没有匹配的活动。</string>
     <string name="clear">清除</string>
@@ -137,8 +132,43 @@
     <string name="star_event">提醒我</string>
     <string name="unstar_event">取消提醒</string>
     <string name="event_starting_soon">活动将在一小时后开始</string>
-    <string name="collapse_list">收起列表</string>
-    <string name="expand_list">展开列表</string>
-    <string name="nearby_approach_title">邻近机场的进近</string>
-    <string name="nearby_approach_hint">这些机场足够近，可能由同一进近席位管制。请自行添加适用的项——我们不做臆测。</string>
+    <string name="tab_alerts">提醒</string>
+    <string name="alerts_off_hint">提醒已关闭。开启后，登记的席位上线时会通知你。</string>
+    <string name="view_compact">简略</string>
+    <string name="view_detailed">详细</string>
+    <string name="watched_heading">已登记 (%1$d)</string>
+    <string name="change_region">更改</string>
+    <string name="pick_continent_and_country">选择大洲和国家后才会显示候选。</string>
+    <string name="search_candidates">搜索管制中心和机场</string>
+    <string name="section_centers">管制中心 (%1$d)</string>
+    <string name="section_approaches">进近 (%1$d)</string>
+    <string name="section_approaches_hint">只提醒该机场的进近席位。</string>
+    <string name="section_airports">机场 (%1$d)</string>
+    <string name="section_airports_hint">涵盖该机场的进近、塔台、地面和放行席位。</string>
+    <string name="more_candidates">还有 %1$d 项——请用搜索缩小范围。</string>
+    <string name="events_starred">关注 (%1$d)</string>
+    <string name="no_starred_events">点击活动上的星标，即可在此汇总，并在开始前一小时收到提醒。</string>
+    <string name="feedback">反馈</string>
+    <string name="feedback_hint">发现问题或觉得哪里不对，请告诉我——这是它被修复的唯一途径。</string>
+    <string name="send_feedback">发送邮件</string>
+    <string name="feedback_subject">VATRadar %1$s 反馈</string>
+    <string name="feedback_body_template">\n\n---\n设备：%1$s\nAndroid：%2$s\n应用：%3$s</string>
+    <string name="no_email_app">未找到邮件应用。</string>
+    <string name="about">关于</string>
+    <string name="app_version">版本 %1$s</string>
+    <string name="licenses">数据来源与许可</string>
+    <string name="legal_notices">声明</string>
+    <string name="vatsim_disclaimer">VATRadar 是非官方的爱好者应用，与 VATSIM、SimBrief 及任何真实航空公司或机场均无隶属、认可或赞助关系。所示数据来自公开来源，可能不完整或已过时，切勿用于真实飞行。</string>
+    <string name="data_sources">数据来源</string>
+    <string name="src_vatsim_use">实时航班、管制席位与活动</string>
+    <string name="src_vatspy_use">FIR 与扇区边界</string>
+    <string name="src_ourairports_use">机场数据库</string>
+    <string name="src_naturalearth_use">飞行地图上的国家轮廓</string>
+    <string name="src_noaa_use">METAR 与 TAF</string>
+    <string name="src_simbrief_use">使用你自己的账号生成飞行计划</string>
+    <string name="vatspy_sharealike">应用内附带的边界文件是 VAT-Spy 数据的简化版本，同样以 CC BY-SA 4.0 许可提供。</string>
+    <string name="open_source_licenses">开源库</string>
+    <string name="apache_two_note">许可全文仅包含在发布版本中。</string>
+    <string name="show_notices">完整列表与许可全文</string>
+    <string name="oss_notice_hint">本应用基于以下及更多开源库构建。完整列表与许可全文已随应用一同附带。</string>
 </resources>

@@ -53,11 +53,6 @@ data class Controller(
      * 공항 단위 관제(TWR/GND/DEL/APP)는 비어 있고 마커로만 표시합니다.
      */
     val boundary: List<List<LatLng>> = emptyList(),
-    /**
-     * 세부 섹터를 담당할 때의 소속 ACC 전역. 지도에 옅게 깔아 소속을 보여줍니다.
-     * 전역을 담당하는 콜사인이면 비어 있습니다.
-     */
-    val parentBoundary: List<List<LatLng>> = emptyList(),
     /** 이름표를 얹을 도형. 합쳐 넣은 조각을 뺀 주 도형입니다. */
     val labelBoundary: List<List<LatLng>> = emptyList()
 ) {

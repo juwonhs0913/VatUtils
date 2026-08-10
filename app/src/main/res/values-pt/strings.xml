@@ -65,7 +65,6 @@
 
     <!-- Settings -->
     <string name="language">Idioma</string>
-    <string name="alerts">Alertas</string>
     <string name="appearance">Aparência</string>
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Claro</string>
@@ -116,10 +115,6 @@
     <string name="no_flights_yet">Nenhum voo registrado ainda. Voe na VATSIM com seu CID salvo e eles aparecerão aqui.</string>
     <string name="recent_flights">Voos recentes</string>
     <string name="pick_from_list">Escolher da lista</string>
-    <string name="centers_heading">Centros (%1$d)</string>
-    <string name="airports_heading">Aeroportos</string>
-    <string name="airports_heading_hint">Adicionar um aeroporto cobre approach, torre, solo e autorização.</string>
-    <string name="pick_region_for_airports">Escolha uma região para ver aeroportos.</string>
     <string name="search_events">Buscar eventos</string>
     <string name="no_matching_events">Nenhum evento corresponde.</string>
     <string name="clear">Limpar</string>
@@ -137,8 +132,43 @@
     <string name="star_event">Lembrar</string>
     <string name="unstar_event">Remover lembrete</string>
     <string name="event_starting_soon">O evento começa em uma hora</string>
-    <string name="collapse_list">Recolher lista</string>
-    <string name="expand_list">Mostrar lista</string>
-    <string name="nearby_approach_title">Aeroportos próximos</string>
-    <string name="nearby_approach_hint">Estes aeroportos estão perto o suficiente para que uma mesma aproximação cubra ambos. Adicione os que se aplicam — não adivinhamos.</string>
+    <string name="tab_alerts">Alertas</string>
+    <string name="alerts_off_hint">Os alertas estão desligados. Ative-os para ser avisado quando uma posição registrada entrar online.</string>
+    <string name="view_compact">Resumido</string>
+    <string name="view_detailed">Detalhado</string>
+    <string name="watched_heading">Registradas (%1$d)</string>
+    <string name="change_region">Alterar</string>
+    <string name="pick_continent_and_country">Escolha um continente e um país para ver os candidatos.</string>
+    <string name="search_candidates">Buscar centros e aeroportos</string>
+    <string name="section_centers">Centros (%1$d)</string>
+    <string name="section_approaches">Aproximação (%1$d)</string>
+    <string name="section_approaches_hint">Somente a posição de aproximação do aeroporto.</string>
+    <string name="section_airports">Aeroportos (%1$d)</string>
+    <string name="section_airports_hint">Cobre todas as posições do aeroporto — aproximação, torre, solo e autorização.</string>
+    <string name="more_candidates">Mais %1$d — refine com a busca.</string>
+    <string name="events_starred">Favoritos (%1$d)</string>
+    <string name="no_starred_events">Toque na estrela de um evento para reuni-lo aqui e receber um lembrete uma hora antes.</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_hint">Encontrou um erro ou algo parece errado? Me conte — é a única forma de corrigir.</string>
+    <string name="send_feedback">Enviar e-mail</string>
+    <string name="feedback_subject">Feedback do VATRadar %1$s</string>
+    <string name="feedback_body_template">\n\n---\nAparelho: %1$s\nAndroid: %2$s\nApp: %3$s</string>
+    <string name="no_email_app">Nenhum app de e-mail encontrado.</string>
+    <string name="about">Sobre</string>
+    <string name="app_version">Versão %1$s</string>
+    <string name="licenses">Fontes e licenças</string>
+    <string name="legal_notices">Aviso</string>
+    <string name="vatsim_disclaimer">O VATRadar é um app não oficial feito por fãs. Não tem vínculo, endosso ou patrocínio da VATSIM, do SimBrief nem de qualquer companhia aérea ou aeroporto real. Os dados vêm de fontes públicas, podem estar incompletos ou desatualizados e nunca devem ser usados em voo real.</string>
+    <string name="data_sources">Fontes de dados</string>
+    <string name="src_vatsim_use">Tráfego, controladores e eventos ao vivo</string>
+    <string name="src_vatspy_use">Limites de FIR e setores</string>
+    <string name="src_ourairports_use">Base de aeroportos</string>
+    <string name="src_naturalearth_use">Contornos de países no mapa de voos</string>
+    <string name="src_noaa_use">METAR e TAF</string>
+    <string name="src_simbrief_use">Planos de voo gerados com sua própria conta</string>
+    <string name="vatspy_sharealike">Os arquivos de limites incluídos no app são uma versão simplificada dos dados do VAT-Spy e são oferecidos sob a mesma licença CC BY-SA 4.0.</string>
+    <string name="open_source_licenses">Bibliotecas de código aberto</string>
+    <string name="apache_two_note">Os textos das licenças só acompanham as versões de release.</string>
+    <string name="show_notices">Todas as bibliotecas e licenças</string>
+    <string name="oss_notice_hint">Feito com estas e muitas outras. A lista completa e os textos das licenças acompanham o app.</string>
 </resources>

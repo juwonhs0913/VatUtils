@@ -16,6 +16,9 @@ plugins {
     id("com.google.devtools.ksp") // Room 컴파일러
 }
 
+// 루트 buildscript classpath로 들어온 플러그인이라 id()가 아니라 apply()로 붙입니다.
+apply(plugin = "com.google.android.gms.oss-licenses-plugin")
+
 /*
  * FCM 즉시 알림(F4)을 쓰려면 Firebase 콘솔에서 받은 google-services.json을
  * app/ 아래에 두면 됩니다. 파일이 있을 때만 플러그인을 적용하므로,
@@ -48,8 +51,8 @@ android {
         applicationId = "com.vatradar.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "1.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "")
@@ -96,6 +99,8 @@ android {
 
     buildFeatures {
         compose = true
+        // 설정 화면에 앱 버전을 띄우고 피드백 메일 본문에 넣는 데 씁니다.
+        buildConfig = true
     }
 
     compileOptions {
@@ -155,6 +160,9 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:6.4.1")
     implementation("com.google.maps.android:maps-compose-utils:6.4.1") // 마커 클러스터링
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    // 참고: play-services-oss-licenses는 일부러 넣지 않습니다. 그 라이브러리의 화면은
+    //       목록을 Play services에서 받아오는데, 서비스가 없는 기기에서는 빈 화면이 됩니다.
+    //       oss-licenses-plugin이 만든 raw 리소스를 OssLicenses가 직접 읽습니다.
 
     // 이벤트 배너 이미지 (F1)
     implementation("io.coil-kt:coil-compose:2.7.0")

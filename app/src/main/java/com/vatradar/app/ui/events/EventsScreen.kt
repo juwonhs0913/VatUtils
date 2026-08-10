@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -152,10 +153,18 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
         }
     }
 
-    // PRD 요구: 진행 중 / 예정 탭 분리
+    // PRD 요구: 진행 중 / 예정 탭 분리. 여기에 관심 표시한 것만 모아 보는 탭을 더합니다.
     val ongoing = matching.filter { it.startEpochMillis <= now && it.endEpochMillis >= now }
     val upcoming = matching.filter { it.startEpochMillis > now }
-    val shown = if (state.selectedTab == 0) ongoing else upcoming
+    // 관심 목록은 진행 중과 예정을 섞어 시간순으로 보여 줍니다 — 별을 누른 사람에게
+    // 지금 열려 있는지 아닌지는 탭을 나눌 만큼 중요한 구분이 아닙니다.
+    val starred = matching.filter { it.id.toString() in state.starred }
+        .sortedBy { it.startEpochMillis }
+    val shown = when (state.selectedTab) {
+        0 -> ongoing
+        1 -> upcoming
+        else -> starred
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -187,6 +196,11 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
                 onClick = { viewModel.selectTab(1) },
                 text = { Text(stringResource(R.string.events_upcoming, upcoming.size)) }
             )
+            Tab(
+                selected = state.selectedTab == 2,
+                onClick = { viewModel.selectTab(2) },
+                text = { Text(stringResource(R.string.events_starred, starred.size)) }
+            )
         }
 
         when {
@@ -202,10 +216,13 @@ fun EventsScreen(viewModel: EventsViewModel = viewModel()) {
                         when {
                             state.query.isNotBlank() -> R.string.no_matching_events
                             state.selectedTab == 0 -> R.string.no_ongoing_events
-                            else -> R.string.no_upcoming_events
+                            state.selectedTab == 1 -> R.string.no_upcoming_events
+                            else -> R.string.no_starred_events
                         }
                     ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    textAlign = TextAlign.Center
                 )
             }
 

@@ -4,6 +4,8 @@ import android.app.Application
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,16 +18,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,20 +50,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
-import com.vatradar.app.data.local.ControllerCatalog
-import com.vatradar.app.domain.model.Airport
-import com.vatradar.app.domain.model.Continent
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.AssistChip
 import com.vatradar.app.R
+import com.vatradar.app.data.local.ControllerCatalog
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.domain.model.Airport
+import com.vatradar.app.domain.model.Continent
 import com.vatradar.app.notification.ControllerWatchWorker
 import com.vatradar.app.notification.FcmTopics
 import com.vatradar.app.notification.Notifications
@@ -69,79 +71,65 @@ data class CatalogState(
     val allCenters: List<ControllerCatalog.CenterEntry> = emptyList(),
     val centers: List<ControllerCatalog.CenterEntry> = emptyList(),
     val airports: List<Airport> = emptyList(),
-    /** 등록한 공항 근처의 어프로치 — 같은 접근관제일 수 있어 제안만 합니다. */
-    val nearbyApproaches: List<String> = emptyList()
-)
+    /** 후보군 안에서 다시 좁히는 검색어. */
+    val query: String = ""
+) {
+    /**
+     * 후보를 보여줄 준비가 됐는가.
+     *
+     * 대륙만 고르면 후보가 수백 줄이 되어 고르는 게 아니라 훑는 일이 됩니다.
+     * 나라까지 좁혀야 목록이 사람이 볼 만한 길이가 됩니다.
+     */
+    val ready: Boolean get() = continent != null && country != null
+}
 
 class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = ServiceLocator.settingsRepository(app)
+    private val airportRepo = ServiceLocator.airportRepository(app)
 
     private val _settings = MutableStateFlow(UserSettings())
     val settings = _settings.asStateFlow()
-
-    init {
-        viewModelScope.launch { repo.settings.collect { _settings.value = it } }
-    }
-
-    fun addWatched(v: String) = viewModelScope.launch {
-        repo.addWatched(v)
-        FcmTopics.subscribe(v)
-        refreshSuggestions()
-    }
-
-    fun removeWatched(v: String) = viewModelScope.launch {
-        repo.removeWatched(v)
-        FcmTopics.unsubscribe(v)
-        refreshSuggestions()
-    }
-
-    /**
-     * 등록한 공항 근처의 어프로치 제안.
-     *
-     * 인천과 김포는 서울 어프로치 하나가 봅니다. 하네다와 나리타도 마찬가지입니다.
-     * 그런데 관제사는 둘 중 한쪽 콜사인으로만 접속하므로 인천만 등록해 두면 놓칩니다.
-     *
-     * 자동으로 묶지 않는 이유: "가까우면 같은 접근관제"는 추측이라 틀립니다.
-     * 히드로와 개트윅은 22해리인데 담당 디렉터가 서로 다릅니다. 어느 공항이 묶이는지는
-     * 그 지역을 아는 사람이 제일 잘 알므로, 후보만 보여 주고 고르게 합니다.
-     * 고르면 평범한 등록값이 되어 목록에 그대로 보이고 지울 수도 있습니다.
-     */
-    private suspend fun refreshSuggestions() {
-        val watched = repo.current().watchedCallsigns
-        val suggestions = airportRepo.approachNeighbours(watched)
-            .filterNot { it in watched }
-        _catalog.value = _catalog.value.copy(nearbyApproaches = suggestions)
-    }
-
-    // ---------------- 관제소 고르기 ----------------
-
-    private val airportRepo = ServiceLocator.airportRepository(app)
 
     private val _catalog = MutableStateFlow(CatalogState())
     val catalog = _catalog.asStateFlow()
 
     init {
+        viewModelScope.launch { repo.settings.collect { _settings.value = it } }
         viewModelScope.launch {
             val prefixes = airportRepo.icaoPrefixToCountry()
-            val centers = ControllerCatalog.centers(getApplication(), prefixes)
             _catalog.value = _catalog.value.copy(
-                allCenters = centers,
+                allCenters = ControllerCatalog.centers(getApplication(), prefixes),
                 countryNames = airportRepo.countryNames()
             )
             applyFilter()
-            refreshSuggestions()
         }
     }
 
+    fun addWatched(v: String) = viewModelScope.launch {
+        repo.addWatched(v)
+        FcmTopics.subscribe(v)
+    }
+
+    fun removeWatched(v: String) = viewModelScope.launch {
+        repo.removeWatched(v)
+        FcmTopics.unsubscribe(v)
+    }
+
+    // ---------------- 관제소 고르기 ----------------
+
     fun setContinent(code: String?) {
-        _catalog.value = _catalog.value.copy(continent = code, country = null)
+        _catalog.value = _catalog.value.copy(continent = code, country = null, query = "")
         viewModelScope.launch { applyFilter() }
     }
 
     fun setCountry(code: String?) {
-        _catalog.value = _catalog.value.copy(country = code)
+        _catalog.value = _catalog.value.copy(country = code, query = "")
         viewModelScope.launch { applyFilter() }
+    }
+
+    fun setQuery(value: String) {
+        _catalog.value = _catalog.value.copy(query = value)
     }
 
     private suspend fun applyFilter() {
@@ -160,9 +148,9 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
         _catalog.value = _catalog.value.copy(
             countries = airportRepo.countries(state.continent),
-            centers = centers,
-            airports = if (state.continent == null && state.country == null) emptyList()
-                       else airportRepo.airportsIn(state.continent, state.country)
+            centers = if (state.ready) centers else emptyList(),
+            airports = if (state.ready) airportRepo.airportsIn(state.continent, state.country)
+                       else emptyList()
         )
     }
 
@@ -173,12 +161,15 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val catalog by viewModel.catalog.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var newWatch by remember { mutableStateOf("") }
+
+    // 간략히 보기: 스위치와 등록 목록만. 자세히 보기: 직접 입력과 고르기 목록까지.
+    // 대부분의 방문은 "지금 뭘 등록해 뒀지"를 확인하러 오는 것이라 간략히가 기본입니다.
+    var detailed by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -191,73 +182,149 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val catalog by viewModel.catalog.collectAsStateWithLifecycle()
-
-        Card {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+        EnableCard(
+            enabled = settings.notifyEnabled,
+            onChange = { want ->
+                if (want && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    !Notifications.canPost(context)
                 ) {
-                    Text(stringResource(R.string.enable_alerts), style = MaterialTheme.typography.titleMedium)
-                    Switch(
-                        checked = settings.notifyEnabled,
-                        onCheckedChange = { want ->
-                            if (want && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                                !Notifications.canPost(context)
-                            ) {
-                                permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                viewModel.setNotifyEnabled(want)
-                            }
-                        }
-                    )
+                    permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    viewModel.setNotifyEnabled(want)
                 }
+            }
+        )
 
+        ViewModeSwitch(detailed = detailed, onChange = { detailed = it })
+
+        WatchedCard(
+            watched = settings.watchedCallsigns,
+            detailed = detailed,
+            onRemove = viewModel::removeWatched,
+            onAdd = viewModel::addWatched
+        )
+
+        AnimatedVisibility(visible = detailed) {
+            ControllerPicker(
+                catalog = catalog,
+                watched = settings.watchedCallsigns,
+                onContinent = viewModel::setContinent,
+                onCountry = viewModel::setCountry,
+                onQuery = viewModel::setQuery,
+                onToggle = { callsign ->
+                    if (callsign in settings.watchedCallsigns) viewModel.removeWatched(callsign)
+                    else viewModel.addWatched(callsign)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnableCard(enabled: Boolean, onChange: (Boolean) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.enable_alerts),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Switch(checked = enabled, onCheckedChange = onChange)
+            }
+            if (!enabled) {
+                Text(
+                    stringResource(R.string.alerts_off_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ViewModeSwitch(detailed: Boolean, onChange: (Boolean) -> Unit) {
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+        SegmentedButton(
+            selected = !detailed,
+            onClick = { onChange(false) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+        ) { Text(stringResource(R.string.view_compact)) }
+        SegmentedButton(
+            selected = detailed,
+            onClick = { onChange(true) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+        ) { Text(stringResource(R.string.view_detailed)) }
+    }
+}
+
+/** 지금 등록해 둔 관제소. 자세히 보기에서는 직접 입력도 여기서 합니다. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun WatchedCard(
+    watched: Set<String>,
+    detailed: Boolean,
+    onRemove: (String) -> Unit,
+    onAdd: (String) -> Unit
+) {
+    var typed by remember { mutableStateOf("") }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                stringResource(R.string.watched_heading, watched.size),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            if (watched.isEmpty()) {
+                Text(
+                    stringResource(R.string.no_watched_controllers),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    watched.sorted().forEach { callsign ->
+                        InputChip(
+                            selected = false,
+                            onClick = { onRemove(callsign) },
+                            label = { Text(callsign) },
+                            trailingIcon = {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.remove),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (detailed) {
+                HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
-                        value = newWatch,
-                        onValueChange = { newWatch = it },
+                        value = typed,
+                        onValueChange = { typed = it },
                         label = { Text(stringResource(R.string.callsign_or_prefix)) },
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = {
-                        if (newWatch.isNotBlank()) {
-                            viewModel.addWatched(newWatch)
-                            newWatch = ""
+                        if (typed.isNotBlank()) {
+                            onAdd(typed.trim().uppercase())
+                            typed = ""
                         }
                     }) {
                         Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
                     }
                 }
-
-                if (settings.watchedCallsigns.isEmpty()) {
-                    Text(
-                        stringResource(R.string.no_watched_controllers),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        settings.watchedCallsigns.sorted().forEach { cs ->
-                            InputChip(
-                                selected = false,
-                                onClick = { viewModel.removeWatched(cs) },
-                                label = { Text(cs) },
-                                trailingIcon = {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.remove),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
                 Text(
                     stringResource(R.string.alerts_hint),
                     style = MaterialTheme.typography.labelSmall,
@@ -265,52 +332,14 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
                 )
             }
         }
-        if (catalog.nearbyApproaches.isNotEmpty()) {
-            Card {
-                Column(
-                    Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        stringResource(R.string.nearby_approach_title),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        stringResource(R.string.nearby_approach_hint),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        catalog.nearbyApproaches.forEach { callsign ->
-                            AssistChip(
-                                onClick = { viewModel.addWatched(callsign) },
-                                label = { Text(callsign) },
-                                leadingIcon = { Icon(Icons.Default.Add, null, Modifier.size(16.dp)) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        ControllerPicker(
-            catalog = catalog,
-            watched = settings.watchedCallsigns,
-            onContinent = viewModel::setContinent,
-            onCountry = viewModel::setCountry,
-            onToggle = { callsign ->
-                if (callsign in settings.watchedCallsigns) viewModel.removeWatched(callsign)
-                else viewModel.addWatched(callsign)
-            }
-        )
     }
 }
 
 /**
- * 대륙 → 국가로 좁혀 가며 관제소를 고릅니다.
+ * 대륙 → 국가로 좁힌 뒤 센터·어프로치·공항 후보를 고릅니다.
  *
- * CTR/FSS는 목록에서 바로 고르고, 나머지 관제석은 공항을 고르면 그 공항의
- * APP/TWR/GND/DEL이 한 번에 등록됩니다 (등록값이 ICAO 하나면 하위 관제석을 모두 잡습니다).
+ * 나라까지 골라야 후보가 나옵니다. 대륙만으로는 수백 줄이라 고르는 화면이 아니라
+ * 스크롤하는 화면이 됩니다. 나라를 고르면 범위 칩은 접히고 한 줄 요약만 남습니다.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -319,32 +348,28 @@ private fun ControllerPicker(
     watched: Set<String>,
     onContinent: (String?) -> Unit,
     onCountry: (String?) -> Unit,
+    onQuery: (String) -> Unit,
     onToggle: (String) -> Unit
 ) {
-    Card {
+    var scopeOpen by remember { mutableStateOf(true) }
+
+    Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 stringResource(R.string.pick_from_list),
                 style = MaterialTheme.typography.titleMedium
             )
 
-
-
-            // 대륙과 나라를 고르면 칩이 여러 줄로 늘어나 목록을 밀어냅니다.
-            // 다 고르고 나면 접어 두고, 지금 무엇을 골랐는지만 한 줄로 보여 줍니다.
-            var chipsOpen by remember { mutableStateOf(true) }
-
-            if (chipsOpen) {
+            if (scopeOpen || !catalog.ready) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = catalog.continent == null,
-                        onClick = { onContinent(null) },
-                        label = { Text(stringResource(R.string.worldwide)) }
-                    )
                     Continent.entries.forEach { continent ->
                         FilterChip(
                             selected = catalog.continent == continent.code,
-                            onClick = { onContinent(continent.code) },
+                            onClick = {
+                                onContinent(
+                                    if (catalog.continent == continent.code) null else continent.code
+                                )
+                            },
                             label = { Text(continent.displayName) }
                         )
                     }
@@ -352,80 +377,142 @@ private fun ControllerPicker(
 
                 if (catalog.continent != null && catalog.countries.isNotEmpty()) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(
-                            selected = catalog.country == null,
-                            onClick = { onCountry(null) },
-                            label = { Text(stringResource(R.string.all_countries)) }
-                        )
                         catalog.countries.forEach { (code, name) ->
                             FilterChip(
                                 selected = catalog.country == code,
-                                onClick = { onCountry(code) },
+                                onClick = {
+                                    val next = if (catalog.country == code) null else code
+                                    onCountry(next)
+                                    // 나라까지 골랐으면 칩을 접어 후보 목록에 자리를 내줍니다.
+                                    scopeOpen = next == null
+                                },
                                 label = { Text(name) }
                             )
                         }
                     }
                 }
+            } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(scopeSummary(catalog), style = MaterialTheme.typography.bodyMedium)
+                    TextButton(onClick = { scopeOpen = true }) {
+                        Text(stringResource(R.string.change_region))
+                    }
+                }
             }
 
-            TextButton(
-                onClick = { chipsOpen = !chipsOpen },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    if (chipsOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    null,
-                    Modifier.size(20.dp)
-                )
+            if (!catalog.ready) {
                 Text(
-                    "  " + if (chipsOpen) stringResource(R.string.collapse_list)
-                    else stringResource(R.string.expand_list) + " · " + currentScope(catalog)
+                    stringResource(R.string.pick_continent_and_country),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                return@Column
             }
 
             HorizontalDivider()
 
-            Text(
-                stringResource(R.string.centers_heading, catalog.centers.size),
-                style = MaterialTheme.typography.labelLarge
+            OutlinedTextField(
+                value = catalog.query,
+                onValueChange = onQuery,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(stringResource(R.string.search_candidates)) },
+                leadingIcon = { Icon(Icons.Default.Search, null) },
+                trailingIcon = {
+                    if (catalog.query.isNotEmpty()) {
+                        IconButton(onClick = { onQuery("") }) {
+                            Icon(Icons.Default.Close, stringResource(R.string.clear))
+                        }
+                    }
+                },
+                singleLine = true
             )
-            catalog.centers.take(80).forEach { entry ->
-                PickerRow(
-                    title = entry.callsign,
-                    subtitle = entry.name,
-                    selected = entry.callsign in watched,
-                    onClick = { onToggle(entry.callsign) }
-                )
+
+            val q = catalog.query.trim()
+            val centers = catalog.centers.filter {
+                q.isEmpty() || it.callsign.contains(q, true) || it.name.contains(q, true)
+            }
+            val airports = catalog.airports.filter {
+                q.isEmpty() || it.icao.contains(q, true) || it.name.contains(q, true)
             }
 
-            if (catalog.airports.isNotEmpty()) {
-                HorizontalDivider()
-                Text(
-                    stringResource(R.string.airports_heading),
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Text(
-                    stringResource(R.string.airports_heading_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                catalog.airports.take(80).forEach { airport ->
-                    PickerRow(
-                        title = airport.icao,
-                        subtitle = airport.name,
-                        selected = airport.icao in watched,
-                        onClick = { onToggle(airport.icao) }
-                    )
-                }
-            } else if (catalog.continent == null) {
-                Text(
-                    stringResource(R.string.pick_region_for_airports),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            CandidateSection(
+                title = stringResource(R.string.section_centers, centers.size),
+                rows = centers.map {
+                    Candidate(it.callsign, it.callsign, it.name)
+                },
+                watched = watched,
+                onToggle = onToggle
+            )
 
+            CandidateSection(
+                title = stringResource(R.string.section_approaches, airports.size),
+                hint = stringResource(R.string.section_approaches_hint),
+                rows = airports.map {
+                    Candidate("${it.icao}_APP", "${it.icao}_APP", it.name)
+                },
+                watched = watched,
+                onToggle = onToggle
+            )
+
+            CandidateSection(
+                title = stringResource(R.string.section_airports, airports.size),
+                hint = stringResource(R.string.section_airports_hint),
+                rows = airports.map {
+                    Candidate(it.icao, it.icao, it.name)
+                },
+                watched = watched,
+                onToggle = onToggle
+            )
         }
+    }
+}
+
+private data class Candidate(val callsign: String, val title: String, val subtitle: String)
+
+/**
+ * 후보 한 묶음.
+ *
+ * 나라 하나에도 공항이 수백 곳인 경우가 있어(미국) 처음 [LIMIT]개만 그리고,
+ * 나머지는 검색으로 좁히게 합니다. 다 그리면 스크롤이 감당이 안 됩니다.
+ */
+@Composable
+private fun CandidateSection(
+    title: String,
+    rows: List<Candidate>,
+    watched: Set<String>,
+    onToggle: (String) -> Unit,
+    hint: String? = null
+) {
+    if (rows.isEmpty()) return
+    val limit = 40
+
+    HorizontalDivider()
+    Text(title, style = MaterialTheme.typography.labelLarge)
+    if (hint != null) {
+        Text(
+            hint,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+    rows.take(limit).forEach { row ->
+        PickerRow(
+            title = row.title,
+            subtitle = row.subtitle,
+            selected = row.callsign in watched,
+            onClick = { onToggle(row.callsign) }
+        )
+    }
+    if (rows.size > limit) {
+        Text(
+            stringResource(R.string.more_candidates, rows.size - limit),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -461,10 +548,11 @@ private fun PickerRow(
     }
 }
 
-/** 지금 좁혀 둔 범위를 한 줄로. 접었을 때 무엇을 골랐는지 알 수 있어야 합니다. */
+/** 접었을 때 무엇을 골랐는지 한 줄로. */
 @Composable
-private fun currentScope(catalog: CatalogState): String {
-    val country = catalog.countries.firstOrNull { it.first == catalog.country }?.second
+private fun scopeSummary(catalog: CatalogState): String {
     val continent = Continent.fromCode(catalog.continent)?.displayName
-    return country ?: continent ?: stringResource(R.string.worldwide)
+        ?: stringResource(R.string.worldwide)
+    val country = catalog.countries.firstOrNull { it.first == catalog.country }?.second
+    return if (country != null) "$continent · $country" else continent
 }

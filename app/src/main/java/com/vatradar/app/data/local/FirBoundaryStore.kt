@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
  * 실제로 접속 중인 관제소는 보통 수십~수백 곳뿐입니다.
  */
 /**
- * 담당 구역과 소속 ACC 전역.
+ * 담당 구역과 이름표를 놓을 도형.
  *
  * [label]을 따로 두는 이유: 그리기용 [rings]에는 뉴욕처럼 떨어져 있는 조각을 더해
  * 넣는데, 그 조각들이 라벨 위치 계산을 끌고 갑니다. 마가단(UHMM)은 그 때문에
@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
  */
 data class BoundaryMatch(
     val rings: List<List<LatLng>>,
-    val parent: List<List<LatLng>>,
     val label: List<List<LatLng>> = rings
 )
 
@@ -117,31 +116,27 @@ class FirBoundaryStore(private val context: Context) {
      *   AFRE_CTR    → UIR AFRE → 소속 FIR 폴리곤 전체
      */
     /**
-     * 담당 구역과, 그것이 세부 섹터일 때의 소속 ACC 전역.
+     * 담당 구역.
      *
      * VATJPN SOP는 "より狭域を担当するものが優先される"(좁은 쪽이 우선)라고 정하고 있어
-     * 담당 구역은 섹터가 맞습니다. 다만 섹터만 덩그러니 그리면 그 관제사가 어느 ACC
-     * 소속인지 지도에서 알 수 없습니다. vattastic 같은 다른 도구가 ACC 전역을 칠하는
-     * 것도 그래서입니다. 전역은 옅게 깔고 담당 섹터를 진하게 얹습니다.
+     * 담당 구역은 섹터가 맞습니다. 예전에는 소속 ACC 전역까지 옅게 깔았는데, 섹터
+     * 하나만 열려 있어도 나라 전체가 물들어 보여 오히려 오해를 샀습니다. 지금은
+     * 실제 담당 구역만 그립니다.
      */
     suspend fun boundaryMatch(callsign: String): BoundaryMatch {
         val rings = boundariesFor(callsign)
-        if (rings.isEmpty()) return BoundaryMatch(emptyList(), emptyList())
+        if (rings.isEmpty()) return BoundaryMatch(emptyList())
 
-        val matchedId = matchedBoundaryId(callsign)
         // 라벨은 매칭된 경계 그 자체 위에 놓습니다 (합쳐 넣은 조각은 빼고).
-        val labelRings = matchedId?.let { boundaryById(it) }?.takeIf { it.isNotEmpty() } ?: rings
+        val labelRings = matchedBoundaryId(callsign)
+            ?.let { boundaryById(it) }
+            ?.takeIf { it.isNotEmpty() }
+            ?: rings
 
-        val parentId = matchedId?.takeIf { '-' in it }?.substringBefore('-')
-            ?: return BoundaryMatch(rings, emptyList(), labelRings)
-
-        val parent = boundaryById(parentId)
-        // 전역을 못 찾거나 담당 구역과 같으면 겹쳐 그릴 이유가 없습니다.
-        return if (parent.isEmpty() || parent == rings) BoundaryMatch(rings, emptyList(), labelRings)
-        else BoundaryMatch(rings, parent, labelRings)
+        return BoundaryMatch(rings, labelRings)
     }
 
-    /** boundariesFor가 어떤 경계 ID로 매칭했는지. 소속 ACC를 되짚는 데 씁니다. */
+    /** boundariesFor가 어떤 경계 ID로 매칭했는지. 이름표를 놓을 도형을 되짚는 데 씁니다. */
     private suspend fun matchedBoundaryId(callsign: String): String? {
         ensureLoaded()
         val upper = callsign.uppercase()

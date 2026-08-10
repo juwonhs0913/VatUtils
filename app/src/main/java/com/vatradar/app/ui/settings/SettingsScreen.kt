@@ -1,6 +1,9 @@
 package com.vatradar.app.ui.settings
 
 import android.app.Application
+import android.content.Intent
+import android.os.Build
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,9 +16,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -33,9 +40,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -50,6 +60,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import com.vatradar.app.BuildConfig
 import com.vatradar.app.R
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.data.remote.LogbookRegisterRequest
@@ -138,7 +149,10 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
+fun SettingsScreen(
+    viewModel: SettingsViewModel = viewModel(),
+    onOpenLicenses: () -> Unit = {}
+) {
     val settings by viewModel.draft.collectAsStateWithLifecycle()
     val dirty by viewModel.dirty.collectAsStateWithLifecycle()
     val savedNotice by viewModel.savedNotice.collectAsStateWithLifecycle()
@@ -299,6 +313,92 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             )
         }
 
+        FeedbackCard()
+
+        // ---------------- 정보 ----------------
+        Card {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Default.Info, null, Modifier.size(20.dp))
+                    Text(stringResource(R.string.about), style = MaterialTheme.typography.titleMedium)
+                }
+                Text(
+                    stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                TextButton(onClick = onOpenLicenses, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.licenses),
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.size(18.dp))
+                }
+            }
+        }
+
         SnackbarHost(snackbarHost)
     }
 }
+
+/**
+ * 피드백 보내기.
+ *
+ * 스토어 리뷰로 오는 버그 신고는 되물을 방법이 없어 대개 고칠 수 없습니다.
+ * 메일이면 어떤 기기에서 무엇을 하다 그랬는지 되물을 수 있어 실제로 고쳐집니다.
+ * 그래서 기기·안드로이드 버전·앱 버전을 미리 본문에 채워 둡니다.
+ */
+@Composable
+private fun FeedbackCard() {
+    val context = LocalContext.current
+    val subject = stringResource(R.string.feedback_subject, BuildConfig.VERSION_NAME)
+    val body = stringResource(
+        R.string.feedback_body_template,
+        Build.MANUFACTURER + " " + Build.MODEL,
+        Build.VERSION.RELEASE,
+        BuildConfig.VERSION_NAME
+    )
+    val noAppMessage = stringResource(R.string.no_email_app)
+
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.Email, null, Modifier.size(20.dp))
+                Text(stringResource(R.string.feedback), style = MaterialTheme.typography.titleMedium)
+            }
+            Text(
+                stringResource(R.string.feedback_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(FEEDBACK_EMAIL, style = MaterialTheme.typography.bodyMedium)
+            Button(
+                onClick = {
+                    // ACTION_SENDTO + mailto: 는 메일 앱만 후보로 잡습니다.
+                    // ACTION_SEND 로 보내면 메신저·클라우드까지 선택지에 끼어듭니다.
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = "mailto:$FEEDBACK_EMAIL".toUri()
+                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                        putExtra(Intent.EXTRA_TEXT, body)
+                    }
+                    runCatching { context.startActivity(intent) }.onFailure {
+                        Toast.makeText(context, noAppMessage, Toast.LENGTH_LONG).show()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
+                Text("  " + stringResource(R.string.send_feedback))
+            }
+        }
+    }
+}
+
+private const val FEEDBACK_EMAIL = "juwon0913@soongsil.ac.kr"

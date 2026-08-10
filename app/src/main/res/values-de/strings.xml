@@ -65,7 +65,6 @@
 
     <!-- Settings -->
     <string name="language">Sprache</string>
-    <string name="alerts">Hinweise</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Hell</string>
@@ -116,10 +115,6 @@
     <string name="no_flights_yet">Noch keine Flüge aufgezeichnet. Mit hinterlegter CID auf VATSIM fliegen — dann erscheinen sie hier.</string>
     <string name="recent_flights">Letzte Flüge</string>
     <string name="pick_from_list">Aus Liste wählen</string>
-    <string name="centers_heading">Center (%1$d)</string>
-    <string name="airports_heading">Flughäfen</string>
-    <string name="airports_heading_hint">Ein Flughafen deckt Approach, Tower, Ground und Delivery ab.</string>
-    <string name="pick_region_for_airports">Region wählen, um Flughäfen zu sehen.</string>
     <string name="search_events">Events suchen</string>
     <string name="no_matching_events">Keine passenden Events.</string>
     <string name="clear">Löschen</string>
@@ -137,8 +132,43 @@
     <string name="star_event">Erinnern</string>
     <string name="unstar_event">Erinnerung aus</string>
     <string name="event_starting_soon">Event beginnt in einer Stunde</string>
-    <string name="collapse_list">Liste einklappen</string>
-    <string name="expand_list">Liste zeigen</string>
-    <string name="nearby_approach_title">Nahe Flughäfen</string>
-    <string name="nearby_approach_hint">Diese Flughäfen liegen nah genug, dass ein Approach beide abdecken könnte. Füge die zutreffenden hinzu — wir raten nicht.</string>
+    <string name="tab_alerts">Hinweise</string>
+    <string name="alerts_off_hint">Benachrichtigungen sind aus. Aktiviere sie, um beim Online-Gehen einer Position benachrichtigt zu werden.</string>
+    <string name="view_compact">Kompakt</string>
+    <string name="view_detailed">Detailliert</string>
+    <string name="watched_heading">Beobachtet (%1$d)</string>
+    <string name="change_region">Ändern</string>
+    <string name="pick_continent_and_country">Wähle Kontinent und Land, um Vorschläge zu sehen.</string>
+    <string name="search_candidates">Center und Flughäfen suchen</string>
+    <string name="section_centers">Center (%1$d)</string>
+    <string name="section_approaches">Approach (%1$d)</string>
+    <string name="section_approaches_hint">Nur die Approach-Position des Flughafens.</string>
+    <string name="section_airports">Flughäfen (%1$d)</string>
+    <string name="section_airports_hint">Deckt alle Positionen des Flughafens ab — Approach, Tower, Ground und Delivery.</string>
+    <string name="more_candidates">%1$d weitere — grenze die Suche ein.</string>
+    <string name="events_starred">Gemerkt (%1$d)</string>
+    <string name="no_starred_events">Tippe den Stern eines Events an — es erscheint hier und du wirst eine Stunde vorher erinnert.</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_hint">Fehler gefunden oder wirkt etwas falsch? Schreib mir — nur so wird es behoben.</string>
+    <string name="send_feedback">E-Mail senden</string>
+    <string name="feedback_subject">VATRadar %1$s Feedback</string>
+    <string name="feedback_body_template">\n\n---\nGerät: %1$s\nAndroid: %2$s\nApp: %3$s</string>
+    <string name="no_email_app">Keine E-Mail-App gefunden.</string>
+    <string name="about">Über</string>
+    <string name="app_version">Version %1$s</string>
+    <string name="licenses">Quellen und Lizenzen</string>
+    <string name="legal_notices">Hinweis</string>
+    <string name="vatsim_disclaimer">VATRadar ist eine inoffizielle Fan-App. Sie steht in keiner Verbindung zu VATSIM, SimBrief oder einer realen Airline bzw. einem Flughafen und wird von diesen weder unterstützt noch gesponsert. Die Daten stammen aus öffentlichen Quellen, können unvollständig oder veraltet sein und dürfen niemals für echte Flüge verwendet werden.</string>
+    <string name="data_sources">Datenquellen</string>
+    <string name="src_vatsim_use">Live-Verkehr, Lotsen und Events</string>
+    <string name="src_vatspy_use">FIR- und Sektorgrenzen</string>
+    <string name="src_ourairports_use">Flughafendatenbank</string>
+    <string name="src_naturalearth_use">Ländergrenzen auf der Flugkarte</string>
+    <string name="src_noaa_use">METAR und TAF</string>
+    <string name="src_simbrief_use">Flugpläne mit deinem eigenen Konto</string>
+    <string name="vatspy_sharealike">Die mitgelieferten Grenzdateien sind eine vereinfachte Fassung der VAT-Spy-Daten und stehen unter derselben Lizenz CC BY-SA 4.0.</string>
+    <string name="open_source_licenses">Open-Source-Bibliotheken</string>
+    <string name="apache_two_note">Lizenztexte liegen nur Release-Builds bei.</string>
+    <string name="show_notices">Alle Bibliotheken und Lizenztexte</string>
+    <string name="oss_notice_hint">Damit und mit vielem mehr gebaut. Die vollständige Liste samt Lizenztexten liegt in der App bei.</string>
 </resources>

@@ -81,7 +81,7 @@ class VatsimRepository(
                 val match = if (facility == FacilityType.CTR || facility == FacilityType.FSS) {
                     firBoundaryStore.boundaryMatch(c.callsign)
                 } else {
-                    BoundaryMatch(emptyList(), emptyList(), emptyList())
+                    BoundaryMatch(emptyList(), emptyList())
                 }
 
                 // 폴리곤이 있으면 그 무게중심을 라벨 위치로 씁니다.
@@ -100,7 +100,6 @@ class VatsimRepository(
                     longitude = airport?.longitude ?: center?.longitude,
                     airportName = airport?.name,
                     boundary = match.rings,
-                    parentBoundary = match.parent,
                     labelBoundary = match.label
                 )
             }

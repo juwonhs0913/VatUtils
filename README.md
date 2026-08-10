@@ -220,6 +220,16 @@ VATSIM 데이터 피드는 관제사 좌표를 제공하지 않습니다. 그래
 
 ## 데이터 출처
 
-- 공항/활주로: [OurAirports](https://ourairports.com/data/) (퍼블릭 도메인)
-- 트래픽/이벤트: VATSIM
-- TAF: NOAA Aviation Weather Center
+| 데이터 | 출처 | 라이선스 |
+|---|---|---|
+| 공항·활주로 | [OurAirports](https://ourairports.com/data/) | 퍼블릭 도메인 |
+| 관제 구역 경계 (FIR·섹터) | [VAT-Spy Data Project](https://github.com/vatsimnetwork/vatspy-data-project) | **CC BY-SA 4.0 · 단순화해서 사용** |
+| 나라 경계 | [Natural Earth](https://www.naturalearthdata.com) 110m | 퍼블릭 도메인 |
+| 트래픽·관제사·이벤트 | VATSIM 공개 피드 | 조회만 |
+| METAR·TAF | NOAA Aviation Weather Center | 미국 정부 저작물 (퍼블릭 도메인) |
+| 비행계획 | SimBrief 공개 API | 사용자 본인 계정만 |
+
+CC BY-SA 4.0은 출처 표시·변경 사실 명시·동일 조건 재배포를 요구합니다. 세부 사항은
+[NOTICE.md](NOTICE.md)에 정리했고, 앱 안에서도 **설정 → 정보 → 출처 및 라이선스**에서 보입니다.
+
+VATRadar는 VATSIM과 제휴하지 않은 비공식 앱입니다.

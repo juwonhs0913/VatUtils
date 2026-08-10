@@ -1,108 +1,145 @@
 # Play Store 배포 체크리스트
 
-## 1. 릴리스 키스토어 (아직 안 됨)
+현재 상태 요약 (v1.4 기준)
 
-프로젝트 루트에서:
+| 항목 | 상태 |
+|---|---|
+| 릴리스 키스토어 | ✅ 만들었습니다 (`vatradar-release.jks`) |
+| AAB 빌드 | ✅ `app/build/outputs/bundle/release/app-release.aab` |
+| 앱 아이콘 512×512 | ✅ `docs/store/icon-512.png` |
+| 피처 그래픽 1024×500 | ✅ `docs/store/feature-1024.png` |
+| 개인정보처리방침 문서 | ✅ 한국어·영어 |
+| 저작권·라이선스 고지 | ✅ 앱 안 화면 + `NOTICE.md` |
+| 데이터 안전성 답변 | ✅ 아래 표 |
+| **Maps API 키 제한** | ❌ **직접 하셔야 합니다** (아래 3번) |
+| **개인정보처리방침 호스팅** | ❌ **직접 하셔야 합니다** (아래 4번) |
+
+---
+
+## 1. 릴리스 키스토어 ✅
+
+`vatradar-release.jks`를 만들어 두었고 `keystore.properties`에 비밀번호가 들어 있습니다.
+둘 다 `.gitignore` 대상이라 저장소에 올라가지 않습니다.
+
+```
+별칭(alias) : vatradar
+알고리즘    : RSA 4096, SHA384withRSA
+유효기간    : 10,000일
+SHA-1       : 0B:53:BD:1F:90:16:28:F9:F8:CC:D0:56:8D:0F:CA:28:EB:77:EE:23
+SHA-256     : 27:5F:57:97:AD:76:B9:5B:3B:19:96:27:93:7E:01:60:49:F2:F2:AA:35:EF:E0:A0:8C:3D:F1:49:53:48:B4:AE
+```
+
+> ⚠️ **지금 바로 백업하세요.** `vatradar-release.jks`와 `keystore.properties` 두 파일을
+> 클라우드 등 이 PC가 아닌 곳에 두세요. 잃어버리면 Play에 올린 앱을 다시는 업데이트할 수 없습니다.
+> Play Console에서 **Play App Signing**을 함께 켜두면 업로드 키를 분실해도 재발급이 가능합니다.
+>
+> 비밀번호를 직접 정한 것으로 바꾸고 싶다면 **첫 업로드 전에** 키를 지우고 다시 만들면 됩니다.
+> 한 번 업로드한 뒤에는 바꿀 수 없습니다.
+>
+> 서명 키가 v1.3(디버그 키)과 달라졌으므로, **v1.3을 사이드로드해 둔 기기는 지우고 다시 설치**해야 합니다.
+
+키를 다시 만들려면:
 
 ```bash
 keytool -genkeypair -v -keystore vatradar-release.jks -alias vatradar -keyalg RSA -keysize 4096 -validity 10000
 ```
 
-그다음 `keystore.properties.example`을 `keystore.properties`로 복사해 값을 채웁니다.
+## 2. 빌드 ✅
 
-> **이 키를 잃어버리면 앱을 다시는 업데이트할 수 없습니다.**
-> `.jks` 파일과 비밀번호를 클라우드 등 별도 장소에 백업하세요.
-> Play Console에서 **Play App Signing**을 함께 켜두면 업로드 키를 분실해도 재발급이 가능합니다.
-
-키스토어가 없으면 릴리스 빌드는 디버그 키로 서명됩니다. 실행·검증은 되지만 **Play 업로드는 거부**됩니다.
-
-## 2. 빌드
-
-Play는 APK가 아니라 AAB(Android App Bundle)를 받습니다.
+Play는 APK가 아니라 AAB를 받습니다.
 
 ```bash
 ./gradlew bundleRelease
 ```
 
-결과물: `app/build/outputs/bundle/release/app-release.aab`
+- 결과물: `app/build/outputs/bundle/release/app-release.aab`
+- R8 매핑 파일 `app/build/outputs/mapping/release/mapping.txt`를 Play Console에 함께 올리면
+  난독화된 크래시 로그가 원래 코드로 복원되어 보입니다.
 
-R8 매핑 파일(`app/build/outputs/mapping/release/mapping.txt`)을 Play Console에 함께 올리면
-난독화된 크래시 로그가 원래 코드로 복원되어 보입니다.
+JDK는 17~21만 됩니다 (Gradle 8.9가 23 이상을 거부합니다).
 
-## 3. Maps API 키 제한 (아직 안 됨)
+```bash
+JAVA_HOME="/c/Program Files/Android/Android Studio/jbr" ./gradlew bundleRelease
+```
 
-현재 키에 제한이 걸려 있지 않으면 **누구나 도용해 회원님 할당량을 쓸 수 있습니다.**
+## 3. Maps API 키 제한 ❌ (직접)
+
+지금 키에는 제한이 없어 **누구나 도용해 할당량을 쓸 수 있습니다.**
 
 Google Cloud Console → 사용자 인증 정보 → 해당 키 →
 
 - **애플리케이션 제한**: Android 앱
 - 패키지 이름: `com.vatradar.app`
-- SHA-1 인증서 지문: 아래 명령으로 확인
+- SHA-1 지문: **두 개를 모두** 등록해야 합니다.
+  1. 위 1번의 업로드 키 SHA-1 `0B:53:...:EE:23`
+  2. Play App Signing을 켰다면 Play Console → 설정 → 앱 무결성에 표시되는 **앱 서명 키 SHA-1**
 
-```bash
-keytool -list -v -keystore vatradar-release.jks -alias vatradar
-```
-
-> Play App Signing을 쓰면 Play가 앱을 **재서명**합니다. 이 경우 Play Console →
-> 설정 → 앱 무결성에 표시된 **앱 서명 키의 SHA-1**도 함께 등록해야 지도가 나옵니다.
-> 업로드 키 SHA-1만 등록하면 스토어에서 받은 앱에서 지도가 회색으로 나옵니다.
-
+  Play가 앱을 재서명하기 때문에, 업로드 키만 등록하면 스토어에서 받은 앱에서 지도가 회색으로 나옵니다.
 - **API 제한**: Maps SDK for Android 만 허용
 
-## 4. 개인정보처리방침 URL (문서는 작성됨, 호스팅 필요)
+## 4. 개인정보처리방침 URL ❌ (직접)
 
-`docs/privacy-policy.md`를 웹에 올리고 그 주소를 Play Console에 입력합니다.
-GitHub 저장소를 공개로 두고 GitHub Pages를 켜는 게 가장 간단합니다
-(저장소 Settings → Pages → Source: main / docs).
+문서는 준비돼 있습니다.
 
-현재 저장소는 **비공개**라 그대로는 Pages를 쓸 수 없습니다. 선택지:
-- 저장소를 공개로 전환
+- `docs/privacy-policy.md` (한국어)
+- `docs/privacy-policy.en.md` (영어)
+
+Play Console에는 **공개적으로 접근 가능한 URL**이 필요합니다. 저장소가 비공개라 GitHub Pages를
+그대로는 쓸 수 없습니다. 선택지:
+
+- 저장소를 공개로 전환하고 Settings → Pages → Source: main / docs
 - 개인정보처리방침만 별도 공개 저장소나 Gist로 분리
-- 개인 웹사이트/노션 공개 페이지에 게시
+- 개인 웹사이트·노션 공개 페이지에 게시
 
-## 5. 데이터 안전성 양식 (Play Console)
+## 5. 데이터 안전성 양식 ✅
 
 코드 기준으로 정확한 답변입니다.
 
 | 질문 | 답변 |
 |---|---|
 | 데이터를 수집하거나 공유합니까? | **예** (아래 항목만) |
-| 앱 활동 → 기타 사용자 생성 콘텐츠 | 수집 안 함 |
-| 개인 정보 (이름·이메일 등) | **수집 안 함** (VATSIM 로그인 시 CID만 받고 이름·이메일 권한은 요청하지 않음) |
+| 개인 정보 (이름·이메일 등) | **수집 안 함** |
 | 위치 | **수집 안 함** |
+| 앱 활동 | **수집 안 함** |
 | 기기 또는 기타 ID | **수집함** — FCM 등록 토큰, VATSIM CID |
 | ↳ 수집 목적 | 앱 기능 (알림 전송, 비행 기록) |
 | ↳ 필수 여부 | 선택 (알림을 켜거나 CID를 등록한 경우에만) |
 | ↳ 제3자 공유 | 아니요 |
 | ↳ 전송 중 암호화 | 예 |
-| ↳ 삭제 요청 가능 여부 | 예 (앱 삭제 또는 알림 끄기) |
+| ↳ 삭제 요청 가능 여부 | 예 (앱 삭제, CID 비우기, 알림 끄기) |
 
-SimBrief ID는 사용자가 직접 입력해 SimBrief로 보내는 값이므로 "수집"에 해당하지 않지만,
-심사에서 질문이 올 수 있으니 앱 설명에 SimBrief 연동을 명시해 두는 편이 좋습니다.
+SimBrief ID는 사용자가 직접 입력해 SimBrief로 보내는 값이라 "수집"에 해당하지 않습니다.
+심사에서 질문이 올 수 있으니 앱 설명에 SimBrief 연동을 명시해 두었습니다.
 
 ## 6. 스토어 등록 자산
 
 | 항목 | 요구 사항 | 상태 |
 |---|---|---|
-| 앱 아이콘 | 512×512 PNG | 미작성 (앱 내 adaptive icon은 있음) |
-| 피처 그래픽 | 1024×500 PNG | 미작성 |
-| 휴대전화 스크린샷 | 최소 2장, 1080×2400 가능 | `docs/screenshots/` 참고 |
-| 짧은 설명 | 80자 이내 | 아래 초안 |
-| 자세한 설명 | 4000자 이내 | 아래 초안 |
+| 앱 아이콘 | 512×512 PNG | ✅ `docs/store/icon-512.png` |
+| 피처 그래픽 | 1024×500 PNG | ✅ `docs/store/feature-1024.png` |
+| 휴대전화 스크린샷 | 최소 2장 | `docs/screenshots/` |
+| 짧은 설명 | 80자 이내 | 아래 |
+| 자세한 설명 | 4000자 이내 | 아래 |
 
-### 짧은 설명 초안
+그래픽은 `tools/StoreGraphics.java`가 만듭니다 (앱 아이콘 도형을 그대로 씁니다).
+
+```bash
+javac -d build/tools tools/StoreGraphics.java && java -cp build/tools StoreGraphics
+```
+
+### 짧은 설명
 
 ```
 VATSIM 실시간 관제·트래픽 지도, 무작위 경로 추천, 기상 정보를 한 앱에서.
 ```
 
-### 자세한 설명 초안
+### 자세한 설명
 
 ```
 VATRadar는 VATSIM 네트워크를 이용하는 가상 조종사를 위한 컴패니언 앱입니다.
 
 ■ 실시간 지도
-전 세계 항공기와 관제사를 지도 위에서 확인합니다. 관제 구역은 VATSpy 경계를 그대로
+전 세계 항공기와 관제사를 지도 위에서 확인합니다. 관제 구역은 VAT-Spy 경계를 그대로
 표시하고, 공항 관제석은 타워·그라운드·딜리버리 배지로 구분합니다. 항공기를 누르면
 조종사·고도·속도·출도착 시각과 함께 항로가 지도에 그려집니다.
 
@@ -117,31 +154,37 @@ VATRadar는 VATSIM 네트워크를 이용하는 가상 조종사를 위한 컴�
 METAR와 TAF를 원문과 함께 읽기 쉬운 형태로 풀어 보여줍니다.
 
 ■ 관제소 접속 알림
-관심 있는 관제소를 등록해 두면 접속하는 순간 알림을 받습니다.
+관심 있는 관제소를 등록해 두면 접속하는 순간 알림을 받습니다. 대륙과 나라를 고르면
+센터·어프로치·공항 후보가 나오고, 공항을 고르면 그 공항의 관제석이 한 번에 잡힙니다.
 
 ■ 공식 이벤트
-VATSIM 공식 이벤트 일정을 한국 시간으로 확인합니다.
+VATSIM 공식 이벤트 일정을 확인하고, 별을 눌러 둔 이벤트는 시작 한 시간 전에 알림을 받습니다.
+
+■ 나의 비행
+CID를 등록하면 그 뒤의 비행이 기록되고, 다녀온 나라가 지도에 칠해집니다.
 
 한국어·영어·중국어·독일어·포르투갈어를 지원합니다.
 
 VATRadar는 VATSIM과 공식적으로 제휴하지 않은 비공식 앱입니다.
+데이터 출처와 라이선스는 앱 안 설정 → 정보 → 출처 및 라이선스에서 확인할 수 있습니다.
 ```
 
 ## 7. 콘텐츠 등급 설문
 
-폭력·성적 콘텐츠·도박 요소가 없으므로 전체 이용가로 분류됩니다.
+폭력·성적 콘텐츠·도박 요소가 없으므로 전체 이용가입니다.
 "사용자 간 소통 기능"은 **없음**으로 답하면 됩니다 (앱에 채팅 기능 없음).
 
 ## 8. 배포 전 최종 확인
 
-- [ ] `./gradlew testDebugUnitTest` 통과
+- [x] `./gradlew testDebugUnitTest` 통과 (105개)
 - [ ] `./gradlew connectedDebugAndroidTest` 통과
-- [ ] 릴리스 빌드 실기기 확인 (지도·경로·이벤트·알림)
+- [x] 릴리스 빌드 실기기/에뮬레이터 확인 (지도·알림 페이지·이벤트·라이선스 화면)
 - [ ] Maps 키 제한 후 릴리스 빌드에서 지도가 나오는지 재확인
-- [ ] `versionCode` 증가
+- [x] `versionCode` 증가 (5)
 
 ## 알려진 제약 (심사와 무관하지만 사용자에게 영향)
 
 - Cloudflare Worker가 멈추면 알림이 15분 폴링으로 내려갑니다 (기능은 유지).
 - 공항 데이터는 OurAirports 스냅샷이라 신설 공항이 빠질 수 있습니다.
-- VATSpy 경계 데이터도 스냅샷이므로 FIR 개편 시 갱신이 필요합니다.
+- VAT-Spy 경계 데이터도 스냅샷이므로 FIR 개편 시 갱신이 필요합니다.
+- 알림 등록은 CID 확인 없이 누구나 할 수 있습니다 (VATSIM Connect OAuth를 뺐기 때문).
