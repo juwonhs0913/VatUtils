@@ -12,7 +12,7 @@
 | 저작권·라이선스 고지 | ✅ 앱 안 화면 + `NOTICE.md` |
 | 데이터 안전성 답변 | ✅ 아래 표 |
 | **Maps API 키 제한** | ❌ **직접 하셔야 합니다** (아래 3번) |
-| **개인정보처리방침 호스팅** | ❌ **직접 하셔야 합니다** (아래 4번) |
+| 개인정보처리방침 호스팅 | ✅ GitHub Pages |
 
 ---
 
@@ -77,19 +77,17 @@ Google Cloud Console → 사용자 인증 정보 → 해당 키 →
   Play가 앱을 재서명하기 때문에, 업로드 키만 등록하면 스토어에서 받은 앱에서 지도가 회색으로 나옵니다.
 - **API 제한**: Maps SDK for Android 만 허용
 
-## 4. 개인정보처리방침 URL ❌ (직접)
+## 4. 개인정보처리방침 URL ✅
 
-문서는 준비돼 있습니다.
+저장소를 공개로 돌리고 `docs/`를 GitHub Pages로 띄웠습니다.
 
-- `docs/privacy-policy.md` (한국어)
-- `docs/privacy-policy.en.md` (영어)
+| 언어 | Play Console에 넣을 주소 |
+|---|---|
+| 한국어 | https://juwonhs0913.github.io/VatUtils/privacy-policy.html |
+| English | https://juwonhs0913.github.io/VatUtils/privacy-policy.en.html |
+| 랜딩 | https://juwonhs0913.github.io/VatUtils/ |
 
-Play Console에는 **공개적으로 접근 가능한 URL**이 필요합니다. 저장소가 비공개라 GitHub Pages를
-그대로는 쓸 수 없습니다. 선택지:
-
-- 저장소를 공개로 전환하고 Settings → Pages → Source: main / docs
-- 개인정보처리방침만 별도 공개 저장소나 Gist로 분리
-- 개인 웹사이트·노션 공개 페이지에 게시
+문서를 고치고 `main`에 밀면 몇 분 뒤 자동으로 반영됩니다.
 
 ## 5. 데이터 안전성 양식 ✅
 
@@ -181,6 +179,36 @@ VATRadar는 VATSIM과 공식적으로 제휴하지 않은 비공식 앱입니다
 - [x] 릴리스 빌드 실기기/에뮬레이터 확인 (지도·알림 페이지·이벤트·라이선스 화면)
 - [ ] Maps 키 제한 후 릴리스 빌드에서 지도가 나오는지 재확인
 - [x] `versionCode` 증가 (5)
+
+## 9. 광고를 붙이려면 (AdMob)
+
+**VATSIM 이사회의 사전 서면 동의가 필요합니다.** VATSIM Code of Regulations
+Article I §B:
+
+> no individual or entity is permitted to resell or make any commercial or non-commercial
+> use of the VATSIM network which involves the payment of money or goods to said individual
+> or entity or such party's designee **without the prior written consent of the VATSIM Inc.
+> Board of Directors** or their designated agent. The prohibitions set forth in this paragraph
+> expressly include any and all sales and/or solicitations of money, goods and services no
+> matter for what purpose, person, group or cause, without limitation.
+
+광고 수익은 "payment of money ... to said entity"에 해당하므로, 동의 없이 붙이면
+규정 위반이고 계정 정지까지 규정되어 있습니다. 붙이려면 이사회에 서면으로 문의하세요.
+
+나머지 출처는 광고를 막지 않습니다.
+
+| 출처 | 상업적 이용 |
+|---|---|
+| VAT-Spy Data Project (CC BY-SA 4.0) | 허용 — 단 경계 파일은 계속 CC BY-SA 4.0로 제공해야 함 |
+| OurAirports · Natural Earth · NOAA | 퍼블릭 도메인이라 제약 없음 |
+| Google Maps Platform | 앱에 광고를 넣는 것 자체는 허용. 지도 위를 광고로 덮거나 Google 저작자 표시를 가리면 안 되고, 지도 타일·데이터를 캐시하면 안 됨 |
+| 오픈소스 라이브러리 (Apache 2.0 등) | 제약 없음 |
+
+동의를 받아 광고를 붙이게 되면 함께 고쳐야 하는 것:
+
+- 개인정보처리방침에 **광고 ID 수집**과 AdMob을 명시
+- Play 데이터 안전성 양식에 "기기 또는 기타 ID → 광고 또는 마케팅" 추가
+- 앱 안 **출처 및 라이선스** 화면에 AdMob 고지 추가 (oss-licenses-plugin이 자동 처리)
 
 ## 알려진 제약 (심사와 무관하지만 사용자에게 영향)
 
