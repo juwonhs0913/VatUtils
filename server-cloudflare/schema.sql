@@ -61,3 +61,24 @@ CREATE INDEX IF NOT EXISTS index_logbook_flight_cid ON logbook_flight(cid, start
 CREATE UNIQUE INDEX IF NOT EXISTS index_logbook_open
   ON logbook_flight(cid, departure, arrival, started_at);
 
+
+-- 실제로 접속한 적이 있는 관제석.
+--
+-- "인천 어프로치"는 존재하지 않습니다. 인천과 김포의 접근관제는 서울 어프로치
+-- (RKSS_APP) 하나가 맡습니다. 그런데 공항마다 <ICAO>_APP을 만들어 보여 주면
+-- 있지도 않은 관제석이 목록에 뜹니다. 어느 공항에 어느 접근관제가 붙는지를 담은
+-- 전 세계 데이터는 없습니다 (VATGlasses에도 한국 파일이 없습니다).
+--
+-- 그래서 만들지 않고 관찰합니다. 1분마다 받는 피드에 뜬 콜사인만 적어 두면,
+-- 그 목록은 정의상 "실제로 존재하는 관제석"입니다.
+CREATE TABLE IF NOT EXISTS positions (
+  callsign   TEXT PRIMARY KEY,
+  first_seen INTEGER NOT NULL,
+  last_seen  INTEGER NOT NULL
+);
+
+-- 관제 이력을 이미 긁어 온 CID. 같은 사람을 매번 다시 조회하지 않으려고 둡니다.
+CREATE TABLE IF NOT EXISTS harvested_cid (
+  cid TEXT PRIMARY KEY,
+  at  INTEGER NOT NULL
+);

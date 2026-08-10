@@ -142,9 +142,9 @@
     <string name="search_candidates">Center und Flughäfen suchen</string>
     <string name="section_centers">Center (%1$d)</string>
     <string name="section_approaches">Approach (%1$d)</string>
-    <string name="section_approaches_hint">Nur die Approach-Position des Flughafens.</string>
+    <string name="section_approaches_hint">Nur Positionen, die auf VATSIM tatsächlich besetzt waren. Ein Incheon Approach existiert nicht — Seoul Approach (RKSS_APP) betreut Incheon und Gimpo gemeinsam und steht deshalb hier.</string>
     <string name="section_airports">Flughäfen (%1$d)</string>
-    <string name="section_airports_hint">Deckt alle Positionen des Flughafens ab — Approach, Tower, Ground und Delivery.</string>
+    <string name="section_airports_hint">Deckt alle Positionen ab, die es am Flughafen gibt — Approach, Tower, Ground und Delivery.</string>
     <string name="more_candidates">%1$d weitere — grenze die Suche ein.</string>
     <string name="events_starred">Gemerkt (%1$d)</string>
     <string name="no_starred_events">Tippe den Stern eines Events an — es erscheint hier und du wirst eine Stunde vorher erinnert.</string>

@@ -9,6 +9,7 @@ import com.vatradar.app.data.repository.AirportRepository
 import com.vatradar.app.data.repository.ChallengeRepository
 import com.vatradar.app.data.repository.FlightProgressRepository
 import com.vatradar.app.data.repository.EventsRepository
+import com.vatradar.app.data.repository.PositionRegistry
 import com.vatradar.app.data.repository.SimBriefRepository
 import com.vatradar.app.data.repository.VatsimRepository
 import com.vatradar.app.data.repository.WeatherRepository
@@ -25,6 +26,7 @@ object ServiceLocator {
     @Volatile private var weather: WeatherRepository? = null
     @Volatile private var airports: AirportRepository? = null
     @Volatile private var simBrief: SimBriefRepository? = null
+    @Volatile private var positions: PositionRegistry? = null
     @Volatile private var firBoundaries: FirBoundaryStore? = null
     @Volatile private var challenges: ChallengeRepository? = null
     @Volatile private var flightProgress: FlightProgressRepository? = null
@@ -86,6 +88,14 @@ object ServiceLocator {
         }
 
     fun logbookApiService(): LogbookApiService = NetworkModule.logbookApiService
+
+    fun positionRegistry(context: Context): PositionRegistry =
+        positions ?: synchronized(this) {
+            positions ?: PositionRegistry(
+                context.applicationContext,
+                NetworkModule.positionsApiService
+            ).also { positions = it }
+        }
 
     fun simBriefRepository(): SimBriefRepository =
         simBrief ?: synchronized(this) {

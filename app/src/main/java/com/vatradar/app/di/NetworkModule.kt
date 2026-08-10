@@ -2,6 +2,7 @@ package com.vatradar.app.di
 
 import com.vatradar.app.data.remote.ChallengeWatchApiService
 import com.vatradar.app.data.remote.LogbookApiService
+import com.vatradar.app.data.remote.PositionsApiService
 import com.vatradar.app.data.remote.SimBriefApiService
 import com.vatradar.app.data.remote.VatsimApiService
 import com.vatradar.app.data.remote.VatsimEventsApiService
@@ -69,6 +70,10 @@ object NetworkModule {
 
     val challengeWatchApiService: ChallengeWatchApiService by lazy {
         retrofit(WATCH_URL).create(ChallengeWatchApiService::class.java)
+    }
+
+    val positionsApiService: PositionsApiService by lazy {
+        retrofit(WATCH_URL).create(PositionsApiService::class.java)
     }
 
     val memberApiService: VatsimMemberApiService by lazy {

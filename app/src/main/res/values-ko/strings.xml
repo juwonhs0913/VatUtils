@@ -142,9 +142,9 @@
     <string name="search_candidates">센터·공항 검색</string>
     <string name="section_centers">센터 (%1$d)</string>
     <string name="section_approaches">어프로치 (%1$d)</string>
-    <string name="section_approaches_hint">그 공항의 어프로치만 알립니다.</string>
+    <string name="section_approaches_hint">실제로 접속한 적이 있는 관제석만 나옵니다. 인천 어프로치는 존재하지 않습니다 — 인천과 김포는 서울 어프로치(RKSS_APP)가 함께 보기 때문에 그 자리가 나옵니다.</string>
     <string name="section_airports">공항 (%1$d)</string>
-    <string name="section_airports_hint">그 공항의 어프로치·타워·그라운드·딜리버리를 모두 알립니다.</string>
+    <string name="section_airports_hint">그 공항에 실제로 있는 관제석을 모두 잡습니다 — 어프로치·타워·그라운드·딜리버리.</string>
     <string name="more_candidates">%1$d개 더 있습니다 — 검색으로 좁혀 보세요.</string>
     <string name="events_starred">관심 (%1$d)</string>
     <string name="no_starred_events">이벤트의 별을 누르면 여기에 모이고, 시작 한 시간 전에 알려 드립니다.</string>

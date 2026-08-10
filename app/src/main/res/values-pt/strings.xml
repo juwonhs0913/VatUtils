@@ -142,9 +142,9 @@
     <string name="search_candidates">Buscar centros e aeroportos</string>
     <string name="section_centers">Centros (%1$d)</string>
     <string name="section_approaches">Aproximação (%1$d)</string>
-    <string name="section_approaches_hint">Somente a posição de aproximação do aeroporto.</string>
+    <string name="section_approaches_hint">Somente posições que realmente já foram ocupadas no VATSIM. Não existe Incheon Approach — a Seoul Approach (RKSS_APP) atende Incheon e Gimpo, e é ela que aparece aqui.</string>
     <string name="section_airports">Aeroportos (%1$d)</string>
-    <string name="section_airports_hint">Cobre todas as posições do aeroporto — aproximação, torre, solo e autorização.</string>
+    <string name="section_airports_hint">Cobre todas as posições que existem no aeroporto — aproximação, torre, solo e autorização.</string>
     <string name="more_candidates">Mais %1$d — refine com a busca.</string>
     <string name="events_starred">Favoritos (%1$d)</string>
     <string name="no_starred_events">Toque na estrela de um evento para reuni-lo aqui e receber um lembrete uma hora antes.</string>

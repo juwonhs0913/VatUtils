@@ -142,9 +142,9 @@
     <string name="search_candidates">搜索管制中心和机场</string>
     <string name="section_centers">管制中心 (%1$d)</string>
     <string name="section_approaches">进近 (%1$d)</string>
-    <string name="section_approaches_hint">只提醒该机场的进近席位。</string>
+    <string name="section_approaches_hint">仅显示 VATSIM 上真实存在过的席位。并没有"仁川进近"——仁川与金浦由首尔进近（RKSS_APP）统一管制，因此这里显示的是它。</string>
     <string name="section_airports">机场 (%1$d)</string>
-    <string name="section_airports_hint">涵盖该机场的进近、塔台、地面和放行席位。</string>
+    <string name="section_airports_hint">涵盖该机场实际存在的所有席位——进近、塔台、地面和放行。</string>
     <string name="more_candidates">还有 %1$d 项——请用搜索缩小范围。</string>
     <string name="events_starred">关注 (%1$d)</string>
     <string name="no_starred_events">点击活动上的星标，即可在此汇总，并在开始前一小时收到提醒。</string>

@@ -71,6 +71,8 @@ data class CatalogState(
     val allCenters: List<ControllerCatalog.CenterEntry> = emptyList(),
     val centers: List<ControllerCatalog.CenterEntry> = emptyList(),
     val airports: List<Airport> = emptyList(),
+    /** 이 나라에서 실제로 접속한 적이 있는 접근관제석. 지어내지 않습니다. */
+    val approaches: List<ApproachCandidate> = emptyList(),
     /** 후보군 안에서 다시 좁히는 검색어. */
     val query: String = ""
 ) {
@@ -83,10 +85,14 @@ data class CatalogState(
     val ready: Boolean get() = continent != null && country != null
 }
 
+/** 목록에 올릴 접근관제석 하나. [servedBy]는 그 자리가 실제로 보는 공항 이름입니다. */
+data class ApproachCandidate(val callsign: String, val servedBy: String)
+
 class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = ServiceLocator.settingsRepository(app)
     private val airportRepo = ServiceLocator.airportRepository(app)
+    private val positionRegistry = ServiceLocator.positionRegistry(app)
 
     private val _settings = MutableStateFlow(UserSettings())
     val settings = _settings.asStateFlow()
@@ -146,12 +152,43 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
+        val airports =
+            if (state.ready) airportRepo.airportsIn(state.continent, state.country)
+            else emptyList()
+
         _catalog.value = _catalog.value.copy(
             countries = airportRepo.countries(state.continent),
             centers = if (state.ready) centers else emptyList(),
-            airports = if (state.ready) airportRepo.airportsIn(state.continent, state.country)
-                       else emptyList()
+            airports = airports,
+            approaches = if (state.ready) approachesFor(airports) else emptyList()
         )
+    }
+
+    /**
+     * 이 나라의 접근관제석.
+     *
+     * 공항마다 `<ICAO>_APP`을 지어내지 않습니다. 인천 어프로치는 존재하지 않고,
+     * 인천과 김포는 서울 어프로치(RKSS_APP) 하나가 봅니다. 그래서 서버가 모아 둔
+     * **실제로 접속한 적이 있는 콜사인**에서 이 나라 것만 골라냅니다.
+     *
+     * 고르는 기준은 콜사인 앞머리입니다. `RKSS_APP` → `RKSS`, `EGLL_N_APP` → `EGLL`.
+     * 그 코드가 이 나라 공항이면 이 나라 자리입니다. 미국의 `SCT_APP`처럼 공항 코드가
+     * 아닌 TRACON 이름을 쓰는 곳은 여기 걸리지 않습니다 — 짐작해서 넣느니 빼둡니다.
+     * (직접 입력으로는 언제든 등록할 수 있습니다.)
+     */
+    private suspend fun approachesFor(airports: List<Airport>): List<ApproachCandidate> {
+        val observed = positionRegistry.callsigns()
+        if (observed.isEmpty() || airports.isEmpty()) return emptyList()
+
+        val byIcao = airports.associateBy { it.icao }
+        return observed.asSequence()
+            .filter { it.endsWith("_APP") || it.endsWith("_DEP") }
+            .mapNotNull { callsign ->
+                val airport = byIcao[callsign.substringBefore('_')] ?: return@mapNotNull null
+                ApproachCandidate(callsign, airport.name)
+            }
+            .sortedBy { it.callsign }
+            .toList()
     }
 
     fun setNotifyEnabled(enabled: Boolean) = viewModelScope.launch {
@@ -448,12 +485,13 @@ private fun ControllerPicker(
                 onToggle = onToggle
             )
 
+            val approaches = catalog.approaches.filter {
+                q.isEmpty() || it.callsign.contains(q, true) || it.servedBy.contains(q, true)
+            }
             CandidateSection(
-                title = stringResource(R.string.section_approaches, airports.size),
+                title = stringResource(R.string.section_approaches, approaches.size),
                 hint = stringResource(R.string.section_approaches_hint),
-                rows = airports.map {
-                    Candidate("${it.icao}_APP", "${it.icao}_APP", it.name)
-                },
+                rows = approaches.map { Candidate(it.callsign, it.callsign, it.servedBy) },
                 watched = watched,
                 onToggle = onToggle
             )

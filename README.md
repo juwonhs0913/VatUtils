@@ -233,3 +233,9 @@ CC BY-SA 4.0은 출처 표시·변경 사실 명시·동일 조건 재배포를 
 [NOTICE.md](NOTICE.md)에 정리했고, 앱 안에서도 **설정 → 정보 → 출처 및 라이선스**에서 보입니다.
 
 VATRadar는 VATSIM과 제휴하지 않은 비공식 앱입니다.
+
+> **상업적 이용에 관하여** — VATSIM Code of Regulations Article I §B는 "no individual or
+> entity is permitted to resell or make any commercial or non-commercial use of the VATSIM
+> network which involves the payment of money or goods ... without the prior written consent
+> of the VATSIM Inc. Board of Directors"라고 정하고 있습니다. 광고 수익을 포함해 이 앱으로
+> 돈을 벌려면 **VATSIM 이사회의 사전 서면 동의**가 필요합니다.

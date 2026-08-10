@@ -80,6 +80,11 @@ export default {
         );
       }
 
+      // 실제로 접속한 적이 있는 관제석 목록. 앱의 "목록에서 고르기"가 씁니다.
+      if (url.pathname === '/positions' && request.method === 'GET') {
+        return positionsResponse(env);
+      }
+
       // 배포 직후 동작 확인용 수동 실행.
       if (url.pathname === '/run') {
         return Response.json(await run(env));
@@ -113,9 +118,11 @@ async function run(env) {
   const newlyOnline = online.filter((callsign) => !previous.has(callsign));
 
   await saveState(env, online);
+  const recorded = await recordPositions(env, online, newlyOnline);
+  const harvested = await harvestPositions(env, feed.controllers || []);
 
   if (newlyOnline.length === 0) {
-    return { online: online.length, notified: 0, watchCompleted, logged };
+    return { online: online.length, notified: 0, watchCompleted, logged, recorded, harvested };
   }
 
   const accessToken = accessTokenForWatch;
@@ -152,7 +159,118 @@ async function run(env) {
     failed,
     watchCompleted,
     logged,
+    recorded,
+    harvested,
   };
+}
+
+/**
+ * 실제로 접속한 적이 있는 관제석을 적어 둡니다.
+ *
+ * 앱은 이 목록으로 "목록에서 고르기"의 어프로치 후보를 만듭니다. 공항마다
+ * <ICAO>_APP을 지어내면 인천 어프로치처럼 있지도 않은 관제석이 뜨는데,
+ * 어느 공항에 어느 접근관제가 붙는지를 담은 전 세계 데이터는 없습니다.
+ * 피드에 뜬 것만 적으면 그 목록은 정의상 틀릴 수가 없습니다.
+ *
+ * 매 주기 접속 중인 것을 전부 쓰면 하루 100만 건이 넘어 D1 무료 한도를 넘깁니다.
+ * 그래서 **새로 뜬 것만** 씁니다 — 어떤 관제석이든 접속하는 순간 한 번은
+ * 여기에 걸리므로 결국 다 모입니다. 표가 비어 있는 첫 회차에만 통째로 담습니다.
+ */
+async function recordPositions(env, online, newlyOnline) {
+  const seeded = await env.DB.prepare('SELECT COUNT(*) AS n FROM positions').first();
+  const targets = Number(seeded?.n ?? 0) === 0 ? online : newlyOnline;
+  if (targets.length === 0) return 0;
+
+  const now = Math.floor(Date.now() / 1000);
+  const statement = env.DB.prepare(
+    `INSERT INTO positions (callsign, first_seen, last_seen) VALUES (?, ?, ?)
+     ON CONFLICT(callsign) DO UPDATE SET last_seen = excluded.last_seen`
+  );
+  await env.DB.batch(targets.map((callsign) => statement.bind(callsign, now, now)));
+  return targets.length;
+}
+
+/**
+ * 지금 접속 중인 관제사의 **과거 관제 기록**에서 관제석 이름을 긁어 옵니다.
+ *
+ * 관찰만으로 목록을 채우면 한국처럼 조용한 시간대의 관제석이 며칠 동안 안 보입니다.
+ * VATSIM은 CID별 관제 세션 이력을 공개하고(`/api/ratings/{cid}/atcsessions/`),
+ * 거기에는 그 사람이 지금까지 앉았던 **모든** 콜사인이 들어 있습니다. 한국 관제사가
+ * 한 번만 접속해도 그 사람이 다녔던 RKSS_APP·RKRR_CTR 같은 자리가 한꺼번에 들어옵니다.
+ *
+ * 한 주기에 한 명만 조회합니다. VATSIM API를 두드리는 양을 줄이고, D1 무료 플랜의
+ * 하루 쓰기 한도(10만 건) 안에 머무르기 위해서입니다. 이미 조회한 CID는 다시 보지 않습니다.
+ */
+async function harvestPositions(env, controllers) {
+  const candidates = controllers
+    .filter((c) => c.facility !== OBS_FACILITY && c.cid)
+    .map((c) => String(c.cid));
+  if (candidates.length === 0) return 0;
+
+  const known = await env.DB.prepare(
+    `SELECT cid FROM harvested_cid WHERE cid IN (${candidates.map(() => '?').join(',')})`
+  )
+    .bind(...candidates)
+    .all();
+  const seen = new Set((known.results || []).map((row) => row.cid));
+  const target = candidates.find((cid) => !seen.has(cid));
+  if (!target) return 0;
+
+  const now = Math.floor(Date.now() / 1000);
+  // 조회에 실패해도 표시는 남깁니다. 안 그러면 같은 CID만 계속 다시 시도합니다.
+  await env.DB.prepare(
+    'INSERT OR REPLACE INTO harvested_cid (cid, at) VALUES (?, ?)'
+  )
+    .bind(target, now)
+    .run();
+
+  let callsigns;
+  try {
+    callsigns = await fetchSessionCallsigns(target);
+  } catch (error) {
+    console.warn(`관제 이력 조회 실패 (${target}): ${error}`);
+    return 0;
+  }
+  if (callsigns.length === 0) return 0;
+
+  // 이미 있는 것은 건드리지 않습니다 (DO NOTHING이면 쓰기가 0건으로 잡힙니다).
+  const statement = env.DB.prepare(
+    `INSERT INTO positions (callsign, first_seen, last_seen) VALUES (?, ?, ?)
+     ON CONFLICT(callsign) DO NOTHING`
+  );
+  await env.DB.batch(callsigns.map((c) => statement.bind(c, now, now)));
+  return callsigns.length;
+}
+
+async function fetchSessionCallsigns(cid) {
+  const response = await fetch(
+    `https://api.vatsim.net/api/ratings/${encodeURIComponent(cid)}/atcsessions/`,
+    { headers: { 'User-Agent': 'VATRadar/1.0 (position registry)' } }
+  );
+  if (!response.ok) throw new Error(`응답 오류: ${response.status}`);
+  const data = await response.json();
+  const found = new Set();
+  for (const session of data.results || []) {
+    const callsign = String(session.callsign || '').toUpperCase();
+    // 관찰자와 슈퍼바이저 자리는 관제석이 아닙니다.
+    if (!callsign || callsign.endsWith('_OBS') || callsign.endsWith('_SUP')) continue;
+    found.add(callsign);
+  }
+  return [...found];
+}
+
+async function positionsResponse(env) {
+  const { results } = await env.DB.prepare(
+    'SELECT callsign FROM positions ORDER BY callsign'
+  ).all();
+  return Response.json(
+    {
+      updated: Math.floor(Date.now() / 1000),
+      positions: (results || []).map((row) => row.callsign),
+    },
+    // 하루에 한 번만 받아 가면 충분합니다. 목록은 천천히 자랍니다.
+    { headers: { 'Cache-Control': 'public, max-age=21600' } }
+  );
 }
 
 async function fetchFeed() {
