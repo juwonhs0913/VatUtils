@@ -1,8 +1,8 @@
-# VATRadar Privacy Policy
+# VATFlight Privacy Policy
 
 Last updated: 2026-08-10
 
-VATRadar ("the app") is a non-commercial companion app that reads and displays public data
+VATFlight ("the app") is a non-commercial companion app that reads and displays public data
 from the VATSIM network. This document explains what the app does with information.
 
 ## Summary
@@ -81,7 +81,7 @@ The sources and licences of the data the app uses are listed in the app under
 **Settings → About → Sources and licences**. The control-area boundaries are a simplified version
 of the VAT-Spy Data Project data and are offered under the same CC BY-SA 4.0 licence.
 
-VATRadar is an unofficial app and is not affiliated with VATSIM.
+VATFlight is an unofficial app and is not affiliated with VATSIM.
 
 ## Advertising and analytics
 

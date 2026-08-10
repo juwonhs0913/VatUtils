@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
  */
 object AirportSeeder {
 
-    private const val TAG = "VATRadar"
+    private const val TAG = "VATFlight"
     private const val ASSET = "airports.csv"
     private const val BATCH = 1000
 

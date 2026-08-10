@@ -40,13 +40,13 @@ class ChallengeRepository(
                     baselineHours = baselineHours
                 )
             )
-        }.onFailure { Log.w("VATRadar", "완주 감시 등록 실패 (기기 판정으로 계속)", it) }
+        }.onFailure { Log.w("VATFlight", "완주 감시 등록 실패 (기기 판정으로 계속)", it) }
     }
 
     suspend fun unregisterWatch(cid: String, challengeId: Long) {
         if (cid.isBlank()) return
         runCatching { watchApi.unregister(UnwatchRequest(cid.trim(), challengeId)) }
-            .onFailure { Log.w("VATRadar", "완주 감시 해제 실패", it) }
+            .onFailure { Log.w("VATFlight", "완주 감시 해제 실패", it) }
     }
 
     val completedCount: Flow<Int> = dao.completedCount()

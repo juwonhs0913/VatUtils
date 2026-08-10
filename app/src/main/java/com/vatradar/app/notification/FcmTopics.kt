@@ -46,7 +46,7 @@ object FcmTopics {
         try {
             block()
         } catch (e: Exception) {
-            Log.d("VATRadar", "FCM 토픽 $action 생략 (Firebase 미설정): ${e.message}")
+            Log.d("VATFlight", "FCM 토픽 $action 생략 (Firebase 미설정): ${e.message}")
         }
     }
 }

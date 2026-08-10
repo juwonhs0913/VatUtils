@@ -32,7 +32,7 @@ object OssLicenses {
                 .useLines { lines -> lines.mapNotNull(::parse).toList() }
                 .distinctBy { it.name }
                 .sortedBy { it.name.lowercase() }
-        }.onFailure { Log.w("VATRadar", "라이선스 목록 읽기 실패", it) }
+        }.onFailure { Log.w("VATFlight", "라이선스 목록 읽기 실패", it) }
             .getOrDefault(emptyList())
     }
 
@@ -42,7 +42,7 @@ object OssLicenses {
                 stream.skipFully(entry.offset.toLong())
                 String(stream.readExactly(entry.length), Charsets.UTF_8).trim()
             }
-        }.onFailure { Log.w("VATRadar", "라이선스 본문 읽기 실패", it) }
+        }.onFailure { Log.w("VATFlight", "라이선스 본문 읽기 실패", it) }
             .getOrDefault("")
     }
 

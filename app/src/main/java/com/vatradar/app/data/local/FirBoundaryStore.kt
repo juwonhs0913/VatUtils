@@ -96,7 +96,7 @@ class FirBoundaryStore(private val context: Context) {
                             }
                         }
                     }
-                }.onFailure { Log.e("VATRadar", "FIR 데이터 로드 실패", it) }
+                }.onFailure { Log.e("VATFlight", "FIR 데이터 로드 실패", it) }
             }
             loaded = true
         }

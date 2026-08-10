@@ -151,14 +151,14 @@
     <string name="feedback">Feedback</string>
     <string name="feedback_hint">Encontrou um erro ou algo parece errado? Me conte — é a única forma de corrigir.</string>
     <string name="send_feedback">Enviar e-mail</string>
-    <string name="feedback_subject">Feedback do VATRadar %1$s</string>
+    <string name="feedback_subject">Feedback do VATFlight %1$s</string>
     <string name="feedback_body_template">\n\n---\nAparelho: %1$s\nAndroid: %2$s\nApp: %3$s</string>
     <string name="no_email_app">Nenhum app de e-mail encontrado.</string>
     <string name="about">Sobre</string>
     <string name="app_version">Versão %1$s</string>
     <string name="licenses">Fontes e licenças</string>
     <string name="legal_notices">Aviso</string>
-    <string name="vatsim_disclaimer">O VATRadar é um app não oficial feito por fãs. Não tem vínculo, endosso ou patrocínio da VATSIM, do SimBrief nem de qualquer companhia aérea ou aeroporto real. Os dados vêm de fontes públicas, podem estar incompletos ou desatualizados e nunca devem ser usados em voo real.</string>
+    <string name="vatsim_disclaimer">O VATFlight é um app não oficial feito por fãs. Não tem vínculo, endosso ou patrocínio da VATSIM, do SimBrief nem de qualquer companhia aérea ou aeroporto real. Os dados vêm de fontes públicas, podem estar incompletos ou desatualizados e nunca devem ser usados em voo real.</string>
     <string name="data_sources">Fontes de dados</string>
     <string name="src_vatsim_use">Tráfego, controladores e eventos ao vivo</string>
     <string name="src_vatspy_use">Limites de FIR e setores</string>

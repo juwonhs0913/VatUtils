@@ -19,7 +19,7 @@ object ChallengeCompletionHandler {
 
         if (completed == null) {
             // 이미 기기 판정으로 처리했거나 만료된 챌린지입니다. 중복 지급을 막습니다.
-            Log.d("VATRadar", "완주 푸시 무시 (해당 챌린지 없음): $challengeId")
+            Log.d("VATFlight", "완주 푸시 무시 (해당 챌린지 없음): $challengeId")
             return
         }
 
@@ -31,6 +31,6 @@ object ChallengeCompletionHandler {
         val cid = ServiceLocator.settingsRepository(context).current().vatsimCid
         challenges.unregisterWatch(cid, challengeId)
 
-        Log.d("VATRadar", "챌린지 완주 처리: ${completed.origin}→${completed.destination}")
+        Log.d("VATFlight", "챌린지 완주 처리: ${completed.origin}→${completed.destination}")
     }
 }

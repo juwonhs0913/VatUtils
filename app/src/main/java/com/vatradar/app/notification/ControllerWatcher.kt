@@ -23,7 +23,7 @@ object ControllerWatcher {
         if (user.vatsimCid.isNotBlank()) {
             runCatching {
                 ServiceLocator.flightProgressRepository(context).sync(user.vatsimCid)
-            }.onFailure { Log.w("VATRadar", "챌린지 확인 실패", it) }
+            }.onFailure { Log.w("VATFlight", "챌린지 확인 실패", it) }
         }
 
         if (!user.notifyEnabled || user.watchedCallsigns.isEmpty()) return emptyList()
@@ -40,7 +40,7 @@ object ControllerWatcher {
         val newlyOnline = (online - previouslyNotified).sorted()
         if (newlyOnline.isNotEmpty()) {
             Notifications.showControllerOnline(context, newlyOnline)
-            Log.d("VATRadar", "새로 접속한 관제소 알림: ${newlyOnline.joinToString(", ")}")
+            Log.d("VATFlight", "새로 접속한 관제소 알림: ${newlyOnline.joinToString(", ")}")
         }
 
         // 접속 종료된 콜사인은 기록에서 지워 다음 접속 때 다시 알림이 가게 합니다.
@@ -70,7 +70,7 @@ object ControllerWatcher {
 
         Notifications.showControllerOnline(context, fresh)
         settings.setAlreadyNotified(already + fresh)
-        Log.d("VATRadar", "푸시 알림: ${fresh.joinToString(", ")}")
+        Log.d("VATFlight", "푸시 알림: ${fresh.joinToString(", ")}")
     }
 
     /**

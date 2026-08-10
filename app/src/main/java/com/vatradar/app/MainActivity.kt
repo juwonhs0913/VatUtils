@@ -38,7 +38,7 @@ import com.vatradar.app.ui.settings.LicensesScreen
 import com.vatradar.app.ui.settings.OssLicensesScreen
 import com.vatradar.app.ui.settings.SettingsScreen
 import com.vatradar.app.ui.theme.ThemeMode
-import com.vatradar.app.ui.theme.VatRadarTheme
+import com.vatradar.app.ui.theme.VatFlightTheme
 
 /**
  * AppCompatActivity를 쓰는 이유는 앱별 언어 설정 때문입니다.
@@ -55,8 +55,8 @@ class MainActivity : AppCompatActivity() {
             val settings by settingsRepository.settings
                 .collectAsStateWithLifecycle(initialValue = UserSettings())
 
-            VatRadarTheme(themeMode = ThemeMode.fromTag(settings.themeMode)) {
-                VatRadarRoot()
+            VatFlightTheme(themeMode = ThemeMode.fromTag(settings.themeMode)) {
+                VatFlightRoot()
             }
         }
     }
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VatRadarRoot() {
+fun VatFlightRoot() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination

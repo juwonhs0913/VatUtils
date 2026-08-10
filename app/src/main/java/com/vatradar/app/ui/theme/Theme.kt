@@ -30,7 +30,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun VatRadarTheme(
+fun VatFlightTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     content: @Composable () -> Unit
 ) {

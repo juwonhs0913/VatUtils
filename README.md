@@ -1,4 +1,4 @@
-# VATRadar
+# VATFlight
 
 VATSIM 올인원 컴패니언 앱 (Android / Kotlin / Jetpack Compose).
 
@@ -39,7 +39,7 @@ VATSIM 올인원 컴패니언 앱 (Android / Kotlin / Jetpack Compose).
 
 ## 시작하기
 
-1. Android Studio에서 `VatRadar/` 폴더를 **Open**
+1. Android Studio에서 `VatFlight/` 폴더를 **Open**
 2. `local.properties.example`을 `local.properties`로 복사하고 값을 채웁니다.
    ```
    sdk.dir=C:\\Users\\<이름>\\AppData\\Local\\Android\\Sdk
@@ -146,7 +146,22 @@ npx wrangler tail
 
 > 배포 시 `workers.dev subdomain이 필요하다`는 오류(코드 10063)가 나면,
 > 대시보드의 Workers 페이지를 한 번 열어 서브도메인을 생성한 뒤 다시 배포하세요.
-> 이 Worker는 `workers_dev = false`라 공개 주소가 열리지는 않습니다.
+
+이 Worker는 `workers_dev = true`라 공개 주소가 열려 있습니다. 앱이 챌린지 감시를
+등록하고 관제석 목록을 받아 가려면 HTTP 주소가 필요하기 때문입니다. 열려 있는 것은
+아래 넷뿐입니다.
+
+| 경로 | 내용 |
+|---|---|
+| `POST/DELETE /watch` | 챌린지 감시 등록·해제. CID 형식을 검사하고 한 사람당 활성 5건까지 |
+| `POST/GET /logbook` | 비행 기록 등록·조회 |
+| `GET /positions` | 실제로 접속한 적 있는 관제석 목록 (읽기 전용) |
+| `GET /run` | 수동 실행. `RUN_TOKEN` 시크릿이 없으면 **403** |
+
+`/logbook?cid=` 는 CID만 알면 남의 기록도 읽을 수 있습니다. VATSIM Connect OAuth를
+빼면서 "내가 그 CID다"를 확인할 방법이 없어졌기 때문입니다. 기록되는 것은 등록한
+사람의 콜사인·출도착 공항·시각뿐이고 VATSIM이 실시간으로 공개하는 정보와 같은 성격이지만,
+이력까지 공개되는 것은 아니므로 알고 계셔야 합니다. 제대로 막으려면 OAuth가 필요합니다.
 
 앱에서는 알림 페이지에 관심 관제소를 등록하면 `cs_<접두사>` 토픽을 구독합니다.
 Firebase 설정 전에 등록해 둔 관제소도 앱 시작 시 다시 구독되므로 따로 지웠다 넣을 필요는 없습니다.
@@ -232,7 +247,7 @@ VATSIM 데이터 피드는 관제사 좌표를 제공하지 않습니다. 그래
 CC BY-SA 4.0은 출처 표시·변경 사실 명시·동일 조건 재배포를 요구합니다. 세부 사항은
 [NOTICE.md](NOTICE.md)에 정리했고, 앱 안에서도 **설정 → 정보 → 출처 및 라이선스**에서 보입니다.
 
-VATRadar는 VATSIM과 제휴하지 않은 비공식 앱입니다.
+VATFlight는 VATSIM과 제휴하지 않은 비공식 앱입니다.
 
 > **상업적 이용에 관하여** — VATSIM Code of Regulations Article I §B는 "no individual or
 > entity is permitted to resell or make any commercial or non-commercial use of the VATSIM

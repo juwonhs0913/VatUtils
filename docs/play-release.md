@@ -62,9 +62,17 @@ JDK는 17~21만 됩니다 (Gradle 8.9가 23 이상을 거부합니다).
 JAVA_HOME="/c/Program Files/Android/Android Studio/jbr" ./gradlew bundleRelease
 ```
 
-## 3. Maps API 키 제한 ❌ (직접)
+## 3. Maps API 키 제한 ❌ (직접) — 지금 가장 급합니다
 
-지금 키에는 제한이 없어 **누구나 도용해 할당량을 쓸 수 있습니다.**
+**저장소를 공개로 돌리면서 우선순위가 올라갔습니다.** Android Maps SDK는 키를 APK 안에
+넣어야만 동작합니다. 릴리스 자산이 공개된 지금은 누구나 APK를 받아 키를 꺼낼 수 있습니다.
+
+```bash
+aapt dump xmltree app-release.apk AndroidManifest.xml | grep -A1 geo.API_KEY
+```
+
+키가 새는 것 자체는 막을 방법이 없고, **제한을 걸면 훔쳐 가도 쓸 수 없게** 됩니다.
+패키지명과 서명 지문이 맞지 않으면 요청이 거부되기 때문입니다. 오늘 걸어 두세요.
 
 Google Cloud Console → 사용자 인증 정보 → 해당 키 →
 
@@ -134,7 +142,7 @@ VATSIM 실시간 관제·트래픽 지도, 무작위 경로 추천, 기상 정�
 ### 자세한 설명
 
 ```
-VATRadar는 VATSIM 네트워크를 이용하는 가상 조종사를 위한 컴패니언 앱입니다.
+VATFlight는 VATSIM 네트워크를 이용하는 가상 조종사를 위한 컴패니언 앱입니다.
 
 ■ 실시간 지도
 전 세계 항공기와 관제사를 지도 위에서 확인합니다. 관제 구역은 VAT-Spy 경계를 그대로
@@ -163,7 +171,7 @@ CID를 등록하면 그 뒤의 비행이 기록되고, 다녀온 나라가 지�
 
 한국어·영어·중국어·독일어·포르투갈어를 지원합니다.
 
-VATRadar는 VATSIM과 공식적으로 제휴하지 않은 비공식 앱입니다.
+VATFlight는 VATSIM과 공식적으로 제휴하지 않은 비공식 앱입니다.
 데이터 출처와 라이선스는 앱 안 설정 → 정보 → 출처 및 라이선스에서 확인할 수 있습니다.
 ```
 
@@ -216,3 +224,6 @@ Article I §B:
 - 공항 데이터는 OurAirports 스냅샷이라 신설 공항이 빠질 수 있습니다.
 - VAT-Spy 경계 데이터도 스냅샷이므로 FIR 개편 시 갱신이 필요합니다.
 - 알림 등록은 CID 확인 없이 누구나 할 수 있습니다 (VATSIM Connect OAuth를 뺐기 때문).
+  `/watch`는 CID 형식을 검사하고 한 사람당 활성 감시 5건으로 막아 두었습니다.
+- `/run`(수동 실행)은 `RUN_TOKEN` 시크릿이 있어야 응답합니다. 설정 전에는 403입니다.
+  크론은 이와 무관하게 계속 돕니다. 쓰려면 `npx wrangler secret put RUN_TOKEN`.

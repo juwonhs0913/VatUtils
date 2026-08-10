@@ -73,18 +73,44 @@ public final class StoreGraphics {
         // 왼쪽 정보 블록
         int left = 76;
         g.setColor(Color.WHITE);
-        g.setFont(new Font("SansSerif", Font.BOLD, 96));
-        g.drawString("VATRadar", left, 250);
+        g.setFont(new Font("SansSerif", Font.BOLD, 92));
+        g.drawString("VATFlight", left, 222);
 
         g.setColor(ACCENT);
-        g.fillRect(left, 282, 120, 5);
+        g.fillRect(left, 254, 120, 5);
 
         g.setColor(new Color(0xD5E4EF));
-        g.setFont(new Font("SansSerif", Font.PLAIN, 34));
-        g.drawString("Live VATSIM traffic, controllers and weather", left, 348);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 32));
+        g.drawString("Live VATSIM traffic, controllers and weather", left, 320);
+
+        // 두 번째 줄은 알림입니다. 스토어에서 이 앱을 고르는 이유가 대개 이것이라
+        // 종 모양을 앞에 붙여 눈에 걸리게 합니다.
+        drawBell(g, left + 8, 368, ACCENT);
+        g.setColor(ACCENT);
+        g.drawString("Alerts the moment a controller comes online", left + 46, 380);
 
         g.dispose();
         return image;
+    }
+
+    /** 작은 종. 글꼴 이모지는 환경에 따라 두부가 되므로 직접 그립니다. */
+    private static void drawBell(Graphics2D g, double x, double y, Color color) {
+        Graphics2D bell = (Graphics2D) g.create();
+        bell.setColor(color);
+        bell.translate(x, y);
+
+        // 몸통 — 위는 둥글고 아래로 벌어지는 모양.
+        Path2D.Double body = new Path2D.Double();
+        body.moveTo(2, 22);
+        body.curveTo(4, 12, 4, 4, 13, 2);
+        body.curveTo(22, 4, 22, 12, 24, 22);
+        body.closePath();
+        bell.fill(body);
+
+        bell.fill(new Rectangle2D.Double(0, 22, 26, 4));      // 아랫단
+        bell.fill(new Ellipse2D.Double(10, -4, 6, 6));        // 꼭지
+        bell.fill(new Ellipse2D.Double(9, 27, 8, 7));         // 추
+        bell.dispose();
     }
 
     // -------------------------------------------------------------- 공통 도형

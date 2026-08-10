@@ -36,7 +36,7 @@ object ControllerCatalog {
         icaoPrefixToCountry: Map<String, String>
     ): List<CenterEntry> = cache ?: withContext(Dispatchers.IO) {
         val loaded = runCatching { load(context, icaoPrefixToCountry) }
-            .onFailure { Log.w("VATRadar", "관제소 목록 적재 실패", it) }
+            .onFailure { Log.w("VATFlight", "관제소 목록 적재 실패", it) }
             .getOrDefault(emptyList())
         cache = loaded
         loaded

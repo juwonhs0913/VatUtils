@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 기본(폴백) 로케일 = 영어. 다른 언어는 values-ko / values-zh / values-de / values-pt 에 있습니다. -->
 <resources>
-    <string name="app_name">VATRadar</string>
+    <string name="app_name">VATFlight</string>
 
     <!-- Navigation -->
     <string name="tab_map">Map</string>
@@ -154,14 +154,14 @@
     <string name="feedback">Feedback</string>
     <string name="feedback_hint">Found a bug, or does something feel wrong? Please tell me — it is the only way it gets fixed.</string>
     <string name="send_feedback">Send an email</string>
-    <string name="feedback_subject">VATRadar %1$s feedback</string>
+    <string name="feedback_subject">VATFlight %1$s feedback</string>
     <string name="feedback_body_template">\n\n---\nDevice: %1$s\nAndroid: %2$s\nApp: %3$s</string>
     <string name="no_email_app">No email app found.</string>
     <string name="about">About</string>
     <string name="app_version">Version %1$s</string>
     <string name="licenses">Sources and licences</string>
     <string name="legal_notices">Notice</string>
-    <string name="vatsim_disclaimer">VATRadar is an unofficial, fan-made app. It is not affiliated with, endorsed by, or sponsored by VATSIM, SimBrief, or any real airline or airport. The data shown comes from public sources, may be incomplete or out of date, and must never be used for real-world flight.</string>
+    <string name="vatsim_disclaimer">VATFlight is an unofficial, fan-made app. It is not affiliated with, endorsed by, or sponsored by VATSIM, SimBrief, or any real airline or airport. The data shown comes from public sources, may be incomplete or out of date, and must never be used for real-world flight.</string>
     <string name="data_sources">Data sources</string>
     <string name="src_vatsim_use">Live traffic, controllers and events</string>
     <string name="src_vatspy_use">FIR and sector boundaries</string>

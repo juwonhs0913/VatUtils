@@ -41,7 +41,7 @@ class FlightProgressRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            Log.w("VATRadar", "비행 진행 상황 확인 실패", e)
+            Log.w("VATFlight", "비행 진행 상황 확인 실패", e)
             emptyList()
         }
     }
@@ -57,7 +57,7 @@ class FlightProgressRepository(
             val arrival = airports.find(challenge.destination)
             if (FlightVerifier.hasArrived(me, arrival)) {
                 challenges.markCompleted(challenge)
-                Log.d("VATRadar", "챌린지 완주(도착 관측): ${challenge.origin}→${challenge.destination}")
+                Log.d("VATFlight", "챌린지 완주(도착 관측): ${challenge.origin}→${challenge.destination}")
                 return challenge
             }
             return null
@@ -68,7 +68,7 @@ class FlightProgressRepository(
             val hours = fetchPilotHours(vatsimCid)
             if (FlightVerifier.completedAfterDisconnect(challenge, hours)) {
                 challenges.markCompleted(challenge)
-                Log.d("VATRadar", "챌린지 완주(비행시간 증가): ${challenge.origin}→${challenge.destination}")
+                Log.d("VATFlight", "챌린지 완주(비행시간 증가): ${challenge.origin}→${challenge.destination}")
                 return challenge
             }
         }
@@ -107,7 +107,7 @@ class FlightProgressRepository(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        Log.w("VATRadar", "비행시간 조회 실패", e)
+        Log.w("VATFlight", "비행시간 조회 실패", e)
         null
     }
 }

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "VATRadar"
+rootProject.name = "VATFlight"
 include(":app")

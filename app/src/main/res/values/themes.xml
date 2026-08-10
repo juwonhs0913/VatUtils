@@ -8,7 +8,7 @@
   DayNight 계열이라 다크 모드는 이 한 줄로 함께 처리됩니다.
 -->
 <resources>
-    <style name="Theme.VATRadar" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.VATFlight" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
 </resources>

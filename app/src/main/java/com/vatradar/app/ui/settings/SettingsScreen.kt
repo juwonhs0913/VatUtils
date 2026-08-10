@@ -143,7 +143,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         val trimmed = cid.trim()
         if (trimmed.length < 6) return
         runCatching { ServiceLocator.logbookApiService().register(LogbookRegisterRequest(trimmed)) }
-            .onFailure { Log.w("VATRadar", "비행 기록 등록 실패", it) }
+            .onFailure { Log.w("VATFlight", "비행 기록 등록 실패", it) }
     }
 }
 

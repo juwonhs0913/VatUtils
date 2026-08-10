@@ -22,7 +22,7 @@ object CountryShapeStore {
     suspend fun shapes(context: Context): Map<String, List<List<LatLng>>> =
         cache ?: withContext(Dispatchers.IO) {
             val loaded = runCatching { load(context) }
-                .onFailure { Log.w("VATRadar", "나라 경계 적재 실패", it) }
+                .onFailure { Log.w("VATFlight", "나라 경계 적재 실패", it) }
                 .getOrDefault(emptyMap())
             cache = loaded
             loaded

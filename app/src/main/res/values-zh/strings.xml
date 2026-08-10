@@ -151,14 +151,14 @@
     <string name="feedback">反馈</string>
     <string name="feedback_hint">发现问题或觉得哪里不对，请告诉我——这是它被修复的唯一途径。</string>
     <string name="send_feedback">发送邮件</string>
-    <string name="feedback_subject">VATRadar %1$s 反馈</string>
+    <string name="feedback_subject">VATFlight %1$s 反馈</string>
     <string name="feedback_body_template">\n\n---\n设备：%1$s\nAndroid：%2$s\n应用：%3$s</string>
     <string name="no_email_app">未找到邮件应用。</string>
     <string name="about">关于</string>
     <string name="app_version">版本 %1$s</string>
     <string name="licenses">数据来源与许可</string>
     <string name="legal_notices">声明</string>
-    <string name="vatsim_disclaimer">VATRadar 是非官方的爱好者应用，与 VATSIM、SimBrief 及任何真实航空公司或机场均无隶属、认可或赞助关系。所示数据来自公开来源，可能不完整或已过时，切勿用于真实飞行。</string>
+    <string name="vatsim_disclaimer">VATFlight 是非官方的爱好者应用，与 VATSIM、SimBrief 及任何真实航空公司或机场均无隶属、认可或赞助关系。所示数据来自公开来源，可能不完整或已过时，切勿用于真实飞行。</string>
     <string name="data_sources">数据来源</string>
     <string name="src_vatsim_use">实时航班、管制席位与活动</string>
     <string name="src_vatspy_use">FIR 与扇区边界</string>

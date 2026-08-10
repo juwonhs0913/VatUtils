@@ -48,7 +48,7 @@ class MyFlightsViewModel(app: Application) : AndroidViewModel(app) {
             _uiState.value = _uiState.value.copy(loading = true)
 
             val response = runCatching { logbookApi.fetch(cid) }
-                .onFailure { Log.w("VATRadar", "비행 기록 조회 실패", it) }
+                .onFailure { Log.w("VATFlight", "비행 기록 조회 실패", it) }
                 .getOrNull()
                 ?.takeIf { it.isSuccessful }
                 ?.body()

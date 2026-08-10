@@ -57,7 +57,7 @@ class PositionRegistry(
         val downloaded = runCatching {
             val response = api.fetch()
             response.body()?.positions.takeIf { response.isSuccessful }.orEmpty()
-        }.onFailure { Log.w("VATRadar", "관제석 목록 내려받기 실패", it) }
+        }.onFailure { Log.w("VATFlight", "관제석 목록 내려받기 실패", it) }
             .getOrDefault(emptyList())
 
         if (downloaded.isNotEmpty()) {

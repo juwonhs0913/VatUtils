@@ -7,12 +7,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".VatRadarApp"
+        android:name=".VatFlightApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:theme="@style/Theme.VATRadar"
+        android:theme="@style/Theme.VATFlight"
         android:localeConfig="@xml/locales_config"
         android:usesCleartextTraffic="false">
 
@@ -23,7 +23,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.VATRadar">
+            android:theme="@style/Theme.VATFlight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -37,7 +37,7 @@
           그동안은 ControllerWatchWorker의 주기 폴링이 알림을 담당합니다.
         -->
         <service
-            android:name=".notification.VatRadarMessagingService"
+            android:name=".notification.VatFlightMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

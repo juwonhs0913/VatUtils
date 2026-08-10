@@ -1,5 +1,5 @@
 /**
- * VATRadar — 관심 관제소 접속 감지 (Cloudflare Workers)
+ * VATFlight — 관심 관제소 접속 감지 (Cloudflare Workers)
  *
  * 1분마다 VATSIM 데이터 피드를 확인하고, 새로 접속한 관제소를 FCM 토픽으로 푸시합니다.
  * Firebase Cloud Functions와 같은 역할이지만 Cloudflare 무료 플랜에서 돌아갑니다
@@ -86,14 +86,24 @@ export default {
       }
 
       // 배포 직후 동작 확인용 수동 실행.
+      //
+      // 저장소를 공개로 돌리면서 잠갔습니다. 한 번 부르면 VATSIM 피드를 받고 FCM을
+      // 보내고 D1에 씁니다. 누구나 부를 수 있으면 두들기는 것만으로 무료 한도를 태우고
+      // 같은 알림을 반복해서 보낼 수 있습니다. 크론은 이 검사와 무관하게 계속 돕니다.
+      //
+      // 쓰려면:  npx wrangler secret put RUN_TOKEN
+      // 그다음:  curl "https://.../run?token=<값>"
       if (url.pathname === '/run') {
+        if (!env.RUN_TOKEN || url.searchParams.get('token') !== env.RUN_TOKEN) {
+          return Response.json({ error: 'forbidden' }, { status: 403 });
+        }
         return Response.json(await run(env));
       }
     } catch (error) {
       return Response.json({ error: String(error) }, { status: 500 });
     }
 
-    return new Response('VATRadar watcher', { status: 200 });
+    return new Response('VATFlight watcher', { status: 200 });
   },
 };
 
@@ -245,7 +255,7 @@ async function harvestPositions(env, controllers) {
 async function fetchSessionCallsigns(cid) {
   const response = await fetch(
     `https://api.vatsim.net/api/ratings/${encodeURIComponent(cid)}/atcsessions/`,
-    { headers: { 'User-Agent': 'VATRadar/1.0 (position registry)' } }
+    { headers: { 'User-Agent': 'VATFlight/1.0 (position registry)' } }
   );
   if (!response.ok) throw new Error(`응답 오류: ${response.status}`);
   const data = await response.json();
@@ -275,7 +285,7 @@ async function positionsResponse(env) {
 
 async function fetchFeed() {
   const response = await fetch(VATSIM_DATA_URL, {
-    headers: { 'User-Agent': 'VATRadar/1.0 (controller watcher)' },
+    headers: { 'User-Agent': 'VATFlight/1.0 (controller watcher)' },
   });
   if (!response.ok) {
     throw new Error(`VATSIM 피드 응답 오류: ${response.status}`);

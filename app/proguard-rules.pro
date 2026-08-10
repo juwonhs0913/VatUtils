@@ -1,4 +1,4 @@
-# VATRadar R8 규칙
+# VATFlight R8 규칙
 #
 # 대부분의 라이브러리는 consumer 규칙을 자체 포함하므로 여기엔 그것만으로 부족한 것만 둡니다.
 # 규칙을 추가할 때는 반드시 릴리스 빌드를 실제로 실행해 확인하세요 —
@@ -61,7 +61,7 @@
 
 # ---------------------------------------------------------------- Firebase Messaging
 # 매니페스트에 이름으로 등록된 서비스라 지워지면 푸시를 못 받습니다.
--keep class com.vatradar.app.notification.VatRadarMessagingService { *; }
+-keep class com.vatradar.app.notification.VatFlightMessagingService { *; }
 
 # ---------------------------------------------------------------- 디버깅
 # 난독화된 스택트레이스를 되돌릴 수 있도록 줄 번호를 남깁니다.

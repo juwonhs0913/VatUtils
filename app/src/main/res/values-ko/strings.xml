@@ -151,14 +151,14 @@
     <string name="feedback">피드백</string>
     <string name="feedback_hint">버그를 찾았거나 이상한 점이 있다면 알려 주세요. 그래야 고칠 수 있습니다.</string>
     <string name="send_feedback">메일 보내기</string>
-    <string name="feedback_subject">VATRadar %1$s 피드백</string>
+    <string name="feedback_subject">VATFlight %1$s 피드백</string>
     <string name="feedback_body_template">\n\n---\n기기: %1$s\n안드로이드: %2$s\n앱: %3$s</string>
     <string name="no_email_app">메일 앱을 찾을 수 없습니다.</string>
     <string name="about">정보</string>
     <string name="app_version">버전 %1$s</string>
     <string name="licenses">출처 및 라이선스</string>
     <string name="legal_notices">고지</string>
-    <string name="vatsim_disclaimer">VATRadar는 비공식 팬메이드 앱입니다. VATSIM, SimBrief를 비롯한 어떤 실제 항공사·공항과도 제휴하거나 승인받은 관계가 아닙니다. 표시되는 데이터는 공개 자료라 빠지거나 오래됐을 수 있으며, 실제 비행에 사용해서는 안 됩니다.</string>
+    <string name="vatsim_disclaimer">VATFlight는 비공식 팬메이드 앱입니다. VATSIM, SimBrief를 비롯한 어떤 실제 항공사·공항과도 제휴하거나 승인받은 관계가 아닙니다. 표시되는 데이터는 공개 자료라 빠지거나 오래됐을 수 있으며, 실제 비행에 사용해서는 안 됩니다.</string>
     <string name="data_sources">데이터 출처</string>
     <string name="src_vatsim_use">실시간 항공기·관제사·이벤트</string>
     <string name="src_vatspy_use">FIR·섹터 경계</string>

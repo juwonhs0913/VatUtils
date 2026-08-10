@@ -30,7 +30,7 @@ class ControllerWatchWorker(
         ControllerWatcher.checkOnce(applicationContext)
         Result.success()
     } catch (e: Exception) {
-        Log.w("VATRadar", "관제소 감시 실패", e)
+        Log.w("VATFlight", "관제소 감시 실패", e)
         Result.retry()
     }
 
