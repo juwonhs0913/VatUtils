@@ -137,6 +137,11 @@
     <string name="view_compact">Resumido</string>
     <string name="view_detailed">Detalhado</string>
     <string name="watched_heading">Registradas (%1$d)</string>
+    <string name="watched_centers">Centros e controle (%1$d)</string>
+    <string name="watched_airports">Aeroportos (%1$d)</string>
+    <string name="watched_other">Outras (%1$d)</string>
+    <string name="all_positions">Todas as posições</string>
+    <string name="positions_split_hint">Ao desligar uma, valem só as posições que ficarem ligadas — approach e ATIS deixam de contar.</string>
     <string name="change_region">Alterar</string>
     <string name="pick_continent_and_country">Escolha um continente e um país para ver os candidatos.</string>
     <string name="search_candidates">Buscar centros e aeroportos</string>

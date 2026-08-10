@@ -137,6 +137,11 @@
     <string name="view_compact">간략히 보기</string>
     <string name="view_detailed">자세히 보기</string>
     <string name="watched_heading">관심 관제소 (%1$d)</string>
+    <string name="watched_centers">센터·컨트롤 (%1$d)</string>
+    <string name="watched_airports">공항 (%1$d)</string>
+    <string name="watched_other">기타 (%1$d)</string>
+    <string name="all_positions">모든 포지션</string>
+    <string name="positions_split_hint">하나라도 끄면 켜 둔 포지션만 알립니다 — 접근관제와 ATIS는 빠집니다.</string>
     <string name="change_region">변경</string>
     <string name="pick_continent_and_country">대륙과 나라를 모두 고르면 후보가 나옵니다.</string>
     <string name="search_candidates">센터·공항 검색</string>

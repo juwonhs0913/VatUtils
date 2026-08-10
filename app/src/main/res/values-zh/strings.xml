@@ -137,6 +137,11 @@
     <string name="view_compact">简略</string>
     <string name="view_detailed">详细</string>
     <string name="watched_heading">已登记 (%1$d)</string>
+    <string name="watched_centers">区域管制 (%1$d)</string>
+    <string name="watched_airports">机场 (%1$d)</string>
+    <string name="watched_other">其他 (%1$d)</string>
+    <string name="all_positions">全部席位</string>
+    <string name="positions_split_hint">关掉任一项后，只有保留开启的席位会提醒 — 进近和 ATIS 不再计入。</string>
     <string name="change_region">更改</string>
     <string name="pick_continent_and_country">选择大洲和国家后才会显示候选。</string>
     <string name="search_candidates">搜索管制中心和机场</string>

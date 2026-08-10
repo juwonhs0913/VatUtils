@@ -137,6 +137,11 @@
     <string name="view_compact">Kompakt</string>
     <string name="view_detailed">Detailliert</string>
     <string name="watched_heading">Beobachtet (%1$d)</string>
+    <string name="watched_centers">Center und Control (%1$d)</string>
+    <string name="watched_airports">Flughäfen (%1$d)</string>
+    <string name="watched_other">Sonstige (%1$d)</string>
+    <string name="all_positions">Alle Positionen</string>
+    <string name="positions_split_hint">Wird eine abgeschaltet, zählen nur noch die aktiven Positionen — Approach und ATIS fallen weg.</string>
     <string name="change_region">Ändern</string>
     <string name="pick_continent_and_country">Wähle Kontinent und Land, um Vorschläge zu sehen.</string>
     <string name="search_candidates">Center und Flughäfen suchen</string>

@@ -140,6 +140,11 @@
     <string name="view_compact">Compact</string>
     <string name="view_detailed">Detailed</string>
     <string name="watched_heading">Watching (%1$d)</string>
+    <string name="watched_centers">Centers and control (%1$d)</string>
+    <string name="watched_airports">Airports (%1$d)</string>
+    <string name="watched_other">Other (%1$d)</string>
+    <string name="all_positions">All positions</string>
+    <string name="positions_split_hint">Turning one off keeps only the positions you leave on — approach and ATIS no longer count.</string>
     <string name="change_region">Change</string>
     <string name="pick_continent_and_country">Pick a continent and a country to see candidates.</string>
     <string name="search_candidates">Search centers and airports</string>

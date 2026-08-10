@@ -27,6 +27,15 @@ interface AirportDao {
     @Query("SELECT * FROM airports WHERE iata != '' AND iata IN (:codes)")
     suspend fun findAllByIata(codes: List<String>): List<AirportEntity>
 
+    /**
+     * 이 나라의 공항 전부.
+     *
+     * 접근관제 콜사인의 앞머리를 되짚는 데 씁니다. 국제공항급만 보면
+     * 지방 공항·군 비행장에 붙는 접근관제석이 통째로 빠집니다.
+     */
+    @Query("SELECT * FROM airports WHERE country = :country")
+    suspend fun airportsInCountry(country: String): List<AirportEntity>
+
     @Query(
         """
         SELECT * FROM airports

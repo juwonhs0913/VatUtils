@@ -69,6 +69,18 @@ class SettingsRepository(private val context: Context) {
         p[Keys.WATCHED] = (p[Keys.WATCHED] ?: emptySet()) - callsign
     }
 
+    /**
+     * 여러 항목을 한 번에 갈아 끼웁니다.
+     *
+     * 뺄 것과 넣을 것을 따로 저장하면 그 사이에 목록이 잠깐 비어 화면이 깜빡입니다.
+     * 공항의 자리 하나를 끄면 `RKSI` 한 줄이 `RKSI_DEL`·`RKSI_GND` 두 줄로 바뀌는데,
+     * 그 찰나에 공항이 목록에서 통째로 사라져 보였습니다.
+     */
+    suspend fun updateWatched(add: Set<String>, remove: Set<String>) = edit { p ->
+        val current = p[Keys.WATCHED] ?: emptySet()
+        p[Keys.WATCHED] = current - remove + add.map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+    }
+
     suspend fun starEvent(id: Int) = edit { p ->
         p[Keys.STARRED_EVENTS] = (p[Keys.STARRED_EVENTS] ?: emptySet()) + id.toString()
     }

@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +57,8 @@ import com.vatradar.app.R
 import com.vatradar.app.data.local.ControllerCatalog
 import com.vatradar.app.data.prefs.UserSettings
 import com.vatradar.app.di.ServiceLocator
+import com.vatradar.app.domain.ApproachDirectory
+import com.vatradar.app.domain.WatchedStations
 import com.vatradar.app.domain.model.Airport
 import com.vatradar.app.domain.model.Continent
 import com.vatradar.app.notification.ControllerWatchWorker
@@ -72,7 +77,7 @@ data class CatalogState(
     val centers: List<ControllerCatalog.CenterEntry> = emptyList(),
     val airports: List<Airport> = emptyList(),
     /** 이 나라에서 실제로 접속한 적이 있는 접근관제석. 지어내지 않습니다. */
-    val approaches: List<ApproachCandidate> = emptyList(),
+    val approaches: List<ApproachDirectory.Candidate> = emptyList(),
     /** 후보군 안에서 다시 좁히는 검색어. */
     val query: String = ""
 ) {
@@ -85,14 +90,14 @@ data class CatalogState(
     val ready: Boolean get() = continent != null && country != null
 }
 
-/** 목록에 올릴 접근관제석 하나. [servedBy]는 그 자리가 실제로 보는 공항 이름입니다. */
-data class ApproachCandidate(val callsign: String, val servedBy: String)
-
 class AlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = ServiceLocator.settingsRepository(app)
     private val airportRepo = ServiceLocator.airportRepository(app)
     private val positionRegistry = ServiceLocator.positionRegistry(app)
+
+    /** ICAO 접두사 → 국가. 센터 목록과 접근관제석 판정에 함께 씁니다. */
+    private var icaoPrefixes: Map<String, String> = emptyMap()
 
     private val _settings = MutableStateFlow(UserSettings())
     val settings = _settings.asStateFlow()
@@ -103,9 +108,9 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch { repo.settings.collect { _settings.value = it } }
         viewModelScope.launch {
-            val prefixes = airportRepo.icaoPrefixToCountry()
+            icaoPrefixes = airportRepo.icaoPrefixToCountry()
             _catalog.value = _catalog.value.copy(
-                allCenters = ControllerCatalog.centers(getApplication(), prefixes),
+                allCenters = ControllerCatalog.centers(getApplication(), icaoPrefixes),
                 countryNames = airportRepo.countryNames()
             )
             applyFilter()
@@ -120,6 +125,28 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
     fun removeWatched(v: String) = viewModelScope.launch {
         repo.removeWatched(v)
         FcmTopics.unsubscribe(v)
+    }
+
+    /** 공항 하나를 통째로 뺍니다. 개별 자리로 쪼개 저장돼 있어도 한 번에 지웁니다. */
+    fun removeAll(entries: Set<String>) = viewModelScope.launch {
+        apply(WatchedStations.Change(remove = entries))
+    }
+
+    /** 공항 [icao]의 자리 하나를 켜거나 끕니다. */
+    fun togglePosition(icao: String, position: String, on: Boolean) = viewModelScope.launch {
+        apply(
+            WatchedStations.togglePosition(
+                _settings.value.watchedCallsigns, icao, position, on
+            )
+        )
+    }
+
+    private suspend fun apply(change: WatchedStations.Change) {
+        if (change.add.isEmpty() && change.remove.isEmpty()) return
+        // 저장은 한 번에. 뺐다 넣는 사이에 목록이 잠깐 비면 화면이 깜빡입니다.
+        repo.updateWatched(add = change.add, remove = change.remove)
+        change.remove.forEach { FcmTopics.unsubscribe(it) }
+        change.add.forEach { FcmTopics.subscribe(it) }
     }
 
     // ---------------- 관제소 고르기 ----------------
@@ -160,36 +187,25 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
             countries = airportRepo.countries(state.continent),
             centers = if (state.ready) centers else emptyList(),
             airports = airports,
-            approaches = if (state.ready) approachesFor(airports) else emptyList()
+            approaches = if (state.country != null) approachesFor(state.country) else emptyList()
         )
     }
 
     /**
      * 이 나라의 접근관제석.
      *
-     * 공항마다 `<ICAO>_APP`을 지어내지 않습니다. 인천 어프로치는 존재하지 않고,
-     * 인천과 김포는 서울 어프로치(RKSS_APP) 하나가 봅니다. 그래서 서버가 모아 둔
-     * **실제로 접속한 적이 있는 콜사인**에서 이 나라 것만 골라냅니다.
-     *
-     * 고르는 기준은 콜사인 앞머리입니다. `RKSS_APP` → `RKSS`, `EGLL_N_APP` → `EGLL`.
-     * 그 코드가 이 나라 공항이면 이 나라 자리입니다. 미국의 `SCT_APP`처럼 공항 코드가
-     * 아닌 TRACON 이름을 쓰는 곳은 여기 걸리지 않습니다 — 짐작해서 넣느니 빼둡니다.
-     * (직접 입력으로는 언제든 등록할 수 있습니다.)
+     * 후보를 만들 때 쓰는 공항 목록이 등록용 공항 목록([CatalogState.airports])과 다릅니다.
+     * 등록용은 국제공항급만 올리지만, 여기서는 그 나라 공항을 **전부** 봅니다 —
+     * 접근관제석은 지방 공항이나 군 비행장에도 붙어서 국제공항만 보면 후보가 빠집니다.
+     * 판정 규칙은 [ApproachDirectory]에 있습니다.
      */
-    private suspend fun approachesFor(airports: List<Airport>): List<ApproachCandidate> {
-        val observed = positionRegistry.callsigns()
-        if (observed.isEmpty() || airports.isEmpty()) return emptyList()
-
-        val byIcao = airports.associateBy { it.icao }
-        return observed.asSequence()
-            .filter { it.endsWith("_APP") || it.endsWith("_DEP") }
-            .mapNotNull { callsign ->
-                val airport = byIcao[callsign.substringBefore('_')] ?: return@mapNotNull null
-                ApproachCandidate(callsign, airport.name)
-            }
-            .sortedBy { it.callsign }
-            .toList()
-    }
+    private suspend fun approachesFor(country: String): List<ApproachDirectory.Candidate> =
+        ApproachDirectory.candidatesFor(
+            observed = positionRegistry.callsigns(),
+            country = country,
+            airports = airportRepo.airportsInCountry(country),
+            icaoPrefixes = icaoPrefixes
+        )
 
     fun setNotifyEnabled(enabled: Boolean) = viewModelScope.launch {
         repo.setNotifyEnabled(enabled)
@@ -238,7 +254,9 @@ fun AlertsScreen(viewModel: AlertsViewModel = viewModel()) {
             watched = settings.watchedCallsigns,
             detailed = detailed,
             onRemove = viewModel::removeWatched,
-            onAdd = viewModel::addWatched
+            onRemoveAll = viewModel::removeAll,
+            onAdd = viewModel::addWatched,
+            onTogglePosition = viewModel::togglePosition
         )
 
         AnimatedVisibility(visible = detailed) {
@@ -300,16 +318,25 @@ private fun ViewModeSwitch(detailed: Boolean, onChange: (Boolean) -> Unit) {
     }
 }
 
-/** 지금 등록해 둔 관제소. 자세히 보기에서는 직접 입력도 여기서 합니다. */
+/**
+ * 지금 등록해 둔 관제소. 자세히 보기에서는 직접 입력도 여기서 합니다.
+ *
+ * 센터와 공항을 갈라 놓습니다. 센터는 하나가 나라 절반을 덮는 넓은 자리고 공항은
+ * 자리가 여럿으로 쪼개지는 좁은 자리라, 한 줄에 섞어 늘어놓으면 무엇을 등록해 뒀는지
+ * 읽히지 않습니다. 공항은 눌러서 자리별로 켜고 끌 수 있습니다.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun WatchedCard(
     watched: Set<String>,
     detailed: Boolean,
     onRemove: (String) -> Unit,
-    onAdd: (String) -> Unit
+    onRemoveAll: (Set<String>) -> Unit,
+    onAdd: (String) -> Unit,
+    onTogglePosition: (String, String, Boolean) -> Unit
 ) {
     var typed by remember { mutableStateOf("") }
+    val groups = remember(watched) { WatchedStations.group(watched) }
 
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -324,23 +351,33 @@ private fun WatchedCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            } else {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    watched.sorted().forEach { callsign ->
-                        InputChip(
-                            selected = false,
-                            onClick = { onRemove(callsign) },
-                            label = { Text(callsign) },
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.remove),
-                                    modifier = Modifier.size(16.dp)
-                                )
+            }
+
+            if (groups.centers.isNotEmpty()) {
+                GroupHeading(stringResource(R.string.watched_centers, groups.centers.size))
+                CallsignChips(groups.centers, onRemove)
+            }
+
+            if (groups.airports.isNotEmpty()) {
+                GroupHeading(stringResource(R.string.watched_airports, groups.airports.size))
+                groups.airports.forEach { airport ->
+                    // 펼침 상태가 목록 순서가 아니라 공항을 따라가게 합니다. 키가 없으면
+                    // 앞의 공항이 빠졌을 때 뒤의 공항이 그 자리를 물려받아 대신 펼쳐집니다.
+                    key(airport.icao) {
+                        WatchedAirportRow(
+                            airport = airport,
+                            onRemove = { onRemoveAll(airport.entries) },
+                            onTogglePosition = { position, on ->
+                                onTogglePosition(airport.icao, position, on)
                             }
                         )
                     }
                 }
+            }
+
+            if (groups.others.isNotEmpty()) {
+                GroupHeading(stringResource(R.string.watched_other, groups.others.size))
+                CallsignChips(groups.others, onRemove)
             }
 
             if (detailed) {
@@ -367,6 +404,118 @@ private fun WatchedCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupHeading(text: String) {
+    HorizontalDivider()
+    Text(
+        text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CallsignChips(callsigns: List<String>, onRemove: (String) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        callsigns.forEach { callsign ->
+            InputChip(
+                selected = false,
+                onClick = { onRemove(callsign) },
+                label = { Text(callsign) },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.remove),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            )
+        }
+    }
+}
+
+/**
+ * 등록해 둔 공항 한 곳.
+ *
+ * 눌러서 펼치면 자리별 상자가 나옵니다. 공항을 목록에서 고르면 그 공항의 모든 자리가
+ * 한꺼번에 걸리는데, 관제탑만 받고 싶은 경우가 흔합니다 — 딜리버리와 그라운드는
+ * 게이트에 있을 때만 쓰이니까요.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun WatchedAirportRow(
+    airport: WatchedStations.Airport,
+    onRemove: () -> Unit,
+    onTogglePosition: (String, Boolean) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val on = airport.boxes.filter { airport.isOn(it) }
+
+    Column {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(airport.icao, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    if (airport.all) stringResource(R.string.all_positions)
+                    else on.joinToString(" · "),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            IconButton(onClick = onRemove) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.remove),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = expanded) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    airport.boxes.forEach { position ->
+                        val checked = airport.isOn(position)
+                        FilterChip(
+                            selected = checked,
+                            onClick = { onTogglePosition(position, !checked) },
+                            label = { Text(position) },
+                            leadingIcon = if (checked) {
+                                {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            } else null
+                        )
+                    }
+                }
+                if (airport.all) {
+                    Text(
+                        stringResource(R.string.positions_split_hint),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

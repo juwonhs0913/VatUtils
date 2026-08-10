@@ -123,6 +123,9 @@ class AirportRepository(
     /** 국제공항급 목록은 2천여 곳뿐이라 한 번 읽어 캐시합니다. */
     private var internationalCache: List<Airport>? = null
 
+    /** 국가 코드 → 대륙 코드. [continentByCountry] 참고. */
+    private var continentCache: Map<String, String>? = null
+
     private suspend fun international(): List<Airport> =
         internationalCache ?: withContext(Dispatchers.IO) {
             dao.internationalAirports().map { it.toDomain() }.also { internationalCache = it }
@@ -136,7 +139,8 @@ class AirportRepository(
      */
     suspend fun randomRoute(filter: RouteFilter): RandomRoute? = withContext(Dispatchers.Default) {
         val all = international()
-        val origins = all.filter { filter.matches(it) }
+        val scope = scopeOf(filter)
+        val origins = all.filter(scope)
         if (origins.isEmpty() || all.size < 2) return@withContext null
 
         repeat(MAX_ATTEMPTS) {
@@ -155,7 +159,45 @@ class AirportRepository(
 
     /** 해당 범위에서 출발지가 될 수 있는 공항 수. */
     suspend fun routeCount(filter: RouteFilter): Int =
-        international().count { filter.matches(it) }
+        international().count(scopeOf(filter))
+
+    /**
+     * 국가 코드 → 대륙 코드. **나라 하나는 대륙 하나에만 올립니다.**
+     *
+     * 원본(OurAirports)은 대륙을 나라가 아니라 **공항마다** 붙입니다. 그래서 두 대륙에
+     * 걸친 나라는 양쪽 목록에 다 나타납니다. 아시아 칩에 이집트가 뜨던 게 이것 때문입니다 —
+     * 시나이반도의 샤름엘셰이크·타바·엘아리시가 AS로 되어 있어서였습니다.
+     * 스페인(카나리아·세우타 → AF), 그리스(로도스·코스 → AS), 미국(괌·사모아 → OC),
+     * 콜롬비아·베네수엘라(카리브 섬 → NA)도 같은 이유로 두 곳에 뜹니다.
+     *
+     * 공항이 많은 쪽을 그 나라의 대륙으로 삼습니다. 위 다섯 나라는 이것만으로 답이 나옵니다.
+     * 러시아와 튀르키예는 공항 수로는 아시아가 많지만 [CONTINENT_OVERRIDES]에서 유럽으로
+     * 못 박았습니다 — 두 곳 다 VATSIM 유럽 리전 소속이라 관제소를 찾는 사람은 유럽에서 찾습니다.
+     */
+    private suspend fun continentByCountry(): Map<String, String> =
+        continentCache ?: withContext(Dispatchers.Default) {
+            val majority = international()
+                .groupBy { it.country }
+                .mapValues { (_, group) ->
+                    group.groupingBy { it.continent }.eachCount().maxByOrNull { it.value }!!.key
+                }
+            (majority + CONTINENT_OVERRIDES.filterKeys { it in majority })
+                .also { continentCache = it }
+        }
+
+    /**
+     * 범위 판정을 미리 한 번 만들어 둡니다.
+     *
+     * [RouteFilter.matches]를 쓰지 않는 이유는 그쪽이 공항에 붙은 대륙을 그대로 보기 때문입니다.
+     * 나라를 대륙 하나에 못 박은 이상, 스페인을 유럽에 놓았으면 카나리아 공항도 유럽에서
+     * 나와야 합니다 — 아프리카를 골랐다고 스페인 공항이 섞여 나오면 목록이 어긋납니다.
+     */
+    private suspend fun scopeOf(filter: RouteFilter): (Airport) -> Boolean {
+        if (filter.country != null) return { it.country == filter.country }
+        val continent = filter.continent ?: return { true }
+        val byCountry = continentByCountry()
+        return { (byCountry[it.country] ?: it.continent) == continent }
+    }
 
     /**
      * ICAO 접두사 → 국가 코드.
@@ -181,16 +223,28 @@ class AirportRepository(
     /** 알림 등록용 공항 목록. */
     suspend fun airportsIn(continent: String?, country: String?): List<Airport> =
         international()
-            .filter { country != null && it.country == country || country == null && (continent == null || it.continent == continent) }
+            .filter(scopeOf(RouteFilter(continent = continent, country = country)))
             .sortedBy { it.name }
 
     /** 국제공항이 있는 나라만 목록에 올립니다 (코드 -> 표시 이름). */
-    suspend fun countries(continent: String?): List<Pair<String, String>> =
-        international()
-            .filter { continent == null || it.continent == continent }
+    suspend fun countries(continent: String?): List<Pair<String, String>> {
+        val byCountry = continentByCountry()
+        return international()
+            .filter { continent == null || byCountry[it.country] == continent }
             .distinctBy { it.country }
             .map { it.country to it.countryName }
             .sortedBy { it.second }
+    }
+
+    /**
+     * 이 나라의 공항 전부 — 국제공항급이 아닌 곳까지.
+     *
+     * 관제 콜사인 앞머리를 되짚는 데 씁니다. 접근관제석이 붙는 공항이 늘 국제공항급인 건
+     * 아니어서(군 비행장, 지방 공항) 국제공항 목록만 보면 후보가 통째로 빠집니다.
+     */
+    suspend fun airportsInCountry(country: String): List<Airport> = withContext(Dispatchers.IO) {
+        dao.airportsInCountry(country).map { it.toDomain() }
+    }
 
     suspend fun find(icao: String): Airport? = withContext(Dispatchers.IO) {
         dao.findByIcao(icao.uppercase())?.toDomain()
@@ -209,6 +263,18 @@ class AirportRepository(
 
     private companion object {
         const val MAX_ATTEMPTS = 40
+
+        /**
+         * 공항 수만으로는 답이 갈리는 나라.
+         *
+         * 러시아는 아시아 쪽 공항이 71곳, 유럽 쪽이 41곳이고 튀르키예는 43대 2입니다.
+         * 그래도 둘 다 유럽에 둡니다 — VATSIM에서 두 나라 모두 유럽 리전 소속이라
+         * 모스크바나 이스탄불 관제소를 찾는 사람은 유럽 칩을 누릅니다.
+         */
+        val CONTINENT_OVERRIDES = mapOf(
+            "RU" to "EU",
+            "TR" to "EU"
+        )
     }
 }
 
