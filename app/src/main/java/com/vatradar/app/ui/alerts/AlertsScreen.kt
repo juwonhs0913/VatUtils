@@ -115,6 +115,12 @@ class AlertsViewModel(app: Application) : AndroidViewModel(app) {
             )
             applyFilter()
         }
+        // 관제석 목록 갱신은 따로 돕니다. 화면은 APK에 든 시드로 먼저 그려지고,
+        // 새로 받은 것이 다르면 그때 다시 그립니다. 이걸 applyFilter 안에 두었을 때는
+        // 후보 목록 전체가 내려받기가 끝날 때까지 빈 채로 있었습니다.
+        viewModelScope.launch {
+            if (positionRegistry.refresh()) applyFilter()
+        }
     }
 
     fun addWatched(v: String) = viewModelScope.launch {

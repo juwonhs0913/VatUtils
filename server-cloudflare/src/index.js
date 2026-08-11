@@ -44,7 +44,9 @@ async function runRepeatedly(env) {
   for (let i = 0; i < CHECKS_PER_RUN; i++) {
     if (i > 0) await sleep(CHECK_INTERVAL_MS);
     try {
-      await run(env);
+      // 예약 목록은 한 번 깨어날 때 한 번만 봅니다. 20초 사이에 달라질 것이
+      // 없는데 남의 API를 세 번 두드릴 이유가 없습니다.
+      await run(env, { bookings: i === 0 });
     } catch (error) {
       // 한 번 실패해도 남은 확인은 계속합니다. 다음 cron까지 1분을 통째로
       // 날리는 것보다 낫습니다.
@@ -107,7 +109,7 @@ export default {
   },
 };
 
-async function run(env) {
+async function run(env, options = {}) {
   const feed = await fetchFeed();
   const online = onlineControllers(feed);
   // 챌린지 완주 감시. 피드를 이미 받았으므로 추가 요청이 없습니다.
@@ -130,9 +132,18 @@ async function run(env) {
   await saveState(env, online);
   const recorded = await recordPositions(env, online, newlyOnline);
   const harvested = await harvestPositions(env, feed.controllers || []);
+  const booked = options.bookings === false ? 0 : await harvestBookings(env);
 
   if (newlyOnline.length === 0) {
-    return { online: online.length, notified: 0, watchCompleted, logged, recorded, harvested };
+    return {
+      online: online.length,
+      notified: 0,
+      watchCompleted,
+      logged,
+      recorded,
+      harvested,
+      booked,
+    };
   }
 
   const accessToken = accessTokenForWatch;
@@ -171,6 +182,7 @@ async function run(env) {
     logged,
     recorded,
     harvested,
+    booked,
   };
 }
 
@@ -250,6 +262,49 @@ async function harvestPositions(env, controllers) {
   );
   await env.DB.batch(callsigns.map((c) => statement.bind(c, now, now)));
   return callsigns.length;
+}
+
+/**
+ * 예약된 관제 일정에서도 관제석 이름을 줍습니다.
+ *
+ * 접속을 지켜보는 것만으로는 **드물게 열리는 자리**가 오래 안 잡힙니다. 한 달에 한 번
+ * 이벤트 때만 열리는 관제석이 그렇습니다. VATSIM의 예약 API는 인증 없이 열려 있고
+ * 앞으로 열릴 자리의 콜사인을 미리 알려 주므로, 그 자리가 실제로 열리기 전에 목록에
+ * 들어옵니다.
+ *
+ * 한 주기에 요청 한 번이고 대부분 이미 아는 콜사인이라 쓰기는 거의 일어나지 않습니다.
+ */
+async function harvestBookings(env) {
+  let bookings;
+  try {
+    const response = await fetch('https://atc-bookings.vatsim.net/api/booking', {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'VATFlight/1.0 (position registry)',
+      },
+    });
+    if (!response.ok) throw new Error(`응답 오류: ${response.status}`);
+    bookings = await response.json();
+  } catch (error) {
+    console.warn(`예약 목록 조회 실패: ${error}`);
+    return 0;
+  }
+
+  const found = new Set();
+  for (const booking of Array.isArray(bookings) ? bookings : []) {
+    const callsign = String(booking.callsign || '').toUpperCase();
+    if (!callsign || callsign.endsWith('_OBS') || callsign.endsWith('_SUP')) continue;
+    found.add(callsign);
+  }
+  if (found.size === 0) return 0;
+
+  const now = Math.floor(Date.now() / 1000);
+  const statement = env.DB.prepare(
+    `INSERT INTO positions (callsign, first_seen, last_seen) VALUES (?, ?, ?)
+     ON CONFLICT(callsign) DO NOTHING`
+  );
+  await env.DB.batch([...found].map((c) => statement.bind(c, now, now)));
+  return found.size;
 }
 
 async function fetchSessionCallsigns(cid) {
